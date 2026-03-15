@@ -28,11 +28,18 @@ export default async function TownDetailPage({
   return (
     <main className="container-app py-14 md:py-20">
       <div className="max-w-5xl space-y-8">
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p className="eyebrow">{town.district}</p>
-          <h1 className="text-4xl font-semibold">{town.name}</h1>
+          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{town.name}</h1>
           <p className="text-lg text-[var(--forest)]">{town.archetype}</p>
           <p className="max-w-3xl text-base leading-8 text-[var(--muted)]">{town.summary}</p>
+          <div className="flex flex-wrap gap-2">
+            {town.vibe.map((tag) => (
+              <span key={tag} className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]">
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[0.7fr_1.3fr]">
@@ -114,6 +121,17 @@ export default async function TownDetailPage({
               <div className="card p-6">
                 <p className="eyebrow">Practical reality</p>
                 <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.practicalReality}</p>
+              </div>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="card p-6">
+                <p className="eyebrow">Stay notes</p>
+                <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.stayNotes}</p>
+              </div>
+              <div className="card p-6">
+                <p className="eyebrow">Local feel</p>
+                <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.localFeel}</p>
               </div>
             </div>
 

@@ -9,6 +9,8 @@ export type Town = {
   notIdealFor: string[];
   remoteWorkReality: string;
   practicalReality: string;
+  stayNotes: string;
+  localFeel: string;
   budget: "tight" | "moderate" | "comfortable" | "premium";
   affordability: number;
   remoteWork: number;
@@ -38,6 +40,8 @@ export const towns: Town[] = [
     notIdealFor: ["families needing stability", "people wanting deep quiet", "very access-sensitive users"],
     remoteWorkReality: "Bir works best when you want a lively remote-work rhythm, casual social overlap, and don’t mind some transience around you.",
     practicalReality: "It feels inspiring fast, but that same energy can make it less grounded for people trying to settle into a stable long routine.",
+    stayNotes: "Best for shorter experiments or medium-length stays where social overlap and momentum matter more than long-term rootedness.",
+    localFeel: "Bir feels open, light, and socially porous — good if you want movement, less ideal if you want settled stillness.",
     budget: "moderate",
     affordability: 3,
     remoteWork: 4,
@@ -65,6 +69,8 @@ export const towns: Town[] = [
     notIdealFor: ["people needing total quiet", "users chasing very low costs", "those wanting a tiny-town feel"],
     remoteWorkReality: "Dharamshala is one of the more balanced bets if you need reasonable access, enough movement, and a place that can support actual work rhythm.",
     practicalReality: "It offers more real-life balance than the dreamier towns, but that also means living with more movement and unevenness.",
+    stayNotes: "Works well for medium to long stays when you want a mountain base that still feels reasonably connected and functional.",
+    localFeel: "Dharamshala feels layered — part practical hill town, part visible cultural hub, part long-stay compromise.",
     budget: "moderate",
     affordability: 3,
     remoteWork: 4,
@@ -92,6 +98,8 @@ export const towns: Town[] = [
     notIdealFor: ["quiet-focused users", "long-term family settling", "people sensitive to tourism"],
     remoteWorkReality: "You can work from here, but the environment pulls more toward stimulation and movement than deep consistency.",
     practicalReality: "What makes McLeodganj interesting also makes it noisy, visible, and less stable as a low-friction base.",
+    stayNotes: "Best approached as a culturally rich phase or short chapter rather than the obvious answer for calm, durable daily living.",
+    localFeel: "McLeodganj feels vivid, crowded, spiritually visible, and socially alive — rarely neutral, never sleepy.",
     budget: "comfortable",
     affordability: 2,
     remoteWork: 3,
@@ -119,6 +127,8 @@ export const towns: Town[] = [
     notIdealFor: ["people wanting buzz", "fast social churn", "high-energy short stays"],
     remoteWorkReality: "Palampur suits people who want work to sit inside a steadier life, not inside a constantly stimulating scene.",
     practicalReality: "It feels more like somewhere you could build a routine than somewhere you’re constantly performing mountain life.",
+    stayNotes: "Strong option for medium to long stays, especially if you care about peace, habit, and lower background noise.",
+    localFeel: "Palampur feels greener, softer, and more lived-in than many towns people first romanticize from afar.",
     budget: "moderate",
     affordability: 4,
     remoteWork: 3,
@@ -146,6 +156,8 @@ export const towns: Town[] = [
     notIdealFor: ["people chasing stillness", "very budget-sensitive users", "tiny-town romantics"],
     remoteWorkReality: "Shimla is one of the safer choices when you care about infrastructure, consistency, and being able to handle everyday life without too much friction.",
     practicalReality: "It gives you more city-like utility inside the hills, which is useful — but it also means more crowd, cost, and structure.",
+    stayNotes: "Best for users who are optimizing for long-term practicality, institutions, access, and a stronger everyday support layer.",
+    localFeel: "Shimla feels more like a working hill city than an escape fantasy — structured, useful, and busier than the dream version in people’s heads.",
     budget: "comfortable",
     affordability: 2,
     remoteWork: 4,
@@ -173,6 +185,8 @@ export const towns: Town[] = [
     notIdealFor: ["people seeking strong mountain romance", "social-scene seekers", "short-stay dreamers"],
     remoteWorkReality: "Solan is attractive when reliability and reach matter more than an aestheticized mountain identity.",
     practicalReality: "It may not trigger fantasy, but it often makes more sense once you start thinking about daily life instead of visuals.",
+    stayNotes: "Strong choice for longer stays when you want a useful base with easier access and fewer romantic illusions to maintain.",
+    localFeel: "Solan feels understated, functional, and easier to inhabit than to mythologize.",
     budget: "moderate",
     affordability: 4,
     remoteWork: 4,
@@ -200,6 +214,8 @@ export const towns: Town[] = [
     notIdealFor: ["people wanting calm", "budget-sensitive movers", "low-friction long stays"],
     remoteWorkReality: "Manali can work if you accept the chaos as part of the deal, but it’s rarely the most grounded answer for steady deep work.",
     practicalReality: "It is often better as an exciting chapter than as the simplest long-term base.",
+    stayNotes: "Best for shorter, visually rich phases unless you already know you can tolerate the seasonal pressure and tourist churn.",
+    localFeel: "Manali feels dramatic, visible, and high-intensity — exciting, but rarely neutral.",
     budget: "comfortable",
     affordability: 2,
     remoteWork: 3,
@@ -227,6 +243,8 @@ export const towns: Town[] = [
     notIdealFor: ["people needing easy access", "family practicality", "strong convenience seekers"],
     remoteWorkReality: "Naggar fits people who can trade some convenience for atmosphere, calm, and a more contemplative environment.",
     practicalReality: "It rewards people who genuinely want slower living; it frustrates people who secretly want easy logistics.",
+    stayNotes: "Works best for slower medium-length stays or reflective phases where peace matters more than convenience.",
+    localFeel: "Naggar feels quiet, scenic, and inward-facing — more retreat than hub.",
     budget: "moderate",
     affordability: 3,
     remoteWork: 2,

@@ -68,21 +68,33 @@ export default async function ResultsPage({
 
         <div className="grid gap-5 lg:grid-cols-3">
           {top.map((town, index) => (
-            <article key={town.slug} className="card p-6">
+            <article key={town.slug} className="card relative overflow-hidden p-6">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
               <p className="text-sm font-semibold text-[var(--forest)]">Top match #{index + 1}</p>
-              <h2 className="mt-2 text-2xl font-semibold">{town.name}</h2>
-              <p className="mt-1 text-sm text-[var(--forest)]">{town.archetype}</p>
+              <div className="mt-3 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">{town.name}</h2>
+                  <p className="mt-1 text-sm text-[var(--forest)]">{town.archetype}</p>
+                </div>
+                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                  Score {town.score}
+                </span>
+              </div>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{buildReason(town.name, answers)}</p>
-              <div className="mt-5 space-y-2 text-sm text-[var(--muted)]">
+              <div className="mt-5 space-y-3 text-sm text-[var(--muted)]">
                 <p>
                   <span className="font-semibold text-[var(--foreground)]">Why it fits:</span> {town.summary}
                 </p>
                 <p>
                   <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span> {town.tradeoff}
                 </p>
-                <p>
-                  <span className="font-semibold text-[var(--foreground)]">Score:</span> {town.score}
-                </p>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {town.goodFor.slice(0, 3).map((item) => (
+                  <span key={item} className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]">
+                    {item}
+                  </span>
+                ))}
               </div>
               <Link href={`/towns/${town.slug}`} className="mt-6 inline-block text-sm font-semibold text-[var(--accent)]">
                 View town profile
@@ -95,7 +107,7 @@ export default async function ResultsPage({
           <p className="eyebrow">Backup options</p>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {backups.map((town) => (
-              <Link key={town.slug} href={`/towns/${town.slug}`} className="rounded-2xl border border-[var(--line)] p-5">
+              <Link key={town.slug} href={`/towns/${town.slug}`} className="rounded-2xl border border-[var(--line)] p-5 transition hover:bg-[rgba(255,255,255,0.35)]">
                 <h3 className="text-xl font-semibold">{town.name}</h3>
                 <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{town.tradeoff}</p>
               </Link>

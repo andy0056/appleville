@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { CompareGrid } from "@/components/compare-grid";
+import { CompareSelector } from "@/components/compare-selector";
+import { towns } from "@/lib/towns";
 
 const fallbackSlugs = ["palampur", "dharamshala", "solan"];
 
@@ -23,10 +25,11 @@ export default async function ComparePage({
           <p className="eyebrow">Compare</p>
           <h1 className="text-4xl font-semibold">Compare likely base options side by side</h1>
           <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">
-            This page now supports comparing selected towns through the URL. If
-            no towns are provided, it falls back to a sensible starter set.
+            Compare towns from your result shortlist or build your own side-by-side view.
           </p>
         </div>
+
+        <CompareSelector towns={towns} initialSelected={selectedSlugs.slice(0, 4)} />
 
         <CompareGrid slugs={selectedSlugs.slice(0, 4)} />
 
