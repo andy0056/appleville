@@ -1,37 +1,27 @@
-const guides = [
-  {
-    title: "Vacation town vs real-life base in Himachal",
-    summary: "Why the place you love for a week may not be the place you want for six months.",
-  },
-  {
-    title: "Bir vs Dharamshala vs Palampur",
-    summary: "A practical comparison of three very different rhythms of mountain life.",
-  },
-  {
-    title: "What people underestimate about moving to Himachal",
-    summary: "A grounded look at access, work friction, seasonality, and expectations.",
-  },
-];
+import Link from "next/link";
+import { SectionHeading } from "@/components/section-heading";
+import { guides } from "@/lib/guides";
 
 export default function GuidesPage() {
   return (
     <main className="container-app py-14 md:py-20">
       <div className="space-y-8">
-        <div className="space-y-3">
-          <p className="eyebrow">Guides</p>
-          <h1 className="text-4xl font-semibold">Practical guidance, not mountain fantasy</h1>
-          <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">
-            This section will become the editorial layer that helps people make
-            more grounded decisions about life in Himachal.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Guides"
+          title="Practical guidance, not mountain fantasy"
+          body="A small editorial layer to help people make more grounded decisions about life in Himachal."
+        />
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {guides.map((guide) => (
-            <article key={guide.title} className="card p-6">
-              <h2 className="text-2xl font-semibold">{guide.title}</h2>
+            <Link key={guide.slug} href={`/guides/${guide.slug}`} className="card p-6 transition hover:-translate-y-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                {guide.category}
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold">{guide.title}</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{guide.summary}</p>
-            </article>
+              <span className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]">Read guide →</span>
+            </Link>
           ))}
         </div>
       </div>

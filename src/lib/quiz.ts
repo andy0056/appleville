@@ -212,36 +212,47 @@ export function hasCompleteQuizAnswers(answers: QuizAnswers) {
 }
 
 export function buildReason(townName: string, answers?: QuizAnswers) {
-  const lines: string[] = [];
+  const fitSignals: string[] = [];
+  const cautionSignals: string[] = [];
 
   if (answers?.pace === "quiet") {
-    lines.push("you leaned toward a quieter day-to-day rhythm");
+    fitSignals.push("you leaned toward a quieter day-to-day rhythm");
   } else if (answers?.pace === "energy") {
-    lines.push("you seem comfortable with more movement and social energy");
+    fitSignals.push("you seem comfortable with more movement and social energy");
   } else if (answers?.pace === "balanced") {
-    lines.push("you appear to want balance rather than extremes");
+    fitSignals.push("you appear to want balance rather than extremes");
   }
 
   if (answers?.priority === "remote") {
-    lines.push("remote-work practicality matters a lot to you");
+    fitSignals.push("remote-work practicality matters a lot to you");
   } else if (answers?.priority === "practical") {
-    lines.push("you’re optimizing for real-life usability over fantasy");
+    fitSignals.push("you’re optimizing for real-life usability over fantasy");
   } else if (answers?.priority === "beauty") {
-    lines.push("beauty and atmosphere are clearly important in your decision");
+    fitSignals.push("beauty and atmosphere are clearly important in your decision");
   } else if (answers?.priority === "family") {
-    lines.push("family comfort and access are central to your choice");
+    fitSignals.push("family comfort and access are central to your choice");
   }
 
   if (answers?.optimizeFor === "home-base") {
-    lines.push("you’re looking for somewhere that can function as a real base, not just a nice phase");
+    fitSignals.push("you’re looking for somewhere that can function as a real base, not just a nice phase");
   } else if (answers?.optimizeFor === "deep-work") {
-    lines.push("you’re trying to protect peace and focus");
+    fitSignals.push("you’re trying to protect peace and focus");
   } else if (answers?.optimizeFor === "inspiration") {
-    lines.push("inspiration and emotional pull matter in the choice");
+    fitSignals.push("inspiration and emotional pull matter in the choice");
   }
 
-  const prefix = lines.length
-    ? `This fit looks strong because ${lines.slice(0, 2).join(" and ")}.`
+  if (answers?.tourismTolerance === "low") {
+    cautionSignals.push("you may have a lower tolerance for heavy tourist energy");
+  }
+  if (answers?.access === "very") {
+    cautionSignals.push("easy access and logistics seem important to you");
+  }
+  if (answers?.budget === "tight") {
+    cautionSignals.push("budget discipline is probably part of the decision");
+  }
+
+  const prefix = fitSignals.length
+    ? `This fit looks strong because ${fitSignals.slice(0, 2).join(" and ")}.`
     : "This fit looks strong based on the preferences you selected.";
 
   const townSpecific: Record<string, string> = {
@@ -262,5 +273,9 @@ export function buildReason(townName: string, answers?: QuizAnswers) {
       "McLeodganj works better for people who enjoy visible social/cultural energy and can tolerate tourist activity.",
   };
 
-  return `${prefix} ${townSpecific[townName] ?? "This town aligns well with the priorities you selected in the quiz."}`;
+  const caution = cautionSignals.length
+    ? `One thing to keep in mind: ${cautionSignals[0]}.`
+    : "";
+
+  return `${prefix} ${townSpecific[townName] ?? "This town aligns well with the priorities you selected in the quiz."} ${caution}`.trim();
 }

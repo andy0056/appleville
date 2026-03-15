@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTownBySlug } from "@/lib/towns";
+import { getTownBySlug, Town } from "@/lib/towns";
 
 const rows = [
   { key: "remoteWork", label: "Remote work" },
@@ -11,7 +11,9 @@ const rows = [
 ] as const;
 
 export function CompareGrid({ slugs }: { slugs: string[] }) {
-  const selected = slugs.map((slug) => getTownBySlug(slug)).filter(Boolean);
+  const selected: Town[] = slugs
+    .map((slug) => getTownBySlug(slug))
+    .filter((town): town is Town => Boolean(town));
 
   if (selected.length < 2) {
     return (
