@@ -56,19 +56,19 @@ export default async function ResultsPage({
 
   return (
     <main className="container-app py-14 md:py-20">
-      <div className="max-w-5xl space-y-8">
+      <div className="max-w-5xl space-y-6 md:space-y-8">
         <div className="space-y-3">
           <p className="eyebrow">Results</p>
-          <h1 className="text-4xl font-semibold">Your best-fit Himachal towns</h1>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Your best-fit Himachal towns</h1>
           <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">
             These matches are based on your priorities around pace, access,
             remote-work fit, budget, and long-stay practicality.
           </p>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           {top.map((town, index) => (
-            <article key={town.slug} className="card relative overflow-hidden p-6">
+            <article key={town.slug} className="card relative overflow-hidden p-5 md:p-6">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
               <p className="text-sm font-semibold text-[var(--forest)]">Top match #{index + 1}</p>
               <div className="mt-3 flex items-start justify-between gap-4">
@@ -76,7 +76,7 @@ export default async function ResultsPage({
                   <h2 className="text-2xl font-semibold">{town.name}</h2>
                   <p className="mt-1 text-sm text-[var(--forest)]">{town.archetype}</p>
                 </div>
-                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
                   Score {town.score}
                 </span>
               </div>
@@ -115,7 +115,7 @@ export default async function ResultsPage({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
           <Link
             href={`/compare?towns=${top.map((town) => town.slug).join(",")}`}
             className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white"

@@ -51,10 +51,30 @@ export function QuizForm() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-      <section className="card p-6 md:p-8">
+      <aside className="order-2 card p-5 lg:order-2 md:p-8">
+        <p className="eyebrow">Your answers so far</p>
+        {summary.length === 0 ? (
+          <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+            Start answering and your decision profile will build here.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {summary.map((item) => (
+              <div key={item.label} className="border-b border-[var(--line)] pb-4 last:border-b-0 last:pb-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                  {item.label}
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </aside>
+
+      <section className="order-1 card p-5 md:p-8 lg:order-1">
         <div className="space-y-6">
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-[var(--muted)]">
+            <div className="flex items-center justify-between text-xs text-[var(--muted)] md:text-sm">
               <span>
                 Question {step + 1} of {totalQuestions}
               </span>
@@ -70,7 +90,7 @@ export function QuizForm() {
 
           <div className="space-y-3">
             <p className="eyebrow">Current question</p>
-            <h2 className="text-2xl font-semibold md:text-3xl">{question.label}</h2>
+            <h2 className="text-xl font-semibold leading-tight md:text-3xl">{question.label}</h2>
           </div>
 
           <div className="grid gap-3">
@@ -81,7 +101,7 @@ export function QuizForm() {
                   key={option.value}
                   type="button"
                   onClick={() => handleSelect(question.key, option.value)}
-                  className={`rounded-2xl border px-4 py-4 text-left text-sm transition md:px-5 md:py-5 md:text-base ${
+                  className={`rounded-2xl border px-4 py-4 text-left text-sm leading-6 transition md:px-5 md:py-5 md:text-base ${
                     isActive
                       ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
                       : "border-[var(--line)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--accent)]/50"
@@ -93,7 +113,7 @@ export function QuizForm() {
             })}
           </div>
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="grid gap-3 pt-2 sm:flex sm:flex-wrap">
             <button
               type="button"
               onClick={handleBack}
@@ -113,26 +133,6 @@ export function QuizForm() {
           </div>
         </div>
       </section>
-
-      <aside className="card p-6 md:p-8">
-        <p className="eyebrow">Your answers so far</p>
-        {summary.length === 0 ? (
-          <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-            Start answering and your decision profile will build here.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-4">
-            {summary.map((item) => (
-              <div key={item.label} className="border-b border-[var(--line)] pb-4 last:border-b-0 last:pb-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
-                  {item.label}
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{item.value}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </aside>
     </div>
   );
 }

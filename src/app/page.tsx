@@ -8,34 +8,39 @@ const featured = towns.slice(0, 6);
 export default function Home() {
   return (
     <main>
-      <section className="container-app py-16 md:py-24">
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div className="space-y-7">
-            <div className="inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-sm text-[var(--forest)] shadow-sm">
+      <section className="container-app py-12 md:py-24">
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+          <div className="space-y-6 md:space-y-7">
+            <div className="inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-xs font-medium text-[var(--forest)] shadow-sm md:text-sm">
               Build Your Life in Himachal
             </div>
-            <div className="space-y-5">
-              <h1 className="max-w-4xl text-4xl font-semibold leading-tight tracking-tight md:text-6xl">
+            <div className="space-y-4 md:space-y-5">
+              <h1 className="max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-6xl">
                 Find the right place in Himachal to live and work.
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-[var(--muted)] md:text-xl">
+              <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:text-xl md:leading-8">
                 A practical, calmer guide for choosing the Himachal town that fits
                 your lifestyle, budget, and remote-work needs.
               </p>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
               <Link
                 href="/quiz"
-                className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white shadow-sm"
+                className="rounded-full bg-[var(--accent)] px-6 py-3 text-center text-sm font-semibold text-white shadow-sm"
               >
                 Find your Himachal match
               </Link>
               <Link
                 href="/towns"
-                className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-sm font-semibold"
+                className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-center text-sm font-semibold"
               >
                 Explore towns
               </Link>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-[var(--muted)] sm:text-sm">
+              <span className="rounded-full bg-[rgba(255,255,255,0.45)] px-3 py-1">Mobile-friendly quiz</span>
+              <span className="rounded-full bg-[rgba(255,255,255,0.45)] px-3 py-1">Town comparisons</span>
+              <span className="rounded-full bg-[rgba(255,255,255,0.45)] px-3 py-1">Practical guidance</span>
             </div>
             <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
               Not a travel blog. Not random reels. A more grounded way to decide
