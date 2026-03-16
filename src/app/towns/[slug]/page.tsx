@@ -43,23 +43,43 @@ export default async function TownDetailPage({
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[0.7fr_1.3fr]">
-          <aside className="card p-6">
-            <p className="eyebrow">Snapshot</p>
-            <div className="mt-5 space-y-4">
-              {metrics.map(([label, value]) => (
-                <div key={label as string}>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span>{label}</span>
-                    <span className="text-[var(--muted)]">{value}/5</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[var(--accent-soft)]">
-                    <div
-                      className="h-2 rounded-full bg-[var(--accent)]"
-                      style={{ width: `${(Number(value) / 5) * 100}%` }}
-                    />
-                  </div>
+          <aside className="space-y-5">
+            <div className="card p-6">
+              <p className="eyebrow">Quick read</p>
+              <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--muted)]">
+                <div>
+                  <p className="font-semibold text-[var(--foreground)]">Best for</p>
+                  <p>{town.goodFor.slice(0, 3).join(", ")}</p>
                 </div>
-              ))}
+                <div>
+                  <p className="font-semibold text-[var(--foreground)]">Avoid if</p>
+                  <p>{town.notIdealFor.slice(0, 2).join(", ")}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-[var(--foreground)]">Why people choose it</p>
+                  <p>{town.localFeel}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card p-6">
+              <p className="eyebrow">Snapshot</p>
+              <div className="mt-5 space-y-4">
+                {metrics.map(([label, value]) => (
+                  <div key={label as string}>
+                    <div className="mb-2 flex items-center justify-between text-sm">
+                      <span>{label}</span>
+                      <span className="text-[var(--muted)]">{value}/5</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-[var(--accent-soft)]">
+                      <div
+                        className="h-2 rounded-full bg-[var(--accent)]"
+                        style={{ width: `${(Number(value) / 5) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </aside>
 
