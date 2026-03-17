@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Town } from "@/lib/towns";
 
@@ -7,6 +8,17 @@ export function TownCard({ town }: { town: Town }) {
       href={`/towns/${town.slug}`}
       className="group card relative overflow-hidden p-6 transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(82,98,77,0.08)]"
     >
+      <div className="-mx-6 -mt-6 mb-5 overflow-hidden border-b border-[var(--line)] bg-[rgba(234,215,191,0.25)]">
+        <div className="relative aspect-[4/3]">
+          <Image
+            src={town.image.src}
+            alt={town.image.alt}
+            fill
+            sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
+            className="object-cover transition duration-300 group-hover:scale-[1.03]"
+          />
+        </div>
+      </div>
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] via-[var(--forest)] to-[var(--accent-soft)] opacity-80" />
       <div className="flex items-start justify-between gap-4">
         <div>

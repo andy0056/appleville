@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTownBySlug, towns } from "@/lib/towns";
@@ -28,23 +29,54 @@ export default async function TownDetailPage({
   return (
     <main className="container-app py-12 md:py-16">
       <div className="max-w-6xl space-y-8 md:space-y-10">
-        <div className="space-y-4 md:space-y-5">
-          <p className="eyebrow">{town.district}</p>
-          <div className="space-y-2">
-            <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{town.name}</h1>
-            <p className="text-base text-[var(--forest)] md:text-lg">{town.archetype}</p>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:items-start">
+          <div className="space-y-4 md:space-y-5">
+            <p className="eyebrow">{town.district}</p>
+            <div className="space-y-2">
+              <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{town.name}</h1>
+              <p className="text-base text-[var(--forest)] md:text-lg">{town.archetype}</p>
+            </div>
+            <p className="max-w-3xl text-base leading-7 text-[var(--muted)] md:text-lg md:leading-8">
+              {town.summary}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {town.vibe.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.45)] px-3 py-1 text-xs text-[var(--muted)]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
-          <p className="max-w-3xl text-base leading-7 text-[var(--muted)] md:text-lg md:leading-8">{town.summary}</p>
-          <div className="flex flex-wrap gap-2">
-            {town.vibe.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.45)] px-3 py-1 text-xs text-[var(--muted)]"
+
+          <figure className="space-y-3">
+            <div className="card overflow-hidden">
+              <div className="relative aspect-[4/3]">
+                <Image
+                  src={town.image.src}
+                  alt={town.image.alt}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 42vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <figcaption className="px-1 text-xs leading-6 text-[var(--muted)]">
+              Photo by{" "}
+              <a
+                href={town.image.attribution.href}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[var(--accent)] underline-offset-4 hover:underline"
               >
-                {tag}
-              </span>
-            ))}
-          </div>
+                {town.image.attribution.author} / Wikimedia Commons
+              </a>{" "}
+              ({town.image.attribution.license})
+            </figcaption>
+          </figure>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-start">

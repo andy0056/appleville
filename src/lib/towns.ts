@@ -1,9 +1,22 @@
+export type TownImageAttribution = {
+  author: string;
+  href: string;
+  license: string;
+};
+
+export type TownImage = {
+  src: string;
+  alt: string;
+  attribution: TownImageAttribution;
+};
+
 export type Town = {
   slug: string;
   name: string;
   district: string;
   archetype: string;
   summary: string;
+  image: TownImage;
   vibe: string[];
   goodFor: string[];
   notIdealFor: string[];
@@ -25,6 +38,9 @@ export type Town = {
   tradeoff: string;
 };
 
+const commonsFile = (fileName: string) =>
+  `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(fileName)}`;
+
 export const towns: Town[] = [
   {
     slug: "bir",
@@ -33,6 +49,15 @@ export const towns: Town[] = [
     archetype: "Creative / remote / airy",
     summary:
       "Bir suits people who want a lighter, more social mountain chapter: plenty of visual pull, a steady trickle of visitors, and an easier on-ramp to remote life than quieter towns nearby.",
+    image: {
+      src: "/images/towns/bir.jpg",
+      alt: "Paraglider above the Bir Billing landing area with low hills in late light",
+      attribution: {
+        author: "Nitinnn",
+        href: commonsFile("Bir-Billing.jpg"),
+        license: "CC BY-SA 4.0",
+      },
+    },
     vibe: ["creative", "airy", "youthful", "active"],
     goodFor: ["solo remote workers", "creators who like social overlap", "1-3 month tests", "people okay with seasonal buzz"],
     notIdealFor: ["families wanting steadier infrastructure", "people seeking deep quiet", "users who want a fully rooted local feel"],
@@ -60,6 +85,15 @@ export const towns: Town[] = [
     archetype: "Balanced / visible / layered",
     summary:
       "Dharamshala is one of the easier all-rounders in this set: more services and institutions than quieter towns, but still enough mountain atmosphere to feel like a real change of pace.",
+    image: {
+      src: "/images/towns/dharamshala.jpg",
+      alt: "View over Dharamshala rooftops with the Dhauladhar range behind",
+      attribution: {
+        author: "Gerd Eichmann",
+        href: commonsFile("BirG001-Dharamsala.jpg"),
+        license: "CC BY-SA 4.0",
+      },
+    },
     vibe: ["balanced", "layered", "visible", "practical"],
     goodFor: ["people who want balance", "couples and small families", "remote workers who need access", "longer stays without big-city density"],
     notIdealFor: ["people chasing silence", "ultra-tight budgets", "users who want one compact village feel"],
@@ -87,6 +121,15 @@ export const towns: Town[] = [
     archetype: "Social / spiritual / tourist-heavy",
     summary:
       "McLeodganj is the most visibly cultural and visitor-heavy option here: Tibetan institutions, cafés, classes, trekkers, and constant turnover in a compact hill setting.",
+    image: {
+      src: "/images/towns/mcleodganj.jpg",
+      alt: "White stupa and Tibetan prayer flags in McLeodganj",
+      attribution: {
+        author: "Artemas Liu",
+        href: commonsFile("Mcleodganj, Dharmsala (42286147660).jpg"),
+        license: "CC BY-SA 2.0",
+      },
+    },
     vibe: ["social", "spiritual", "touristy", "distinctive"],
     goodFor: ["short cultural stays", "people who like visible community", "socially curious remote workers", "users drawn to Tibetan and spiritual life"],
     notIdealFor: ["light-sleepers", "families seeking steadiness", "people sensitive to crowding"],
@@ -114,6 +157,15 @@ export const towns: Town[] = [
     archetype: "Grounded / green / long-stay friendly",
     summary:
       "Palampur is one of the clearest long-stay towns in this set: greener, quieter, and more everyday than the places people usually romanticize first.",
+    image: {
+      src: "/images/towns/palampur.jpg",
+      alt: "Snowy Dhauladhar peaks seen from Palampur",
+      attribution: {
+        author: "Gillimg",
+        href: commonsFile("PalampurView1.jpg"),
+        license: "CC BY-SA 4.0",
+      },
+    },
     vibe: ["green", "grounded", "slow", "steady"],
     goodFor: ["families", "deep-work routines", "returning Himachalis", "people testing slower long stays"],
     notIdealFor: ["people wanting instant social life", "short stays built around buzz", "users who need a big scene around them"],
@@ -141,6 +193,15 @@ export const towns: Town[] = [
     archetype: "Urban-hill / practical / connected",
     summary:
       "Shimla works more like a hill city than a retreat town: stronger institutions, more services, more traffic, and a fuller sense of everyday infrastructure.",
+    image: {
+      src: "/images/towns/shimla.jpg",
+      alt: "View of Shimla hillside buildings and Christ Church under a blue sky",
+      attribution: {
+        author: "Biswarup Ganguly",
+        href: commonsFile("View of Shimla.jpg"),
+        license: "CC BY-SA 3.0",
+      },
+    },
     vibe: ["urban-hill", "connected", "practical", "structured"],
     goodFor: ["families with access needs", "professionals who want predictability", "long stays with practical priorities", "people comfortable with urban hill life"],
     notIdealFor: ["people seeking calm mountain space", "tight-budget movers", "users who want a village-scale feel"],
@@ -168,6 +229,15 @@ export const towns: Town[] = [
     archetype: "Accessible / pragmatic / understated",
     summary:
       "Solan is the least romanticized option here, and that is exactly why it suits some people: easier access, fewer illusions, and a more straightforward daily-life base.",
+    image: {
+      src: "/images/towns/solan.jpg",
+      alt: "Layered hills outside Solan at sunset",
+      attribution: {
+        author: "Mayankgupta954",
+        href: commonsFile("The Lovely Solan Hills.jpg"),
+        license: "CC BY-SA 4.0",
+      },
+    },
     vibe: ["pragmatic", "understated", "accessible", "grounded"],
     goodFor: ["families who value connectivity", "returning professionals", "people splitting time with Chandigarh", "practical long-stay movers"],
     notIdealFor: ["people chasing strong mountain atmosphere", "users who want a creative scene", "short stays built around escape"],
@@ -195,6 +265,15 @@ export const towns: Town[] = [
     archetype: "Iconic / crowded / seasonal intensity",
     summary:
       "Manali is visually powerful and easy to imagine yourself in, but it is also one of the most tourism-shaped towns in this set.",
+    image: {
+      src: "/images/towns/manali.jpg",
+      alt: "Cedar forest and mountain slopes above Manali",
+      attribution: {
+        author: "Yuvaraj Gurjar",
+        href: commonsFile("Manali Himachal Pradesh.jpg"),
+        license: "CC BY-SA 4.0",
+      },
+    },
     vibe: ["iconic", "intense", "beautiful", "touristy"],
     goodFor: ["short high-energy stays", "people open to constant movement", "outdoor lovers who accept crowding", "users optimizing for scenery over routine"],
     notIdealFor: ["people seeking calm routines", "budget-sensitive long stays", "families wanting low-friction daily life"],
@@ -222,6 +301,15 @@ export const towns: Town[] = [
     archetype: "Scenic / quieter / slower",
     summary:
       "Naggar is a slower, more atmospheric alternative in the Kullu valley, better for people who want beauty and quiet than convenience or social density.",
+    image: {
+      src: "/images/towns/naggar.jpg",
+      alt: "Valley view and river bend near Naggar under cloud and light",
+      attribution: {
+        author: "Captain Skywalker",
+        href: commonsFile("View naggar.jpg"),
+        license: "CC BY-SA 4.0",
+      },
+    },
     vibe: ["poetic", "slow", "quiet", "scenic"],
     goodFor: ["quiet remote workers", "artists and reflective stays", "people choosing atmosphere over access", "slower medium-length stays"],
     notIdealFor: ["people needing fast errands and transport", "families wanting practical systems", "users who need strong social overlap"],
