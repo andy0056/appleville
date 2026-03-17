@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { buildPageMetadata } from "@/lib/metadata";
 import { getGuideBySlug, type Guide } from "@/lib/guides";
 import { getTownBySlug, towns, type Town } from "@/lib/towns";
@@ -65,6 +66,13 @@ export default async function TownDetailPage({
   return (
     <main className="container-app py-12 md:py-16">
       <div className="max-w-6xl space-y-8 md:space-y-10">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Towns", href: "/towns" },
+            { label: town.name },
+          ]}
+        />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:items-start">
           <div className="space-y-4 md:space-y-5">
             <p className="eyebrow">{town.district}</p>

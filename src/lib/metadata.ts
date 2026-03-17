@@ -29,7 +29,7 @@ export function buildPageMetadata({
   const fullTitle = `${title} | ${siteName}`;
 
   return {
-    title: fullTitle,
+    title,
     description,
     alternates: {
       canonical: pathname,

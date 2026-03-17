@@ -105,7 +105,7 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-5">
       <div
         className="motion-enter-fade card p-5 md:p-6"
         style={{ animationDuration: "200ms" }}

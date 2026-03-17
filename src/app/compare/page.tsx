@@ -56,8 +56,8 @@ export default async function ComparePage({
             <CompareGrid slugs={selectedSlugs.slice(0, 4)} />
 
             <div className="grid gap-3 sm:flex sm:flex-wrap">
-              <Link href="/results" className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white">
-                See your results
+              <Link href="/quiz" className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white">
+                Take the quiz
               </Link>
               <Link href="/towns" className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-sm font-semibold">
                 Browse all towns

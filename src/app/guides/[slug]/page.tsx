@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { buildPageMetadata } from "@/lib/metadata";
 import { getTownBySlug, type Town } from "@/lib/towns";
 import { getGuideBySlug, guides } from "@/lib/guides";
@@ -59,9 +60,13 @@ export default async function GuideDetailPage({
     <main className="container-app py-14 md:py-20">
       <article className="mx-auto max-w-4xl space-y-8">
         <div className="space-y-4">
-          <Link href="/guides" className="text-sm font-medium text-[var(--accent)]">
-            ← Back to guides
-          </Link>
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Guides", href: "/guides" },
+              { label: guide.title },
+            ]}
+          />
           <p className="eyebrow">{guide.category}</p>
           <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
             {guide.title}

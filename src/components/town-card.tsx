@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getTownCardHighlights, getTownMetricRow } from "@/lib/town-discovery";
 import { Town } from "@/lib/towns";
 
-export function TownCard({ town }: { town: Town }) {
+export function TownCard({ town, priority = false }: { town: Town; priority?: boolean }) {
   const highlights = getTownCardHighlights(town);
   const metrics = getTownMetricRow(town);
 
@@ -12,12 +12,13 @@ export function TownCard({ town }: { town: Town }) {
       href={`/towns/${town.slug}`}
       className="group hover-lift-soft card relative overflow-hidden p-6"
     >
-      <div className="-mx-6 -mt-6 mb-5 overflow-hidden border-b border-[var(--line)] bg-[rgba(234,215,191,0.25)]">
+      <div className="-mx-6 -mt-6 mb-4 overflow-hidden border-b border-[var(--line)] bg-[rgba(234,215,191,0.25)]">
         <div className="relative aspect-[4/3]">
           <Image
             src={town.image.src}
             alt={town.image.alt}
             fill
+            priority={priority}
             sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
             className="object-cover transition duration-300 group-hover:scale-[1.03]"
           />

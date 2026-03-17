@@ -55,7 +55,7 @@ export default function Home() {
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div className="space-y-6 md:space-y-7">
             <div
-              className="motion-enter-fade inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-xs font-medium text-[var(--forest)] shadow-sm md:text-sm"
+              className="motion-enter-fade inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-xs font-medium text-[var(--foreground)] shadow-sm md:text-sm"
               style={{ animationDuration: "200ms" }}
             >
               Build Your Life in Himachal
@@ -154,8 +154,8 @@ export default function Home() {
         </div>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {featured.map((town) => (
-            <TownCard key={town.slug} town={town} />
+          {featured.map((town, index) => (
+            <TownCard key={town.slug} town={town} priority={index < 2} />
           ))}
         </div>
       </section>

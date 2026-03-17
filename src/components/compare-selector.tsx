@@ -35,13 +35,13 @@ export function CompareSelector({
       return;
     }
 
-    const saved = window.localStorage.getItem(compareStorageKey);
-    if (!saved) {
-      allowPersistenceRef.current = true;
-      return;
-    }
-
     try {
+      const saved = window.localStorage.getItem(compareStorageKey);
+      if (!saved) {
+        allowPersistenceRef.current = true;
+        return;
+      }
+
       const parsed = JSON.parse(saved);
       if (!Array.isArray(parsed)) {
         allowPersistenceRef.current = true;
@@ -65,7 +65,11 @@ export function CompareSelector({
       allowPersistenceRef.current = true;
       router.replace(`/compare?towns=${valid.join(",")}`);
     } catch {
-      window.localStorage.removeItem(compareStorageKey);
+      try {
+        window.localStorage.removeItem(compareStorageKey);
+      } catch {
+        // private browsing
+      }
       allowPersistenceRef.current = true;
     }
   }, [hasUrlSelection, initialSelected, router, towns]);
@@ -73,7 +77,11 @@ export function CompareSelector({
   useEffect(() => {
     if (!allowPersistenceRef.current || selected.length < 2) return;
 
-    window.localStorage.setItem(compareStorageKey, JSON.stringify(selected));
+    try {
+      window.localStorage.setItem(compareStorageKey, JSON.stringify(selected));
+    } catch {
+      // private browsing
+    }
   }, [selected]);
 
   function toggleTown(slug: string) {
@@ -131,12 +139,15 @@ export function CompareSelector({
                 if (!town) return null;
 
                 return (
-                  <span
+                  <button
                     key={slug}
-                    className="rounded-full border border-[var(--line)] bg-[rgba(234,215,191,0.28)] px-3 py-1 text-xs text-[var(--muted)]"
+                    type="button"
+                    onClick={() => toggleTown(slug)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[rgba(234,215,191,0.28)] px-3 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
                   >
                     {town.name}
-                  </span>
+                    <span className="text-[var(--muted)]" aria-hidden="true">×</span>
+                  </button>
                 );
               })
             )}

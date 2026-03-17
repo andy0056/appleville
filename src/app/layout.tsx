@@ -17,7 +17,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteMetadata.url),
-  title: "Appleville | Build Your Life in Himachal",
+  title: {
+    default: "Appleville | Build Your Life in Himachal",
+    template: "%s | Appleville",
+  },
   description:
     "Find the Himachal town that fits your lifestyle, budget, and work needs.",
   openGraph: {

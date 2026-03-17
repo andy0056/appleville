@@ -11,11 +11,11 @@ type ShareActionsProps = {
 
 export function ShareActions({ title, text, hint }: ShareActionsProps) {
   const [status, setStatus] = useState<string | null>(null);
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
+      if (timeoutRef.current !== undefined) {
         window.clearTimeout(timeoutRef.current);
       }
     };
@@ -32,13 +32,13 @@ export function ShareActions({ title, text, hint }: ShareActionsProps) {
   function setTemporaryStatus(message: string) {
     setStatus(message);
 
-    if (timeoutRef.current) {
+    if (timeoutRef.current !== undefined) {
       window.clearTimeout(timeoutRef.current);
     }
 
     timeoutRef.current = window.setTimeout(() => {
       setStatus(null);
-      timeoutRef.current = null;
+      timeoutRef.current = undefined;
     }, 2400);
   }
 

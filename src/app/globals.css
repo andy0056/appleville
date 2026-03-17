@@ -3,7 +3,7 @@
 :root {
   --background: #f7f2e8;
   --foreground: #2c221b;
-  --muted: #6f6258;
+  --muted: #5c5047;
   --card: #fffaf2;
   --line: #dccfbf;
   --accent: #8f5d3b;
@@ -43,6 +43,12 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .page-shell {
@@ -125,17 +131,14 @@ a {
 
 .motion-enter-fade {
   animation: motion-fade-in var(--motion-base) var(--motion-ease-standard) both;
-  will-change: opacity;
 }
 
 .motion-enter-up {
   animation: motion-rise-in var(--motion-base) var(--motion-ease-soft) both;
-  will-change: opacity, transform;
 }
 
 .motion-enter-scale {
   animation: motion-scale-in var(--motion-base) var(--motion-ease-soft) both;
-  will-change: opacity, transform;
 }
 
 .motion-delay-1 {
@@ -169,7 +172,6 @@ a {
       box-shadow var(--motion-base) var(--motion-ease-soft),
       border-color var(--motion-fast) ease,
       background-color var(--motion-fast) ease;
-    will-change: transform, box-shadow;
   }
 
   .hover-lift-soft:hover {
@@ -195,7 +197,6 @@ a {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
-    will-change: auto;
   }
 
   .hover-lift-soft,

@@ -1,17 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildDecisionProfile, questionHelperText } from "@/lib/decision-profile";
 import { QuizAnswerKey, QuizAnswers, quizQuestions } from "@/lib/quiz";
 
 const totalQuestions = quizQuestions.length;
+const storageKey = "appleville:quiz";
+
+function loadSavedState(): { answers: QuizAnswers; step: number } | null {
+  try {
+    const saved = sessionStorage.getItem(storageKey);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    if (typeof parsed === "object" && parsed !== null && typeof parsed.step === "number") {
+      return { answers: parsed.answers ?? {}, step: parsed.step };
+    }
+  } catch {
+    // private browsing or corrupted data
+  }
+  return null;
+}
+
+function persistState(answers: QuizAnswers, step: number) {
+  try {
+    sessionStorage.setItem(storageKey, JSON.stringify({ answers, step }));
+  } catch {
+    // private browsing
+  }
+}
 
 export function QuizForm() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<QuizAnswers>({});
+  const [step, setStep] = useState(() => {
+    const saved = loadSavedState();
+    return saved ? saved.step : 0;
+  });
+  const [answers, setAnswers] = useState<QuizAnswers>(() => {
+    const saved = loadSavedState();
+    return saved ? saved.answers : {};
+  });
+
+  useEffect(() => {
+    persistState(answers, step);
+  }, [answers, step]);
 
   const question = quizQuestions[step];
   const selected = answers[question.key];
@@ -32,6 +65,11 @@ export function QuizForm() {
       Object.entries(answers).forEach(([key, value]) => {
         if (value) params.set(key, value);
       });
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {
+        // ignore
+      }
       router.push(`/results?${params.toString()}`);
       return;
     }

@@ -10,18 +10,13 @@ const navLinks = [
   { href: "/compare", label: "Compare" },
   { href: "/guides", label: "Guides" },
   { href: "/how-it-works", label: "How it works" },
-];
-
-const extraLinks = [
   { href: "/about", label: "About" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(
-    () => typeof window !== "undefined" && window.scrollY > 12,
-  );
+  const [isScrolled, setIsScrolled] = useState(false);
   const showQuizButton = pathname !== "/";
 
   function isActiveLink(href: string) {
@@ -34,9 +29,28 @@ export function SiteHeader() {
       setIsScrolled((current) => (current === next ? current : next));
     }
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
   return (
     <header
@@ -143,17 +157,6 @@ export function SiteHeader() {
                     Take the quiz
                   </Link>
                 ) : null}
-
-                {extraLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="secondary-link px-1 text-sm font-medium"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
               </div>
             </div>
           </div>
