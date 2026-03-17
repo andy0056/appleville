@@ -14,23 +14,36 @@ export const metadata = buildPageMetadata({
 
 export default function TownsPage() {
   return (
-    <main className="container-app py-14 md:py-20">
-      <div className="space-y-8">
-        <SectionHeading
-          eyebrow="Towns"
-          title="Browse towns by fit, not just by name"
-          body="Search, filter, and sort the current town set by quiet, access, remote-work fit, family shape, and long-stay strength."
-        />
+    <main className="container-app py-12 md:py-16">
+      <div className="space-y-10 md:space-y-12">
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,300px)] lg:items-end lg:gap-8">
+          <div className="space-y-6">
+            <SectionHeading
+              eyebrow="Towns"
+              title="Browse towns by fit, not just by name"
+              body="Search, filter, and sort the current town set by quiet, access, remote-work fit, family shape, and long-stay strength."
+            />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
-            Use this when you already know some town names, or when you want to
-            narrow by decision filters before the shortlist gets noisy.
-          </p>
-          <Link href="/how-it-works#town-pages" className="secondary-link text-sm font-semibold">
-            How Appleville reads towns
-          </Link>
-        </div>
+            <p className="max-w-3xl text-sm leading-7 text-pretty text-[var(--muted)] md:text-base">
+              Use this when you already know some town names, or when you want
+              to narrow by decision filters before the shortlist gets noisy.
+            </p>
+          </div>
+
+          <div className="compact-callout">
+            <p className="eyebrow">Reading lens</p>
+            <p className="mt-3 text-sm leading-7 text-pretty text-[var(--muted)]">
+              These town pages are meant to help with fit, tradeoffs, and
+              everyday shape, not predict your exact neighborhood experience.
+            </p>
+            <Link
+              href="/how-it-works#town-pages"
+              className="secondary-link mt-4 inline-flex text-sm font-semibold"
+            >
+              How Appleville reads towns
+            </Link>
+          </div>
+        </section>
 
         <TownExplorer towns={towns} />
       </div>

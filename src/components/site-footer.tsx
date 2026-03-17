@@ -15,40 +15,44 @@ const trustLinks = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-[var(--line)]/80 bg-[rgba(255,250,242,0.75)]">
-      <div className="container-app grid gap-8 py-10 md:grid-cols-[1.1fr_0.45fr_0.45fr]">
-        <div className="space-y-3">
+      <div className="container-app py-8 md:py-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-10">
+        <div className="max-w-[34rem] space-y-4">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--forest)]">
             Appleville
           </p>
-          <p className="max-w-md text-sm leading-7 text-[var(--muted)]">
+          <p className="text-[15px] leading-7 text-pretty text-[var(--muted)]">
             A practical tool for matching, comparing, and reality-checking
             Himachal towns for longer stays, remote work, and everyday life.
           </p>
-          <p className="text-sm leading-7 text-[var(--muted)]">
+          <p className="text-sm leading-6 text-[var(--muted)]">
             Directional guidance, not certainty.
           </p>
         </div>
 
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-[var(--foreground)]">Product</p>
-          <div className="grid gap-2 text-sm text-[var(--muted)]">
-            {productLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="secondary-link">
-                {link.label}
-              </Link>
-            ))}
+        <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:justify-self-end">
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-[var(--foreground)]">Product</p>
+            <div className="grid gap-2.5 text-sm text-[var(--muted)]">
+              {productLinks.map((link) => (
+                <Link key={link.href} href={link.href} className="secondary-link">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-[var(--foreground)]">Trust</p>
+            <div className="grid gap-2.5 text-sm text-[var(--muted)]">
+              {trustLinks.map((link) => (
+                <Link key={link.href} href={link.href} className="secondary-link">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-[var(--foreground)]">Trust</p>
-          <div className="grid gap-2 text-sm text-[var(--muted)]">
-            {trustLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="secondary-link">
-                {link.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </footer>
