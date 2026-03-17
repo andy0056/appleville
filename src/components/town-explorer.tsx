@@ -82,7 +82,7 @@ export function TownExplorer({ towns }: { towns: Town[] }) {
                       key={option.value}
                       type="button"
                       onClick={() => toggleStrength(option.value)}
-                      className={`rounded-full border px-3 py-2 text-sm transition ${
+                      className={`press-scale rounded-full border px-3 py-2 text-sm ${
                         active
                           ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
                           : "border-[var(--line)] bg-[rgba(255,255,255,0.4)] text-[var(--muted)]"

@@ -167,7 +167,7 @@ export default async function GuideDetailPage({
                 <Link
                   key={town.slug}
                   href={`/towns/${town.slug}`}
-                  className="card p-5 transition hover:-translate-y-1"
+                  className="hover-lift-soft card p-5"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>

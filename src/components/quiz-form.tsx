@@ -148,7 +148,7 @@ export function QuizForm() {
                   key={option.value}
                   type="button"
                   onClick={() => handleSelect(question.key, option.value)}
-                  className={`rounded-2xl border px-4 py-4 text-left text-sm leading-6 transition md:px-5 md:py-5 md:text-base ${
+                  className={`press-scale rounded-2xl border px-4 py-4 text-left text-sm leading-6 md:px-5 md:py-5 md:text-base ${
                     isActive
                       ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
                       : "border-[var(--line)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--accent)]/50"

@@ -252,7 +252,7 @@ export default async function TownDetailPage({
                         <Link
                           key={guide.slug}
                           href={`/guides/${guide.slug}`}
-                          className="rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-4 py-4 transition hover:-translate-y-0.5"
+                          className="hover-lift-soft rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-4 py-4"
                         >
                           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
                             {guide.category}

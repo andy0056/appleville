@@ -102,7 +102,7 @@ export default function GuidesPage() {
               <Link
                 key={guide.slug}
                 href={`/guides/${guide.slug}`}
-                className="card p-6 transition hover:-translate-y-1"
+                className="hover-lift-soft card p-6"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
                   {useCaseLabels[guide.useCase]}
@@ -131,7 +131,7 @@ export default function GuidesPage() {
               <Link
                 key={guide.slug}
                 href={`/guides/${guide.slug}`}
-                className="card p-6 transition hover:-translate-y-1"
+                className="hover-lift-soft card p-6"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
                   {guide.category}

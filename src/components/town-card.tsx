@@ -10,7 +10,7 @@ export function TownCard({ town }: { town: Town }) {
   return (
     <Link
       href={`/towns/${town.slug}`}
-      className="group card relative overflow-hidden p-6 transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(82,98,77,0.08)]"
+      className="group hover-lift-soft card relative overflow-hidden p-6"
     >
       <div className="-mx-6 -mt-6 mb-5 overflow-hidden border-b border-[var(--line)] bg-[rgba(234,215,191,0.25)]">
         <div className="relative aspect-[4/3]">

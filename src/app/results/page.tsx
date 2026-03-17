@@ -302,7 +302,7 @@ export default async function ResultsPage({
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {relatedGuides.map((guide) => (
-                <Link key={guide.slug} href={`/guides/${guide.slug}`} className="card p-5 transition hover:-translate-y-1">
+                <Link key={guide.slug} href={`/guides/${guide.slug}`} className="hover-lift-soft card p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
                     {guide.category}
                   </p>

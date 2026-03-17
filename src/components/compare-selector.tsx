@@ -157,11 +157,11 @@ export function CompareSelector({
                 type="button"
                 onClick={() => toggleTown(town.slug)}
                 disabled={locked}
-                className={`rounded-2xl border p-4 text-left transition ${
+                className={`press-scale rounded-2xl border p-4 text-left ${
                   active
                     ? "border-[var(--accent)] bg-[var(--accent-soft)] shadow-[0_10px_30px_rgba(143,93,59,0.08)]"
                     : "border-[var(--line)] bg-[var(--card)] hover:border-[var(--accent)]/50"
-                } ${locked ? "cursor-not-allowed opacity-50" : ""}`}
+                  } ${locked ? "cursor-not-allowed opacity-50" : ""}`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
