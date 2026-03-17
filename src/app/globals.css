@@ -9,6 +9,13 @@
   --accent: #8f5d3b;
   --accent-soft: #ead7bf;
   --forest: #52624d;
+  --motion-fast: 160ms;
+  --motion-base: 240ms;
+  --motion-slow: 420ms;
+  --motion-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-distance-sm: 8px;
+  --motion-distance-md: 14px;
 }
 
 @theme inline {
@@ -82,8 +89,126 @@ a {
   padding: 20px;
 }
 
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes motion-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-md));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes motion-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.motion-enter-fade {
+  animation: motion-fade-in var(--motion-base) var(--motion-ease-standard) both;
+  will-change: opacity;
+}
+
+.motion-enter-up {
+  animation: motion-rise-in var(--motion-base) var(--motion-ease-soft) both;
+  will-change: opacity, transform;
+}
+
+.motion-enter-scale {
+  animation: motion-scale-in var(--motion-base) var(--motion-ease-soft) both;
+  will-change: opacity, transform;
+}
+
+.motion-delay-1 {
+  animation-delay: 60ms;
+}
+
+.motion-delay-2 {
+  animation-delay: 120ms;
+}
+
+.motion-delay-3 {
+  animation-delay: 180ms;
+}
+
+.press-scale {
+  transition:
+    transform var(--motion-fast) var(--motion-ease-soft),
+    background-color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-base) var(--motion-ease-soft);
+}
+
+.press-scale:active {
+  transform: scale(0.985);
+}
+
+@media (hover: hover) {
+  .hover-lift-soft {
+    transition:
+      transform var(--motion-base) var(--motion-ease-soft),
+      box-shadow var(--motion-base) var(--motion-ease-soft),
+      border-color var(--motion-fast) ease,
+      background-color var(--motion-fast) ease;
+    will-change: transform, box-shadow;
+  }
+
+  .hover-lift-soft:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 44px rgba(44, 34, 27, 0.08);
+  }
+}
+
 @media (min-width: 640px) {
   .container-app {
     padding: 0 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .motion-enter-fade,
+  .motion-enter-up,
+  .motion-enter-scale {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .hover-lift-soft,
+  .press-scale {
+    transition:
+      background-color var(--motion-fast) ease,
+      border-color var(--motion-fast) ease,
+      box-shadow var(--motion-fast) ease !important;
+  }
+
+  .hover-lift-soft:hover,
+  .press-scale:active {
+    transform: none !important;
+    box-shadow: none !important;
   }
 }
