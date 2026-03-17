@@ -54,19 +54,31 @@ export default function Home() {
       <section className="container-app py-12 md:py-20">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div className="space-y-6 md:space-y-7">
-            <div className="inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-xs font-medium text-[var(--forest)] shadow-sm md:text-sm">
+            <div
+              className="motion-enter-fade inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-xs font-medium text-[var(--forest)] shadow-sm md:text-sm"
+              style={{ animationDuration: "200ms" }}
+            >
               Build Your Life in Himachal
             </div>
             <div className="space-y-4 md:space-y-5">
-              <h1 className="max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-6xl">
+              <h1
+                className="motion-enter-up max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-6xl"
+                style={{ animationDelay: "60ms", animationDuration: "320ms" }}
+              >
                 Choose a Himachal base for work, family, and everyday life.
               </h1>
-              <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:text-xl md:leading-8">
+              <p
+                className="motion-enter-up max-w-2xl text-base leading-7 text-[var(--muted)] md:text-xl md:leading-8"
+                style={{ animationDelay: "120ms", animationDuration: "280ms" }}
+              >
                 Appleville helps you match, compare, and reality-check Himachal
                 towns before the shortlist turns into a vague travel fantasy.
               </p>
             </div>
-            <div className="card p-5 md:p-6">
+            <div
+              className="motion-enter-up card p-5 md:p-6"
+              style={{ animationDelay: "180ms", animationDuration: "260ms" }}
+            >
               <p className="eyebrow">How Appleville helps</p>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] md:text-base">
                 Match by lifestyle fit, browse towns by strength, and compare
@@ -74,7 +86,10 @@ export default function Home() {
                 trip or trial stay.
               </p>
             </div>
-            <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+            <div
+              className="motion-enter-up grid gap-3 sm:flex sm:flex-wrap sm:gap-4"
+              style={{ animationDelay: "240ms", animationDuration: "240ms" }}
+            >
               <Link
                 href="/quiz"
                 className="rounded-full bg-[var(--accent)] px-6 py-3 text-center text-sm font-semibold text-white shadow-sm"
@@ -88,19 +103,26 @@ export default function Home() {
                 Browse towns
               </Link>
             </div>
-            <Link href="/how-it-works" className="secondary-link text-sm font-semibold">
+            <Link
+              href="/how-it-works"
+              className="motion-enter-up secondary-link text-sm font-semibold"
+              style={{ animationDelay: "260ms", animationDuration: "220ms" }}
+            >
               See how Appleville works
             </Link>
           </div>
 
-          <div className="card relative overflow-hidden p-6 md:p-8">
+          <div
+            className="motion-enter-fade card relative overflow-hidden p-6 md:p-8"
+            style={{ animationDelay: "300ms", animationDuration: "180ms" }}
+          >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
             <p className="eyebrow">Start here</p>
             <div className="mt-5 grid gap-4">
               {startHere.map((item) => (
                 <div
                   key={item.title}
-                  className="rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 md:p-5"
+                  className="hover-lift-soft rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 md:p-5"
                 >
                   <p className="text-lg font-semibold text-[var(--foreground)]">{item.title}</p>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted)] md:text-base">
