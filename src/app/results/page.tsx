@@ -1,11 +1,17 @@
 import Link from "next/link";
 import {
-  buildReason,
   getValidAnswersFromSearchParams,
   hasCompleteQuizAnswers,
   quizQuestions,
   scoreTowns,
 } from "@/lib/quiz";
+
+const matchLabelStyles = {
+  "Best fit": "bg-[var(--accent)] text-white",
+  "Safer fit": "bg-[var(--forest)] text-white",
+  "Aspirational fit": "bg-[var(--accent-soft)] text-[var(--foreground)]",
+  "Alternative fit": "bg-[rgba(255,255,255,0.55)] text-[var(--foreground)]",
+} as const;
 
 export default async function ResultsPage({
   searchParams,
@@ -66,36 +72,63 @@ export default async function ResultsPage({
           </p>
         </div>
 
+        <div className="card p-5 md:p-6">
+          <p className="text-sm leading-7 text-[var(--muted)]">
+            Read these as best-fit directions, not guarantees. The useful part is
+            how each town fits differently and what each one asks from you in return.
+          </p>
+        </div>
+
         <div className="grid gap-4 lg:grid-cols-3">
-          {top.map((town, index) => (
+          {top.map((town) => (
             <article key={town.slug} className="card relative overflow-hidden p-5 md:p-6">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
-              <p className="text-sm font-semibold text-[var(--forest)]">Top match #{index + 1}</p>
-              <div className="mt-3 flex items-start justify-between gap-4">
+              <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${matchLabelStyles[town.matchProfile.label]}`}
+                >
+                  {town.matchProfile.label}
+                </span>
+                <span className="shrink-0 rounded-full bg-[rgba(255,255,255,0.55)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                  Score {town.score}
+                </span>
+              </div>
+              <div className="mt-4 flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">{town.name}</h2>
                   <p className="mt-1 text-sm text-[var(--forest)]">{town.archetype}</p>
                 </div>
-                <span className="shrink-0 rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
-                  Score {town.score}
-                </span>
               </div>
-              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{buildReason(town.name, answers)}</p>
-              <div className="mt-5 space-y-3 text-sm text-[var(--muted)]">
-                <p>
-                  <span className="font-semibold text-[var(--foreground)]">Why it fits:</span> {town.summary}
-                </p>
-                <p>
-                  <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span> {town.tradeoff}
-                </p>
-              </div>
+
+              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{town.summary}</p>
+
               <div className="mt-5 flex flex-wrap gap-2">
-                {town.goodFor.slice(0, 3).map((item) => (
+                {town.matchProfile.strengthChips.map((item) => (
                   <span key={item} className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]">
                     {item}
                   </span>
                 ))}
               </div>
+
+              <div className="mt-5 space-y-4 text-sm leading-7 text-[var(--muted)]">
+                <div>
+                  <p className="font-semibold text-[var(--foreground)]">Why this matched</p>
+                  <p className="mt-1">{town.matchProfile.whyMatched}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-[var(--foreground)]">How it differs</p>
+                  <p className="mt-1">{town.matchProfile.differenceNote}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-[var(--foreground)]">Main caution</p>
+                  <p className="mt-1">{town.matchProfile.cautionNote}</p>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4 text-sm leading-7 text-[var(--muted)]">
+                <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span> {town.tradeoff}
+              </div>
+
               <Link href={`/towns/${town.slug}`} className="mt-6 inline-block text-sm font-semibold text-[var(--accent)]">
                 View town profile
               </Link>

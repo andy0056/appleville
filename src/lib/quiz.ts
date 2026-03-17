@@ -1,4 +1,4 @@
-import { towns } from "@/lib/towns";
+import { Town, towns } from "@/lib/towns";
 
 export type QuizAnswerKey =
   | "stayLength"
@@ -18,6 +18,42 @@ export type QuizQuestion = {
   key: QuizAnswerKey;
   label: string;
   options: { value: string; label: string }[];
+};
+
+export type MatchLabel = "Best fit" | "Safer fit" | "Aspirational fit" | "Alternative fit";
+
+export type MatchProfile = {
+  label: MatchLabel;
+  whyMatched: string;
+  differenceNote: string;
+  cautionNote: string;
+  strengthChips: string[];
+};
+
+export type ScoredTown = Town & {
+  score: number;
+  matchProfile: MatchProfile;
+};
+
+type TownComparisonDimension =
+  | "accessibility"
+  | "quiet"
+  | "socialEnergy"
+  | "aesthetics"
+  | "tourismIntensity"
+  | "familyFit"
+  | "longStayFit";
+
+type ScoreSignal = {
+  key: QuizAnswerKey;
+  score: number;
+  fitText: string;
+  chip: string;
+};
+
+type CautionSignal = {
+  severity: number;
+  text: string;
 };
 
 export const quizQuestions: QuizQuestion[] = [
@@ -123,67 +159,737 @@ export const quizQuestions: QuizQuestion[] = [
   },
 ];
 
-export function scoreTowns(answers: QuizAnswers) {
-  return towns
+function createSignal(key: QuizAnswerKey, score: number, fitText: string, chip: string): ScoreSignal {
+  return { key, score, fitText, chip };
+}
+
+function getScoreSignals(town: Town, answers: QuizAnswers) {
+  const signals: ScoreSignal[] = [];
+
+  if (answers.stayLength === "short") {
+    signals.push(
+      createSignal(
+        "stayLength",
+        town.socialEnergy + town.aesthetics - town.longStayFit * 0.4,
+        "it makes more sense as a lively shorter chapter than a deeply rooted move",
+        "short-stay energy"
+      )
+    );
+  }
+  if (answers.stayLength === "medium") {
+    signals.push(
+      createSignal(
+        "stayLength",
+        town.remoteWork + town.aesthetics,
+        "it can carry a 1-3 month stay without losing either workability or pull",
+        "medium-stay fit"
+      )
+    );
+  }
+  if (answers.stayLength === "extended") {
+    signals.push(
+      createSignal(
+        "stayLength",
+        town.longStayFit + town.quiet + town.familyFit * 0.4,
+        "it holds up better once routine and longer-stay durability start to matter",
+        "extended-stay fit"
+      )
+    );
+  }
+  if (answers.stayLength === "long") {
+    signals.push(
+      createSignal(
+        "stayLength",
+        town.longStayFit * 1.5 + town.familyFit + town.accessibility * 0.5,
+        "it reads more like a workable base than a temporary phase",
+        "home-base fit"
+      )
+    );
+  }
+
+  if (answers.persona === "solo-remote") {
+    signals.push(
+      createSignal(
+        "persona",
+        town.remoteWork + town.aesthetics * 0.5,
+        "it suits solo remote life without leaning too heavily on family infrastructure",
+        "solo remote fit"
+      )
+    );
+  }
+  if (answers.persona === "creator") {
+    signals.push(
+      createSignal(
+        "persona",
+        town.aesthetics + town.socialEnergy + town.remoteWork * 0.5,
+        "it offers more creative pull and visible human energy than quieter alternatives",
+        "creative energy"
+      )
+    );
+  }
+  if (answers.persona === "couple") {
+    signals.push(
+      createSignal(
+        "persona",
+        town.longStayFit + town.quiet * 0.5 + town.aesthetics * 0.5,
+        "it fits a calmer two-person rhythm better than the more scene-driven towns",
+        "couple rhythm"
+      )
+    );
+  }
+  if (answers.persona === "family") {
+    signals.push(
+      createSignal(
+        "persona",
+        town.familyFit * 1.5 + town.accessibility + town.longStayFit * 0.5,
+        "it has a steadier family shape than the noisier or more temporary-feeling options",
+        "family-ready"
+      )
+    );
+  }
+  if (answers.persona === "returning") {
+    signals.push(
+      createSignal(
+        "persona",
+        town.longStayFit + town.accessibility + town.affordability,
+        "it makes more sense when you want something usable rather than performative",
+        "return-fit"
+      )
+    );
+  }
+
+  if (answers.budget === "tight") {
+    signals.push(
+      createSignal(
+        "budget",
+        town.affordability * 1.5,
+        "it is easier to justify on a tighter budget than the costlier headline towns",
+        "easier budget fit"
+      )
+    );
+  }
+  if (answers.budget === "moderate") {
+    signals.push(
+      createSignal(
+        "budget",
+        town.affordability,
+        "it is manageable without requiring a highly flexible budget",
+        "moderate budget fit"
+      )
+    );
+  }
+  if (answers.budget === "comfortable") {
+    signals.push(
+      createSignal(
+        "budget",
+        town.aesthetics * 0.5 + town.remoteWork * 0.5,
+        "it makes decent use of a comfortable budget through either atmosphere or workability",
+        "comfortable budget"
+      )
+    );
+  }
+  if (answers.budget === "flexible") {
+    signals.push(
+      createSignal(
+        "budget",
+        town.aesthetics + town.socialEnergy * 0.5,
+        "it rewards a more flexible budget with extra atmosphere or energy",
+        "aspirational upside"
+      )
+    );
+  }
+
+  if (answers.internet === "non-negotiable") {
+    signals.push(
+      createSignal(
+        "internet",
+        town.remoteWork * 1.5 + town.accessibility * 0.5,
+        "it lands on the safer side for work continuity and everyday remote routine",
+        "safer remote work"
+      )
+    );
+  }
+  if (answers.internet === "important") {
+    signals.push(
+      createSignal(
+        "internet",
+        town.remoteWork,
+        "it is workable enough for regular remote use",
+        "remote-work workable"
+      )
+    );
+  }
+  if (answers.internet === "nice") {
+    signals.push(
+      createSignal(
+        "internet",
+        town.longStayFit * 0.5,
+        "it benefits when connectivity is not carrying the entire decision",
+        "lifestyle-first fit"
+      )
+    );
+  }
+  if (answers.internet === "low") {
+    signals.push(
+      createSignal(
+        "internet",
+        town.quiet * 0.5 + town.aesthetics * 0.5,
+        "it opens up more easily when work infrastructure is not the main filter",
+        "low-internet dependency"
+      )
+    );
+  }
+
+  if (answers.pace === "quiet") {
+    signals.push(
+      createSignal(
+        "pace",
+        town.quiet * 1.5 - town.socialEnergy * 0.4,
+        "it better matches a quieter day-to-day rhythm",
+        "quieter rhythm"
+      )
+    );
+  }
+  if (answers.pace === "balanced") {
+    signals.push(
+      createSignal(
+        "pace",
+        town.longStayFit + town.accessibility * 0.5,
+        "it avoids the extremes of total stillness and constant scene energy",
+        "balanced pace"
+      )
+    );
+  }
+  if (answers.pace === "some-buzz") {
+    signals.push(
+      createSignal(
+        "pace",
+        town.socialEnergy + town.longStayFit * 0.5,
+        "it gives you some movement without reading like full chaos",
+        "some buzz"
+      )
+    );
+  }
+  if (answers.pace === "energy") {
+    signals.push(
+      createSignal(
+        "pace",
+        town.socialEnergy * 1.5,
+        "it gives you more visible movement and people around you",
+        "higher energy"
+      )
+    );
+  }
+
+  if (answers.tourismTolerance === "low") {
+    signals.push(
+      createSignal(
+        "tourismTolerance",
+        (6 - town.tourismIntensity) * 1.5,
+        "it keeps tourist pressure lower than the obvious headline towns",
+        "lower tourist pressure"
+      )
+    );
+  }
+  if (answers.tourismTolerance === "some") {
+    signals.push(
+      createSignal(
+        "tourismTolerance",
+        3,
+        "its level of visitor activity is unlikely to overwhelm you",
+        "manageable tourism"
+      )
+    );
+  }
+  if (answers.tourismTolerance === "fine") {
+    signals.push(
+      createSignal(
+        "tourismTolerance",
+        town.tourismIntensity * 0.5,
+        "its tourist energy is probably acceptable for what you want",
+        "tourism acceptable"
+      )
+    );
+  }
+  if (answers.tourismTolerance === "love-it") {
+    signals.push(
+      createSignal(
+        "tourismTolerance",
+        town.tourismIntensity * 1.5,
+        "its visitor energy can be part of the appeal rather than the problem",
+        "lively atmosphere"
+      )
+    );
+  }
+
+  if (answers.priority === "beauty") {
+    signals.push(
+      createSignal(
+        "priority",
+        town.aesthetics * 1.5,
+        "it has real visual and atmospheric pull rather than just usability",
+        "visual pull"
+      )
+    );
+  }
+  if (answers.priority === "practical") {
+    signals.push(
+      createSignal(
+        "priority",
+        town.accessibility + town.affordability + town.longStayFit * 0.5,
+        "it is stronger on day-to-day usability than pure fantasy",
+        "practical edge"
+      )
+    );
+  }
+  if (answers.priority === "remote") {
+    signals.push(
+      createSignal(
+        "priority",
+        town.remoteWork * 1.5,
+        "workability is one of the clearer reasons it rises for you",
+        "workability"
+      )
+    );
+  }
+  if (answers.priority === "family") {
+    signals.push(
+      createSignal(
+        "priority",
+        town.familyFit * 1.5 + town.accessibility,
+        "family comfort and access align better here than in the more experimental towns",
+        "family comfort"
+      )
+    );
+  }
+
+  if (answers.access === "very") {
+    signals.push(
+      createSignal(
+        "access",
+        town.accessibility * 1.5,
+        "it handles access and connections better than the slower alternatives",
+        "better access"
+      )
+    );
+  }
+  if (answers.access === "important") {
+    signals.push(
+      createSignal(
+        "access",
+        town.accessibility,
+        "it keeps logistics more manageable than the tucked-away options",
+        "connection-friendly"
+      )
+    );
+  }
+  if (answers.access === "somewhat") {
+    signals.push(
+      createSignal(
+        "access",
+        town.accessibility * 0.5,
+        "it clears a reasonable access bar without making logistics the whole identity",
+        "workable access"
+      )
+    );
+  }
+  if (answers.access === "low") {
+    signals.push(
+      createSignal(
+        "access",
+        town.quiet * 0.5 + town.aesthetics * 0.5,
+        "it benefits when you are comfortable trading convenience for pace or atmosphere",
+        "okay with slower access"
+      )
+    );
+  }
+
+  if (answers.climate === "cold") {
+    signals.push(
+      createSignal(
+        "climate",
+        town.weatherCold * 1.5,
+        "it leans more into the colder mountain feel you asked for",
+        "colder climate"
+      )
+    );
+  }
+  if (answers.climate === "moderate") {
+    signals.push(
+      createSignal(
+        "climate",
+        (6 - town.weatherCold) * 1.2,
+        "it stays closer to the more moderate side of the Himachal range",
+        "moderate climate"
+      )
+    );
+  }
+
+  if (answers.optimizeFor === "deep-work") {
+    signals.push(
+      createSignal(
+        "optimizeFor",
+        town.quiet * 1.5 + town.longStayFit,
+        "it is better aligned with focus, repeatable routine, and lower background noise",
+        "deep-work fit"
+      )
+    );
+  }
+  if (answers.optimizeFor === "inspiration") {
+    signals.push(
+      createSignal(
+        "optimizeFor",
+        town.aesthetics * 1.5 + town.socialEnergy * 0.5,
+        "it offers more emotional pull, atmosphere, or visible life",
+        "inspirational pull"
+      )
+    );
+  }
+  if (answers.optimizeFor === "convenience") {
+    signals.push(
+      createSignal(
+        "optimizeFor",
+        town.accessibility * 1.5 + town.familyFit * 0.5,
+        "it favors easier logistics over mountain mystique",
+        "low-friction living"
+      )
+    );
+  }
+  if (answers.optimizeFor === "home-base") {
+    signals.push(
+      createSignal(
+        "optimizeFor",
+        town.longStayFit * 1.5 + town.familyFit * 0.5,
+        "it feels more inhabitable than temporary",
+        "home-base fit"
+      )
+    );
+  }
+
+  return signals;
+}
+
+function getCautionSignals(town: Town, answers: QuizAnswers) {
+  const cautions: CautionSignal[] = [];
+
+  if (answers.stayLength === "long") {
+    const severity = Math.max(0, 4 - town.longStayFit);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "for a longer move, this may feel less durable than the safer long-stay towns",
+      });
+    }
+  }
+
+  if (answers.persona === "family") {
+    const severity = Math.max(0, 4 - town.familyFit) + Math.max(0, 4 - town.accessibility) * 0.5;
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if family comfort is central, safer options exist in this set",
+      });
+    }
+  }
+
+  if (answers.budget === "tight") {
+    const severity = Math.max(0, 3.5 - town.affordability);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if budget discipline is central, this town may start feeling less forgiving than you want",
+      });
+    }
+  }
+
+  if (answers.internet === "non-negotiable") {
+    const severity = Math.max(0, 4 - town.remoteWork) + Math.max(0, 4 - town.accessibility) * 0.5;
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if work reliability is non-negotiable, this is not the safest option in the set",
+      });
+    }
+  }
+
+  if (answers.pace === "quiet") {
+    const severity = Math.max(0, town.socialEnergy - town.quiet + 1);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if you want quiet, this town may feel more outward-facing than you want",
+      });
+    }
+  }
+
+  if (answers.tourismTolerance === "low") {
+    const severity = Math.max(0, town.tourismIntensity - 2);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if you dislike tourist pressure, this town may feel too exposed or busy",
+      });
+    }
+  }
+
+  if (answers.priority === "practical") {
+    const severity = Math.max(0, 4 - town.accessibility) + Math.max(0, 3 - town.affordability) * 0.5;
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if everyday usability matters most, this option may feel more atmospheric than practical",
+      });
+    }
+  }
+
+  if (answers.priority === "family") {
+    const severity = Math.max(0, 4 - town.familyFit) + Math.max(0, 4 - town.accessibility) * 0.5;
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if family comfort and access are central, this one carries more compromise",
+      });
+    }
+  }
+
+  if (answers.access === "very") {
+    const severity = Math.max(0, 4.5 - town.accessibility);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if easy road access matters, this town may ask for more tolerance than you want",
+      });
+    }
+  }
+
+  if (answers.optimizeFor === "deep-work") {
+    const severity = Math.max(0, 4 - town.quiet) + Math.max(0, town.socialEnergy - 3) * 0.5;
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if you are protecting focus, this place may carry more stimulation than ideal",
+      });
+    }
+  }
+
+  if (answers.optimizeFor === "convenience") {
+    const severity = Math.max(0, 4.5 - town.accessibility);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if convenience is the point, this option may feel thinner on logistics",
+      });
+    }
+  }
+
+  if (answers.optimizeFor === "home-base") {
+    const severity = Math.max(0, 4 - town.longStayFit);
+    if (severity > 0) {
+      cautions.push({
+        severity,
+        text: "if you want a durable home base, this may read more like a phase than a settled answer",
+      });
+    }
+  }
+
+  return cautions;
+}
+
+function buildWhyMatched(signals: ScoreSignal[]) {
+  const topSignals = signals
+    .filter((signal) => signal.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+
+  if (topSignals.length === 0) {
+    return "It aligns with several parts of your quiz, even if the fit is more balanced than obvious.";
+  }
+
+  if (topSignals.length === 1) {
+    return `It matched because ${topSignals[0].fitText}.`;
+  }
+
+  if (topSignals.length === 2) {
+    return `It matched because ${topSignals[0].fitText}, and ${topSignals[1].fitText}.`;
+  }
+
+  return `It matched because ${topSignals[0].fitText}, ${topSignals[1].fitText}, and ${topSignals[2].fitText}.`;
+}
+
+function getTownStrengthChips(town: Town) {
+  const chips: string[] = [];
+
+  if (town.accessibility >= 5) chips.push("stronger access");
+  if (town.quiet >= 5) chips.push("quieter base");
+  if (town.remoteWork >= 4) chips.push("workable remote routine");
+  if (town.familyFit >= 5) chips.push("family-ready");
+  if (town.longStayFit >= 5) chips.push("long-stay fit");
+  if (town.aesthetics >= 5) chips.push("visual pull");
+  if (town.tourismIntensity <= 2) chips.push("lower tourist pressure");
+
+  return chips;
+}
+
+function buildStrengthChips(town: Town, signals: ScoreSignal[]) {
+  const chips = signals
+    .filter((signal) => signal.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((signal) => signal.chip);
+
+  return Array.from(new Set([...getTownStrengthChips(town), ...chips])).slice(0, 3);
+}
+
+function buildFallbackCaution(town: Town) {
+  const cautions = [
+    { score: 6 - town.aesthetics, text: "if atmosphere matters most, this one may feel less emotionally strong than the more scenic options" },
+    { score: 6 - town.quiet, text: "if quiet is central, this may carry more movement than you want" },
+    { score: 6 - town.accessibility, text: "if access matters a lot, this town may ask for more tolerance around logistics" },
+    { score: 6 - town.remoteWork, text: "if workability is the deciding factor, safer remote-work options exist in the set" },
+    { score: 6 - town.longStayFit, text: "if you want a durable base, this may feel more temporary than the top long-stay choices" },
+  ].sort((a, b) => b.score - a.score);
+
+  return cautions[0]?.text ?? town.tradeoff;
+}
+
+function ensureSentence(text: string) {
+  const normalized = text.length > 0 ? `${text[0].toUpperCase()}${text.slice(1)}` : text;
+  return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
+}
+
+function buildCautionNote(town: Town, answers: QuizAnswers) {
+  const strongest = getCautionSignals(town, answers).sort((a, b) => b.severity - a.severity)[0];
+  return ensureSentence(strongest?.text ?? buildFallbackCaution(town));
+}
+
+function buildDifferenceNote(
+  town: Town,
+  topTowns: Town[]
+) {
+  const dimensions: TownComparisonDimension[] = [
+    "accessibility",
+    "quiet",
+    "socialEnergy",
+    "aesthetics",
+    "tourismIntensity",
+    "familyFit",
+    "longStayFit",
+  ];
+
+  const peers = topTowns.filter((item) => item.slug !== town.slug);
+  if (peers.length === 0) {
+    return "This is the clearest overall fit in the current result set.";
+  }
+
+  const deltas = dimensions.map((dimension) => ({
+    dimension,
+    delta:
+      town[dimension] - peers.reduce((sum, peer) => sum + peer[dimension], 0) / peers.length,
+  }));
+
+  const strongestPositive = deltas.reduce((best, current) =>
+    current.delta > best.delta ? current : best
+  );
+  const strongestNegative = deltas.reduce((best, current) =>
+    current.delta < best.delta ? current : best
+  );
+
+  const positiveNotes: Record<TownComparisonDimension, string> = {
+    accessibility: "it is the easiest of the top options for access and day-to-day logistics",
+    quiet: "it is the quieter, slower option among the top matches",
+    socialEnergy: "it carries more movement and visible life than the other top matches",
+    aesthetics: "it brings more atmosphere and visual pull than the other top matches",
+    tourismIntensity: "it carries more visitor energy and momentum than the other top matches",
+    familyFit: "it is the safer family-shape option within the top results",
+    longStayFit: "it feels more like a durable base than the other top options",
+  };
+
+  const negativeNotes: Record<TownComparisonDimension, string> = {
+    accessibility: "it asks for more tolerance around access and errands",
+    quiet: "it is less quiet than the calmer alternatives here",
+    socialEnergy: "it is not the social-energy pick in this shortlist",
+    aesthetics: "it is less about atmosphere and more about function",
+    tourismIntensity: "it carries less visitor energy than the more visible options",
+    familyFit: "it is less family-shaped than the safer practical picks",
+    longStayFit: "it reads more like a phase than the most durable bases here",
+  };
+
+  if (strongestPositive.delta >= 0.75 && strongestNegative.delta <= -0.75) {
+    return `Compared with the other top matches, ${positiveNotes[strongestPositive.dimension]}, but ${negativeNotes[strongestNegative.dimension]}.`;
+  }
+
+  if (strongestPositive.delta >= 0.75) {
+    return `Compared with the other top matches, ${positiveNotes[strongestPositive.dimension]}.`;
+  }
+
+  if (strongestNegative.delta <= -0.75) {
+    return `Compared with the other top matches, ${negativeNotes[strongestNegative.dimension]}.`;
+  }
+
+  return "Compared with the other top matches, it lands more as a balanced variation than an extreme.";
+}
+
+function getLabelForTopThree(topThree: Town[]) {
+  const labelMap = new Map<string, MatchLabel>();
+
+  if (topThree.length === 0) return labelMap;
+
+  labelMap.set(topThree[0].slug, "Best fit");
+
+  const remaining = topThree.slice(1);
+  if (remaining.length === 0) return labelMap;
+
+  const lowFrictionScore = (town: Town) =>
+    town.accessibility + town.longStayFit + town.familyFit + town.remoteWork + town.affordability;
+
+  const aspirationScore = (town: Town) =>
+    town.aesthetics + town.socialEnergy + town.tourismIntensity * 0.5;
+
+  const safer = remaining.reduce((best, current) =>
+    lowFrictionScore(current) > lowFrictionScore(best) ? current : best
+  );
+
+  labelMap.set(safer.slug, "Safer fit");
+
+  remaining
+    .filter((town) => town.slug !== safer.slug)
+    .forEach((town) => {
+      const isAspirational =
+        aspirationScore(town) > lowFrictionScore(town) || town.socialEnergy >= 4 || town.aesthetics >= 5;
+
+      labelMap.set(town.slug, isAspirational ? "Aspirational fit" : "Alternative fit");
+    });
+
+  return labelMap;
+}
+
+export function scoreTowns(answers: QuizAnswers): ScoredTown[] {
+  const rankedWithSignals = towns
     .map((town) => {
-      let score = 0;
-
-      if (answers.stayLength === "short") score += town.socialEnergy + town.aesthetics - town.longStayFit * 0.4;
-      if (answers.stayLength === "medium") score += town.remoteWork + town.aesthetics;
-      if (answers.stayLength === "extended") score += town.longStayFit + town.quiet + town.familyFit * 0.4;
-      if (answers.stayLength === "long") score += town.longStayFit * 1.5 + town.familyFit + town.accessibility * 0.5;
-
-      if (answers.persona === "solo-remote") score += town.remoteWork + town.aesthetics * 0.5;
-      if (answers.persona === "creator") score += town.aesthetics + town.socialEnergy + town.remoteWork * 0.5;
-      if (answers.persona === "couple") score += town.longStayFit + town.quiet * 0.5 + town.aesthetics * 0.5;
-      if (answers.persona === "family") score += town.familyFit * 1.5 + town.accessibility + town.longStayFit * 0.5;
-      if (answers.persona === "returning") score += town.longStayFit + town.accessibility + town.affordability;
-
-      if (answers.budget === "tight") score += town.affordability * 1.5;
-      if (answers.budget === "moderate") score += town.affordability;
-      if (answers.budget === "comfortable") score += town.aesthetics * 0.5 + town.remoteWork * 0.5;
-      if (answers.budget === "flexible") score += town.aesthetics + town.socialEnergy * 0.5;
-
-      if (answers.internet === "non-negotiable") score += town.remoteWork * 1.5 + town.accessibility * 0.5;
-      if (answers.internet === "important") score += town.remoteWork;
-      if (answers.internet === "nice") score += town.longStayFit * 0.5;
-      if (answers.internet === "low") score += town.quiet * 0.5 + town.aesthetics * 0.5;
-
-      if (answers.pace === "quiet") score += town.quiet * 1.5 - town.socialEnergy * 0.4;
-      if (answers.pace === "balanced") score += town.longStayFit + town.accessibility * 0.5;
-      if (answers.pace === "some-buzz") score += town.socialEnergy + town.longStayFit * 0.5;
-      if (answers.pace === "energy") score += town.socialEnergy * 1.5;
-
-      if (answers.tourismTolerance === "low") score += (6 - town.tourismIntensity) * 1.5;
-      if (answers.tourismTolerance === "some") score += 3;
-      if (answers.tourismTolerance === "fine") score += town.tourismIntensity * 0.5;
-      if (answers.tourismTolerance === "love-it") score += town.tourismIntensity * 1.5;
-
-      if (answers.priority === "beauty") score += town.aesthetics * 1.5;
-      if (answers.priority === "practical") score += town.accessibility + town.affordability + town.longStayFit * 0.5;
-      if (answers.priority === "remote") score += town.remoteWork * 1.5;
-      if (answers.priority === "family") score += town.familyFit * 1.5 + town.accessibility;
-
-      if (answers.access === "very") score += town.accessibility * 1.5;
-      if (answers.access === "important") score += town.accessibility;
-      if (answers.access === "somewhat") score += town.accessibility * 0.5;
-      if (answers.access === "low") score += town.quiet * 0.5 + town.aesthetics * 0.5;
-
-      if (answers.climate === "cold") score += town.weatherCold * 1.5;
-      if (answers.climate === "moderate") score += (6 - town.weatherCold) * 1.2;
-      if (answers.climate === "flexible") score += 1;
-
-      if (answers.optimizeFor === "deep-work") score += town.quiet * 1.5 + town.longStayFit;
-      if (answers.optimizeFor === "inspiration") score += town.aesthetics * 1.5 + town.socialEnergy * 0.5;
-      if (answers.optimizeFor === "convenience") score += town.accessibility * 1.5 + town.familyFit * 0.5;
-      if (answers.optimizeFor === "home-base") score += town.longStayFit * 1.5 + town.familyFit * 0.5;
+      const signals = getScoreSignals(town, answers);
+      const score = Number(signals.reduce((sum, signal) => sum + signal.score, 0).toFixed(2));
 
       return {
         ...town,
-        score: Number(score.toFixed(2)),
+        score,
+        _signals: signals,
       };
     })
     .sort((a, b) => b.score - a.score);
+
+  const topThree = rankedWithSignals.slice(0, 3);
+  const labels = getLabelForTopThree(topThree);
+
+  return rankedWithSignals.map(({ _signals, ...town }, index) => ({
+    ...town,
+    matchProfile: {
+      label: labels.get(town.slug) ?? (index === 0 ? "Best fit" : "Alternative fit"),
+      whyMatched: buildWhyMatched(_signals),
+      differenceNote:
+        index < 3 ? buildDifferenceNote(town, topThree) : "This is a reasonable backup if the top three feel too strong in one direction.",
+      cautionNote: buildCautionNote(town, answers),
+      strengthChips: buildStrengthChips(town, _signals),
+    },
+  }));
 }
 
 export function getValidAnswersFromSearchParams(
@@ -209,73 +915,4 @@ export function getValidAnswersFromSearchParams(
 
 export function hasCompleteQuizAnswers(answers: QuizAnswers) {
   return quizQuestions.every((question) => Boolean(answers[question.key]));
-}
-
-export function buildReason(townName: string, answers?: QuizAnswers) {
-  const fitSignals: string[] = [];
-  const cautionSignals: string[] = [];
-
-  if (answers?.pace === "quiet") {
-    fitSignals.push("you leaned toward a quieter day-to-day rhythm");
-  } else if (answers?.pace === "energy") {
-    fitSignals.push("you seem comfortable with more movement and social energy");
-  } else if (answers?.pace === "balanced") {
-    fitSignals.push("you appear to want balance rather than extremes");
-  }
-
-  if (answers?.priority === "remote") {
-    fitSignals.push("remote-work practicality matters a lot to you");
-  } else if (answers?.priority === "practical") {
-    fitSignals.push("you’re optimizing for real-life usability over fantasy");
-  } else if (answers?.priority === "beauty") {
-    fitSignals.push("beauty and atmosphere are clearly important in your decision");
-  } else if (answers?.priority === "family") {
-    fitSignals.push("family comfort and access are central to your choice");
-  }
-
-  if (answers?.optimizeFor === "home-base") {
-    fitSignals.push("you’re looking for somewhere that can function as a real base, not just a nice phase");
-  } else if (answers?.optimizeFor === "deep-work") {
-    fitSignals.push("you’re trying to protect peace and focus");
-  } else if (answers?.optimizeFor === "inspiration") {
-    fitSignals.push("inspiration and emotional pull matter in the choice");
-  }
-
-  if (answers?.tourismTolerance === "low") {
-    cautionSignals.push("you may have a lower tolerance for heavy tourist energy");
-  }
-  if (answers?.access === "very") {
-    cautionSignals.push("easy access and logistics seem important to you");
-  }
-  if (answers?.budget === "tight") {
-    cautionSignals.push("budget discipline is probably part of the decision");
-  }
-
-  const prefix = fitSignals.length
-    ? `This fit looks strong because ${fitSignals.slice(0, 2).join(" and ")}.`
-    : "This fit looks strong based on the preferences you selected.";
-
-  const townSpecific: Record<string, string> = {
-    Palampur:
-      "Palampur tends to work when someone wants steadiness, lower noise, and a town that feels livable beyond the first impression.",
-    Dharamshala:
-      "Dharamshala usually suits people looking for a more balanced mix of access, movement, and longer-stay practicality.",
-    Solan:
-      "Solan often rises when practicality, access, and lower-friction living matter more than postcard drama.",
-    Bir: "Bir usually works best for people who want inspiration, people around them, and a more energetic remote-work rhythm.",
-    Shimla:
-      "Shimla tends to fit users who need stronger infrastructure, connectivity, and everyday practicality.",
-    Naggar:
-      "Naggar makes sense when someone values beauty, quiet, and slowness enough to tolerate less convenience.",
-    Manali:
-      "Manali usually fits users who are more open to intensity, strong scenery, and seasonal energy.",
-    McLeodganj:
-      "McLeodganj works better for people who enjoy visible social/cultural energy and can tolerate tourist activity.",
-  };
-
-  const caution = cautionSignals.length
-    ? `One thing to keep in mind: ${cautionSignals[0]}.`
-    : "";
-
-  return `${prefix} ${townSpecific[townName] ?? "This town aligns well with the priorities you selected in the quiz."} ${caution}`.trim();
 }
