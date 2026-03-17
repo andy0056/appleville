@@ -122,43 +122,54 @@ export function QuizForm() {
             </div>
             <div className="h-2 rounded-full bg-[var(--accent-soft)]">
               <div
-                className="h-2 rounded-full bg-[var(--accent)] transition-all"
-                style={{ width: `${progress}%` }}
+                className="h-2 rounded-full bg-[var(--accent)]"
+                style={{
+                  width: `${progress}%`,
+                  transition: "width var(--motion-base) var(--motion-ease-soft)",
+                }}
               />
             </div>
           </div>
 
-          <div className="space-y-3">
-            <p className="eyebrow">Current question</p>
-            <h2 className="text-xl font-semibold leading-tight md:text-3xl">{question.label}</h2>
-            {helperText ? (
-              <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
-                {helperText}
-              </p>
-            ) : null}
+          <div
+            key={question.key}
+            className="motion-enter-up space-y-6"
+            style={{ animationDuration: "240ms" }}
+          >
+            <div className="space-y-3">
+              <p className="eyebrow">Current question</p>
+              <h2 className="text-xl font-semibold leading-tight md:text-3xl">
+                {question.label}
+              </h2>
+              {helperText ? (
+                <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
+                  {helperText}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="grid gap-3">
+              {question.options.map((option) => {
+                const isActive = selected === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleSelect(question.key, option.value)}
+                    className={`press-scale rounded-2xl border px-4 py-4 text-left text-sm leading-6 md:px-5 md:py-5 md:text-base ${
+                      isActive
+                        ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
+                        : "border-[var(--line)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--accent)]/50"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="lg:hidden">{summaryBlock}</div>
-
-          <div className="grid gap-3">
-            {question.options.map((option) => {
-              const isActive = selected === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleSelect(question.key, option.value)}
-                  className={`press-scale rounded-2xl border px-4 py-4 text-left text-sm leading-6 md:px-5 md:py-5 md:text-base ${
-                    isActive
-                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
-                      : "border-[var(--line)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--accent)]/50"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
 
           <div className="grid gap-3 pt-2">
             <button

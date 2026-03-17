@@ -102,7 +102,10 @@ export default async function ResultsPage({
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="card p-5 md:p-6">
+          <div
+            className="motion-enter-up card p-5 md:p-6"
+            style={{ animationDuration: "220ms" }}
+          >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="eyebrow">Answer recap</p>
               <div className="flex flex-wrap gap-3 text-sm">
@@ -127,15 +130,23 @@ export default async function ResultsPage({
             </div>
           </div>
 
-          <ShareActions
-            title="Your Himachal town matches"
-            text="Reopen this Appleville result set with the same answers."
-            hint="Copy or share this URL to revisit the same quiz results."
-          />
+          <div
+            className="motion-enter-fade"
+            style={{ animationDelay: "80ms", animationDuration: "200ms" }}
+          >
+            <ShareActions
+              title="Your Himachal town matches"
+              text="Reopen this Appleville result set with the same answers."
+              hint="Copy or share this URL to revisit the same quiz results."
+            />
+          </div>
         </div>
 
         {topMatch ? (
-          <article className="card relative overflow-hidden p-5 md:p-7">
+          <article
+            className="motion-enter-up card relative overflow-hidden p-5 md:p-7"
+            style={{ animationDelay: "160ms", animationDuration: "240ms" }}
+          >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
             <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-5">
@@ -215,8 +226,15 @@ export default async function ResultsPage({
         ) : null}
 
         <div className="grid gap-4 lg:grid-cols-2">
-          {secondaryMatches.map((town) => (
-            <article key={town.slug} className="card relative overflow-hidden p-5 md:p-6">
+          {secondaryMatches.map((town, index) => (
+            <article
+              key={town.slug}
+              className="motion-enter-up card relative overflow-hidden p-5 md:p-6"
+              style={{
+                animationDelay: `${240 + index * 80}ms`,
+                animationDuration: "220ms",
+              }}
+            >
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
               <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
                 <span

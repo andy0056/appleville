@@ -106,7 +106,10 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="card p-5 md:p-6">
+      <div
+        className="motion-enter-fade card p-5 md:p-6"
+        style={{ animationDuration: "200ms" }}
+      >
         <p className="eyebrow">How these towns separate</p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {separationSummary.map((item) => (
@@ -120,7 +123,10 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
         </div>
       </div>
 
-      <div className="hidden overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--card)] md:block">
+      <div
+        className="motion-enter-fade hidden overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--card)] md:block"
+        style={{ animationDelay: "80ms", animationDuration: "220ms" }}
+      >
         <div className="border-b border-[var(--line)] bg-[rgba(255,255,255,0.38)] px-5 py-4 text-sm leading-7 text-[var(--muted)]">
           Several towns can be strongest in the same dimension. That means a tie
           within this selected set, not an overall winner.
@@ -192,9 +198,12 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
         </table>
       </div>
 
-      <div className="grid gap-4 md:hidden">
+      <div
+        className="motion-enter-fade grid gap-4 md:hidden"
+        style={{ animationDelay: "80ms", animationDuration: "220ms" }}
+      >
         {selected.map((town) => (
-          <div key={town.slug} className="card p-5">
+          <div key={town.slug} className="hover-lift-soft card p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-xl font-semibold">{town.name}</h3>
@@ -260,7 +269,10 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
         ))}
       </div>
 
-      <div className="hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3">
+      <div
+        className="motion-enter-fade hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3"
+        style={{ animationDelay: "140ms", animationDuration: "220ms" }}
+      >
         {selected.map((town) => (
           <div key={town.slug} className="card p-5">
             <h3 className="text-xl font-semibold">{town.name}</h3>
