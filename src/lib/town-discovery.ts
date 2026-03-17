@@ -80,7 +80,7 @@ export function filterAndSortTowns(towns: Town[], state: TownFilterState) {
       return false;
     }
 
-    return state.strengths.every((key) => town[key] >= 4);
+    return state.strengths.every((key) => town.discoveryStrengths.includes(key));
   });
 
   if (state.sort === "editorial") {
@@ -97,11 +97,9 @@ export function filterAndSortTowns(towns: Town[], state: TownFilterState) {
 }
 
 export function getTownCardHighlights(town: Town) {
-  return (Object.entries(strengthMeta) as [TownStrengthFilter, { label: string; cardLabel: string }][])
-    .filter(([key]) => town[key] >= 4)
-    .sort((a, b) => town[b[0]] - town[a[0]])
-    .slice(0, 2)
-    .map(([, meta]) => meta.cardLabel);
+  return town.discoveryStrengths
+    .map((key) => strengthMeta[key].cardLabel)
+    .slice(0, 2);
 }
 
 export function getTownMetricRow(town: Town) {

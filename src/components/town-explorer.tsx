@@ -68,7 +68,11 @@ export function TownExplorer({ towns }: { towns: Town[] }) {
 
             <div className="space-y-2">
               <p className="text-sm font-semibold text-[var(--foreground)]">
-                Filter by strength
+                Filter by fit
+              </p>
+              <p className="text-sm leading-7 text-[var(--muted)]">
+                These tags follow Appleville&apos;s editorial reading of each town,
+                not just one raw score.
               </p>
               <div className="flex flex-wrap gap-2">
                 {discoveryStrengthOptions.map((option) => {

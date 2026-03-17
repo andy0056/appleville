@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { filterAndSortTowns, getTownCardHighlights, getTownMetricRow } from "./town-discovery.ts";
 import { towns } from "./towns.ts";
 
-test("filterAndSortTowns applies AND strength filters", () => {
+test("filterAndSortTowns applies AND discovery-fit filters", () => {
   const filtered = filterAndSortTowns(towns, {
     query: "",
     strengths: ["quiet", "longStayFit"],
@@ -11,8 +11,22 @@ test("filterAndSortTowns applies AND strength filters", () => {
     sort: "editorial",
   });
 
-  assert.ok(filtered.length > 0);
-  assert.ok(filtered.every((town) => town.quiet >= 4 && town.longStayFit >= 4));
+  assert.deepEqual(
+    filtered.map((town) => town.slug),
+    ["palampur"],
+  );
+});
+
+test("filterAndSortTowns uses editorial remote-work tags instead of a raw >=4 cutoff", () => {
+  const filtered = filterAndSortTowns(towns, {
+    query: "",
+    strengths: ["remoteWork"],
+    budget: "all",
+    sort: "editorial",
+  });
+
+  assert.ok(filtered.some((town) => town.slug === "palampur"));
+  assert.ok(filtered.some((town) => town.slug === "naggar"));
 });
 
 test("filterAndSortTowns sorts by accessibility descending", () => {
@@ -37,5 +51,5 @@ test("town card helpers produce concise discovery signals", () => {
     { label: "Quiet", value: 5 },
     { label: "Access", value: 3 },
   ]);
-  assert.ok(getTownCardHighlights(palampur).includes("Quiet living"));
+  assert.deepEqual(getTownCardHighlights(palampur), ["Quiet living", "Long stays"]);
 });
