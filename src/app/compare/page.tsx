@@ -26,6 +26,7 @@ export default async function ComparePage({
           <h1 className="text-4xl font-semibold">Compare likely base options side by side</h1>
           <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">
             Compare towns from your result shortlist or build your own side-by-side view.
+            Look for where each place is strongest, and where the tradeoff starts to show.
           </p>
         </div>
 
