@@ -45,7 +45,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="page-shell">
           <SiteHeader />
-          <div className="min-h-[calc(100vh-92px)] md:min-h-[calc(100vh-104px)]">{children}</div>
+          <div className="min-h-[calc(100vh-92px)] pt-3 md:min-h-[calc(100vh-104px)] md:pt-4">
+            {children}
+          </div>
           <SiteFooter />
         </div>
       </body>
