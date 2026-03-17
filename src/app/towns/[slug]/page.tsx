@@ -26,43 +26,48 @@ export default async function TownDetailPage({
   ];
 
   return (
-    <main className="container-app py-14 md:py-20">
-      <div className="max-w-5xl space-y-8">
-        <div className="space-y-4">
+    <main className="container-app py-12 md:py-16">
+      <div className="max-w-6xl space-y-8 md:space-y-10">
+        <div className="space-y-4 md:space-y-5">
           <p className="eyebrow">{town.district}</p>
-          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{town.name}</h1>
-          <p className="text-lg text-[var(--forest)]">{town.archetype}</p>
-          <p className="max-w-3xl text-base leading-8 text-[var(--muted)]">{town.summary}</p>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{town.name}</h1>
+            <p className="text-base text-[var(--forest)] md:text-lg">{town.archetype}</p>
+          </div>
+          <p className="max-w-3xl text-base leading-7 text-[var(--muted)] md:text-lg md:leading-8">{town.summary}</p>
           <div className="flex flex-wrap gap-2">
             {town.vibe.map((tag) => (
-              <span key={tag} className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]">
+              <span
+                key={tag}
+                className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.45)] px-3 py-1 text-xs text-[var(--muted)]"
+              >
                 {tag}
               </span>
             ))}
           </div>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[0.7fr_1.3fr]">
-          <aside className="space-y-5">
-            <div className="card p-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-start">
+          <aside className="space-y-4 lg:sticky lg:top-24">
+            <div className="card bg-[rgba(255,250,242,0.94)] p-5 md:p-6">
               <p className="eyebrow">Quick read</p>
-              <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--muted)]">
+              <div className="mt-4 space-y-4 text-sm leading-6 text-[var(--muted)]">
                 <div>
                   <p className="font-semibold text-[var(--foreground)]">Best for</p>
-                  <p>{town.goodFor.slice(0, 3).join(", ")}</p>
+                  <p className="mt-1">{town.goodFor.slice(0, 3).join(", ")}</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-[var(--foreground)]">Avoid if</p>
-                  <p>{town.notIdealFor.slice(0, 2).join(", ")}</p>
+                  <p className="font-semibold text-[var(--foreground)]">Use caution if</p>
+                  <p className="mt-1">{town.notIdealFor.slice(0, 2).join(", ")}</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-[var(--foreground)]">Why people choose it</p>
-                  <p>{town.localFeel}</p>
+                  <p className="font-semibold text-[var(--foreground)]">Overall feel</p>
+                  <p className="mt-1">{town.localFeel}</p>
                 </div>
               </div>
             </div>
 
-            <div className="card p-6">
+            <div className="card p-5 md:p-6">
               <p className="eyebrow">Snapshot</p>
               <div className="mt-5 space-y-4">
                 {metrics.map(([label, value]) => (
@@ -71,7 +76,7 @@ export default async function TownDetailPage({
                       <span>{label}</span>
                       <span className="text-[var(--muted)]">{value}/5</span>
                     </div>
-                    <div className="h-2 rounded-full bg-[var(--accent-soft)]">
+                    <div className="h-2 rounded-full bg-[var(--accent-soft)]/85">
                       <div
                         className="h-2 rounded-full bg-[var(--accent)]"
                         style={{ width: `${(Number(value) / 5) * 100}%` }}
@@ -83,49 +88,19 @@ export default async function TownDetailPage({
             </div>
           </aside>
 
-          <section className="space-y-5">
-            <div className="card p-6">
-              <p className="eyebrow">Who it suits</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {town.goodFor.map((item) => (
-                  <span key={item} className="rounded-full border border-[var(--line)] px-3 py-1 text-sm text-[var(--muted)]">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-2">
-              <div className="card p-6">
-                <p className="eyebrow">Pros</p>
-                <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--muted)]">
-                  {town.pros.map((pro) => (
-                    <li key={pro}>• {pro}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="card p-6">
-                <p className="eyebrow">Cons</p>
-                <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--muted)]">
-                  {town.cons.map((con) => (
-                    <li key={con}>• {con}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-2">
-              <div className="card p-6">
+          <section className="space-y-4 md:space-y-5">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="card p-5 md:p-6">
                 <p className="eyebrow">Best for</p>
-                <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--muted)]">
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
                   {town.goodFor.map((item) => (
                     <li key={item}>• {item}</li>
                   ))}
                 </ul>
               </div>
-              <div className="card p-6">
+              <div className="card p-5 md:p-6">
                 <p className="eyebrow">Not ideal for</p>
-                <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--muted)]">
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
                   {town.notIdealFor.map((item) => (
                     <li key={item}>• {item}</li>
                   ))}
@@ -133,40 +108,46 @@ export default async function TownDetailPage({
               </div>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
-              <div className="card p-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="card p-5 md:p-6">
                 <p className="eyebrow">Remote-work reality</p>
-                <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.remoteWorkReality}</p>
+                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.remoteWorkReality}</p>
               </div>
-              <div className="card p-6">
+              <div className="card p-5 md:p-6">
                 <p className="eyebrow">Practical reality</p>
-                <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.practicalReality}</p>
+                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.practicalReality}</p>
               </div>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
-              <div className="card p-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="card p-5 md:p-6">
                 <p className="eyebrow">Stay notes</p>
-                <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.stayNotes}</p>
+                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.stayNotes}</p>
               </div>
-              <div className="card p-6">
+              <div className="card p-5 md:p-6">
                 <p className="eyebrow">Local feel</p>
-                <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.localFeel}</p>
+                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.localFeel}</p>
               </div>
             </div>
 
-            <div className="card p-6">
+            <div className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
               <p className="eyebrow">The tradeoff</p>
-              <p className="mt-4 text-base leading-8 text-[var(--muted)]">{town.tradeoff}</p>
+              <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.tradeoff}</p>
             </div>
           </section>
         </div>
 
-        <div className="flex flex-wrap gap-4">
-          <Link href="/compare" className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+          <Link
+            href="/compare"
+            className="rounded-full bg-[var(--accent)] px-6 py-3 text-center text-sm font-semibold text-white"
+          >
             Compare towns
           </Link>
-          <Link href="/towns" className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-sm font-semibold">
+          <Link
+            href="/towns"
+            className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-center text-sm font-semibold"
+          >
             Back to towns
           </Link>
         </div>
