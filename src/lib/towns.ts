@@ -24,6 +24,8 @@ export type Town = {
   practicalReality: string;
   stayNotes: string;
   localFeel: string;
+  relatedTownSlugs: string[];
+  relatedGuideSlugs: string[];
   budget: "tight" | "moderate" | "comfortable" | "premium";
   affordability: number;
   remoteWork: number;
@@ -65,6 +67,8 @@ export const towns: Town[] = [
     practicalReality: "This is easier than a tucked-away village, but it still feels like a scene town rather than a full-service base. The appeal is real, but so is the slightly temporary rhythm.",
     stayNotes: "Usually strongest as a shorter experiment or medium stay. Some people do settle in longer, but the town makes more sense when you are comfortable with movement around you.",
     localFeel: "Tea-garden edges, landing-site energy, monasteries, and a casual international crowd give Bir a breezy, semi-nomadic feel.",
+    relatedTownSlugs: ["dharamshala", "palampur", "mcleodganj"],
+    relatedGuideSlugs: ["bir-vs-dharamshala-vs-palampur", "best-himachal-towns-for-remote-workers", "quiet-vs-social-towns-in-himachal"],
     budget: "moderate",
     affordability: 3,
     remoteWork: 4,
@@ -101,6 +105,8 @@ export const towns: Town[] = [
     practicalReality: "This is one of the safer bets when schools, healthcare, errands, and road access matter. It is useful precisely because it feels layered rather than perfectly polished.",
     stayNotes: "Best for medium to long stays when you want a usable base first and postcard mood second.",
     localFeel: "Dharamshala feels split-level and mixed: administrative in parts, spiritual and international in others, with more daily movement than smaller towns.",
+    relatedTownSlugs: ["palampur", "bir", "shimla"],
+    relatedGuideSlugs: ["bir-vs-dharamshala-vs-palampur", "best-himachal-towns-for-remote-workers", "best-himachal-towns-for-families"],
     budget: "moderate",
     affordability: 3,
     remoteWork: 4,
@@ -137,6 +143,8 @@ export const towns: Town[] = [
     practicalReality: "The same visibility that makes it compelling also makes it busier, denser, and less friction-free for ordinary living.",
     stayNotes: "Usually stronger as a phase than as a long-term answer. Many people enjoy starting here, then shifting somewhere calmer nearby.",
     localFeel: "Steep lanes, monasteries, cafés, trekking traffic, and visiting students make McLeodganj feel vivid and rarely off-stage.",
+    relatedTownSlugs: ["dharamshala", "bir", "manali"],
+    relatedGuideSlugs: ["quiet-vs-social-towns-in-himachal", "what-people-underestimate-about-moving-to-himachal", "vacation-town-vs-real-life-base"],
     budget: "comfortable",
     affordability: 2,
     remoteWork: 3,
@@ -173,6 +181,8 @@ export const towns: Town[] = [
     practicalReality: "Palampur feels lived-in. That means less fantasy on day one, but often more stability by month two.",
     stayNotes: "Strong for medium and long stays, especially if you are choosing peace, habit, and lower tourist pressure over novelty.",
     localFeel: "Tea gardens, wider roads, local neighborhoods, and a softer pace make Palampur feel grounded rather than performative.",
+    relatedTownSlugs: ["dharamshala", "solan", "bir"],
+    relatedGuideSlugs: ["bir-vs-dharamshala-vs-palampur", "best-himachal-towns-for-families", "quiet-vs-social-towns-in-himachal"],
     budget: "moderate",
     affordability: 4,
     remoteWork: 3,
@@ -209,6 +219,8 @@ export const towns: Town[] = [
     practicalReality: "If you need schools, hospitals, government services, and transport links, Shimla earns its place quickly. If you want simplicity, it can feel crowded and effortful.",
     stayNotes: "Usually better for longer, practical stays than for dreamy trial runs.",
     localFeel: "Colonial core, dense neighborhoods, civic life, and steady traffic make Shimla feel functional first and scenic second.",
+    relatedTownSlugs: ["solan", "dharamshala", "palampur"],
+    relatedGuideSlugs: ["best-himachal-towns-for-families", "what-people-underestimate-about-moving-to-himachal", "vacation-town-vs-real-life-base"],
     budget: "comfortable",
     affordability: 2,
     remoteWork: 4,
@@ -245,6 +257,8 @@ export const towns: Town[] = [
     practicalReality: "Solan starts making more sense once errands, travel time, and long-term livability matter more than image.",
     stayNotes: "Best for medium or long stays where usefulness is part of the goal, not a compromise you resent.",
     localFeel: "Compact, connected, and understated, Solan feels inhabited and serviceable rather than cinematic.",
+    relatedTownSlugs: ["shimla", "palampur", "dharamshala"],
+    relatedGuideSlugs: ["best-himachal-towns-for-remote-workers", "best-himachal-towns-for-families", "what-people-underestimate-about-moving-to-himachal"],
     budget: "moderate",
     affordability: 4,
     remoteWork: 4,
@@ -281,6 +295,8 @@ export const towns: Town[] = [
     practicalReality: "It gives you restaurants, visibility, and activity, but that same tourism machine can make ordinary life feel expensive, inconsistent, and crowded.",
     stayNotes: "Best approached as a shorter chapter unless you already know the valley well and can choose your setup carefully.",
     localFeel: "Busy roads, adventure traffic, cafés, and strong scenery make Manali feel cinematic, social, and often overstimulated.",
+    relatedTownSlugs: ["naggar", "mcleodganj", "bir"],
+    relatedGuideSlugs: ["quiet-vs-social-towns-in-himachal", "vacation-town-vs-real-life-base", "how-to-test-a-move-before-committing"],
     budget: "comfortable",
     affordability: 2,
     remoteWork: 3,
@@ -317,6 +333,8 @@ export const towns: Town[] = [
     practicalReality: "This is the kind of place that rewards intentional slow living. If you keep needing easy transport, variety, and quick fixes, it may wear you down.",
     stayNotes: "Usually best for slower stays or reset periods rather than highly practical relocations.",
     localFeel: "Heritage buildings, orchards, valley views, and a quieter pace make Naggar feel inward and scenic rather than outward-facing.",
+    relatedTownSlugs: ["manali", "palampur", "bir"],
+    relatedGuideSlugs: ["quiet-vs-social-towns-in-himachal", "best-himachal-towns-for-remote-workers", "vacation-town-vs-real-life-base"],
     budget: "moderate",
     affordability: 3,
     remoteWork: 2,

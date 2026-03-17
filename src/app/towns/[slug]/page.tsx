@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildPageMetadata } from "@/lib/metadata";
-import { getTownBySlug, towns } from "@/lib/towns";
+import { getGuideBySlug, type Guide } from "@/lib/guides";
+import { getTownBySlug, towns, type Town } from "@/lib/towns";
 
 export function generateStaticParams() {
   return towns.map((town) => ({ slug: town.slug }));
@@ -51,6 +52,15 @@ export default async function TownDetailPage({
     ["Tourism", town.tourismIntensity],
     ["Long-stay fit", town.longStayFit],
   ];
+  const compareSlugs = [town.slug, ...town.relatedTownSlugs].slice(0, 3);
+  const relatedGuides = town.relatedGuideSlugs
+    .map((guideSlug) => getGuideBySlug(guideSlug))
+    .filter((guide): guide is Guide => Boolean(guide))
+    .slice(0, 2);
+  const relatedTowns = town.relatedTownSlugs
+    .map((townSlug) => getTownBySlug(townSlug))
+    .filter((relatedTown): relatedTown is Town => Boolean(relatedTown))
+    .slice(0, 2);
 
   return (
     <main className="container-app py-12 md:py-16">
@@ -192,15 +202,81 @@ export default async function TownDetailPage({
               <p className="eyebrow">The tradeoff</p>
               <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.tradeoff}</p>
             </div>
+
+            <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+              <div className="card p-5 md:p-6">
+                <p className="eyebrow">Compare next</p>
+                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+                  Put this town beside a few realistic alternatives before you
+                  let a single page become the whole decision.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {[town, ...relatedTowns].map((item) => (
+                    <span
+                      key={item.slug}
+                      className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-1 text-xs text-[var(--muted)]"
+                    >
+                      {item.name}
+                    </span>
+                  ))}
+                </div>
+                <Link
+                  href={`/compare?towns=${compareSlugs.join(",")}`}
+                  className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                >
+                  Compare this set
+                </Link>
+              </div>
+
+              <div className="space-y-4">
+                <div className="compact-callout">
+                  <p className="eyebrow">How Appleville reads this town</p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+                    This page mixes fit, tradeoffs, and practical shape. It is
+                    directional guidance, not a promise about your exact street
+                    or stay.
+                  </p>
+                  <Link
+                    href="/how-it-works#town-pages"
+                    className="secondary-link mt-4 inline-flex text-sm font-semibold"
+                  >
+                    Read the method
+                  </Link>
+                </div>
+
+                {relatedGuides.length ? (
+                  <div className="card p-5 md:p-6">
+                    <p className="eyebrow">Related guide</p>
+                    <div className="mt-4 grid gap-3">
+                      {relatedGuides.map((guide) => (
+                        <Link
+                          key={guide.slug}
+                          href={`/guides/${guide.slug}`}
+                          className="rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-4 py-4 transition hover:-translate-y-0.5"
+                        >
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                            {guide.category}
+                          </p>
+                          <h2 className="mt-2 text-lg font-semibold">{guide.title}</h2>
+                          <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+                            {guide.bestWhen}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </section>
         </div>
 
         <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
           <Link
-            href="/compare"
+            href={`/compare?towns=${compareSlugs.join(",")}`}
             className="rounded-full bg-[var(--accent)] px-6 py-3 text-center text-sm font-semibold text-white"
           >
-            Compare towns
+            Compare next
           </Link>
           <Link
             href="/towns"

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
-import { guides } from "@/lib/guides";
+import { Guide, guides } from "@/lib/guides";
 import { buildPageMetadata } from "@/lib/metadata";
 
 const overviewBlocks = [
@@ -19,6 +19,25 @@ const overviewBlocks = [
 ];
 
 const categories = [...new Set(guides.map((guide) => guide.category))];
+const useCaseOrder = [
+  "fit-basics",
+  "shortlist",
+  "remote-work",
+  "family",
+  "trial-move",
+] as const;
+
+const useCaseLabels: Record<(typeof useCaseOrder)[number], string> = {
+  "fit-basics": "Get the basics right",
+  shortlist: "Separate a shortlist",
+  "remote-work": "Choose for remote work",
+  family: "Choose for family fit",
+  "trial-move": "Test a move properly",
+};
+
+const startHereGuides = useCaseOrder
+  .map((useCase) => guides.find((guide) => guide.useCase === useCase))
+  .filter((guide): guide is Guide => Boolean(guide));
 
 export const metadata = buildPageMetadata({
   title: "Himachal guides for choosing a base",
@@ -66,33 +85,77 @@ export default function GuidesPage() {
               {category}
             </span>
           ))}
+          <Link href="/how-it-works#use-it-well" className="secondary-link px-1 text-xs font-semibold uppercase tracking-[0.14em]">
+            How to use guides with the tool
+          </Link>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {guides.map((guide) => (
-            <Link
-              key={guide.slug}
-              href={`/guides/${guide.slug}`}
-              className="card p-6 transition hover:-translate-y-1"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
-                {guide.category}
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold">{guide.title}</h2>
-              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                {guide.summary}
-              </p>
-              {guide.takeaways?.[0] ? (
-                <div className="mt-5 rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-4 text-sm leading-7 text-[var(--muted)]">
-                  {guide.takeaways[0]}
-                </div>
-              ) : null}
-              <span className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]">
-                Read guide →
-              </span>
-            </Link>
-          ))}
-        </div>
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <p className="eyebrow">Start here</p>
+            <h2 className="text-3xl font-semibold tracking-tight">
+              Pick the guide that matches your actual decision
+            </h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {startHereGuides.map((guide) => (
+              <Link
+                key={guide.slug}
+                href={`/guides/${guide.slug}`}
+                className="card p-6 transition hover:-translate-y-1"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                  {useCaseLabels[guide.useCase]}
+                </p>
+                <h3 className="mt-3 text-2xl font-semibold">{guide.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+                  {guide.bestWhen}
+                </p>
+                <span className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]">
+                  Read guide →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <p className="eyebrow">All guides</p>
+            <h2 className="text-3xl font-semibold tracking-tight">
+              Browse the full decision-support set
+            </h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {guides.map((guide) => (
+              <Link
+                key={guide.slug}
+                href={`/guides/${guide.slug}`}
+                className="card p-6 transition hover:-translate-y-1"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                  {guide.category}
+                </p>
+                <h2 className="mt-3 text-2xl font-semibold">{guide.title}</h2>
+                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+                  {guide.summary}
+                </p>
+                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+                  <span className="font-semibold text-[var(--foreground)]">Best when:</span>{" "}
+                  {guide.bestWhen}
+                </p>
+                {guide.takeaways?.[0] ? (
+                  <div className="mt-5 rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-4 text-sm leading-7 text-[var(--muted)]">
+                    {guide.takeaways[0]}
+                  </div>
+                ) : null}
+                <span className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]">
+                  Read guide →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );

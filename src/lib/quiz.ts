@@ -1,4 +1,5 @@
-import { Town, towns } from "@/lib/towns";
+import { towns } from "./towns.ts";
+import type { Town } from "./towns.ts";
 
 export type QuizAnswerKey =
   | "stayLength"
@@ -24,9 +25,10 @@ export type MatchLabel = "Best fit" | "Safer fit" | "Aspirational fit" | "Altern
 
 export type MatchProfile = {
   label: MatchLabel;
-  whyMatched: string;
-  differenceNote: string;
-  cautionNote: string;
+  fitSummary: string;
+  bestIf: string[];
+  watchOutFor: string[];
+  whyItRanksHere: string;
   strengthChips: string[];
 };
 
@@ -695,25 +697,21 @@ function getCautionSignals(town: Town, answers: QuizAnswers) {
   return cautions;
 }
 
-function buildWhyMatched(signals: ScoreSignal[]) {
+function buildFitSummary(signals: ScoreSignal[]) {
   const topSignals = signals
     .filter((signal) => signal.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
+    .slice(0, 2);
 
   if (topSignals.length === 0) {
-    return "It aligns with several parts of your quiz, even if the fit is more balanced than obvious.";
+    return "It aligns with several parts of your quiz, even if the fit is more balanced than dramatic.";
   }
 
   if (topSignals.length === 1) {
-    return `It matched because ${topSignals[0].fitText}.`;
+    return `This rose because ${topSignals[0].fitText}.`;
   }
 
-  if (topSignals.length === 2) {
-    return `It matched because ${topSignals[0].fitText}, and ${topSignals[1].fitText}.`;
-  }
-
-  return `It matched because ${topSignals[0].fitText}, ${topSignals[1].fitText}, and ${topSignals[2].fitText}.`;
+  return `This rose because ${topSignals[0].fitText}, and ${topSignals[1].fitText}.`;
 }
 
 function getTownStrengthChips(town: Town) {
@@ -739,26 +737,56 @@ function buildStrengthChips(town: Town, signals: ScoreSignal[]) {
   return Array.from(new Set([...getTownStrengthChips(town), ...chips])).slice(0, 3);
 }
 
-function buildFallbackCaution(town: Town) {
-  const cautions = [
-    { score: 6 - town.aesthetics, text: "if atmosphere matters most, this one may feel less emotionally strong than the more scenic options" },
-    { score: 6 - town.quiet, text: "if quiet is central, this may carry more movement than you want" },
-    { score: 6 - town.accessibility, text: "if access matters a lot, this town may ask for more tolerance around logistics" },
-    { score: 6 - town.remoteWork, text: "if workability is the deciding factor, safer remote-work options exist in the set" },
-    { score: 6 - town.longStayFit, text: "if you want a durable base, this may feel more temporary than the top long-stay choices" },
-  ].sort((a, b) => b.score - a.score);
-
-  return cautions[0]?.text ?? town.tradeoff;
-}
-
 function ensureSentence(text: string) {
   const normalized = text.length > 0 ? `${text[0].toUpperCase()}${text.slice(1)}` : text;
   return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
 }
 
-function buildCautionNote(town: Town, answers: QuizAnswers) {
-  const strongest = getCautionSignals(town, answers).sort((a, b) => b.severity - a.severity)[0];
-  return ensureSentence(strongest?.text ?? buildFallbackCaution(town));
+function buildBestIf(town: Town, answers: QuizAnswers) {
+  const items: string[] = [];
+
+  if (answers.persona === "family" && town.familyFit >= 4) {
+    items.push("family routine matters more than scene");
+  }
+  if (answers.pace === "quiet" && town.quiet >= 4) {
+    items.push("you want a quieter daily rhythm");
+  }
+  if ((answers.priority === "remote" || answers.internet === "non-negotiable") && town.remoteWork >= 4) {
+    items.push("work continuity matters more than novelty");
+  }
+  if ((answers.access === "very" || answers.access === "important") && town.accessibility >= 4) {
+    items.push("easy access reduces more stress than atmosphere adds");
+  }
+  if ((answers.stayLength === "extended" || answers.stayLength === "long" || answers.optimizeFor === "home-base") && town.longStayFit >= 4) {
+    items.push("you want a town that can hold up after the first month");
+  }
+  if (answers.optimizeFor === "inspiration" && town.aesthetics >= 4) {
+    items.push("atmosphere still matters to the decision");
+  }
+  if (answers.tourismTolerance === "low" && town.tourismIntensity <= 2) {
+    items.push("lower tourist pressure helps you settle faster");
+  }
+
+  const fallback = town.goodFor.map((item) => item.replace(/^people /, "").replace(/^users /, ""));
+
+  return Array.from(new Set([...items, ...fallback])).slice(0, 3);
+}
+
+function buildWatchOutFor(town: Town, answers: QuizAnswers) {
+  const items = getCautionSignals(town, answers)
+    .sort((a, b) => b.severity - a.severity)
+    .map((item) => ensureSentence(item.text))
+    .slice(0, 2);
+
+  if (items.length >= 2) {
+    return items;
+  }
+
+  const fallbacks = town.notIdealFor
+    .slice(0, 2)
+    .map((item) => ensureSentence(`This gets harder if you are ${item}`));
+
+  return Array.from(new Set([...items, ...fallbacks])).slice(0, 2);
 }
 
 function buildDifferenceNote(
@@ -883,10 +911,11 @@ export function scoreTowns(answers: QuizAnswers): ScoredTown[] {
     ...town,
     matchProfile: {
       label: labels.get(town.slug) ?? (index === 0 ? "Best fit" : "Alternative fit"),
-      whyMatched: buildWhyMatched(_signals),
-      differenceNote:
+      fitSummary: buildFitSummary(_signals),
+      bestIf: buildBestIf(town, answers),
+      watchOutFor: buildWatchOutFor(town, answers),
+      whyItRanksHere:
         index < 3 ? buildDifferenceNote(town, topThree) : "This is a reasonable backup if the top three feel too strong in one direction.",
-      cautionNote: buildCautionNote(town, answers),
       strengthChips: buildStrengthChips(town, _signals),
     },
   }));

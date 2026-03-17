@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ShareActions } from "@/components/share-actions";
+import { buildDecisionProfile } from "@/lib/decision-profile";
+import { guides } from "@/lib/guides";
 import {
   getValidAnswersFromSearchParams,
   hasCompleteQuizAnswers,
@@ -7,6 +9,7 @@ import {
   scoreTowns,
 } from "@/lib/quiz";
 import { buildPageMetadata } from "@/lib/metadata";
+import { getRelatedGuideSlugsForResultSet } from "@/lib/result-guidance";
 
 const matchLabelStyles = {
   "Best fit": "bg-[var(--accent)] text-white",
@@ -14,6 +17,8 @@ const matchLabelStyles = {
   "Aspirational fit": "bg-[var(--accent-soft)] text-[var(--foreground)]",
   "Alternative fit": "bg-[rgba(255,255,255,0.55)] text-[var(--foreground)]",
 } as const;
+
+type RelatedGuide = (typeof guides)[number];
 
 export const metadata = buildPageMetadata({
   title: "Your Himachal town matches",
@@ -35,6 +40,12 @@ export default async function ResultsPage({
   const ranked = scoreTowns(answers);
   const top = ranked.slice(0, 3);
   const backups = ranked.slice(3, 5);
+  const topMatch = top[0];
+  const secondaryMatches = top.slice(1);
+  const profile = buildDecisionProfile(answers).filter((item) => item.value);
+  const relatedGuides = getRelatedGuideSlugsForResultSet(answers, top)
+    .map((slug) => guides.find((guide) => guide.slug === slug))
+    .filter((guide): guide is RelatedGuide => Boolean(guide));
 
   if (!hasCompleteAnswers) {
     return (
@@ -90,14 +101,121 @@ export default async function ResultsPage({
           </p>
         </div>
 
-        <ShareActions
-          title="Your Himachal town matches"
-          text="Reopen this Appleville result set with the same answers."
-          hint="Copy or share this URL to revisit the same quiz results."
-        />
+        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="card p-5 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="eyebrow">Answer recap</p>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <Link href="/quiz" className="secondary-link font-semibold">
+                  Change answers
+                </Link>
+                <Link href="/how-it-works#results" className="secondary-link font-semibold">
+                  How these matches are produced
+                </Link>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {profile.map((item) => (
+                <span
+                  key={item.id}
+                  className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.45)] px-3 py-2 text-sm text-[var(--muted)]"
+                >
+                  <span className="font-semibold text-[var(--foreground)]">{item.label}:</span>{" "}
+                  {item.value}
+                </span>
+              ))}
+            </div>
+          </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
-          {top.map((town) => (
+          <ShareActions
+            title="Your Himachal town matches"
+            text="Reopen this Appleville result set with the same answers."
+            hint="Copy or share this URL to revisit the same quiz results."
+          />
+        </div>
+
+        {topMatch ? (
+          <article className="card relative overflow-hidden p-5 md:p-7">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-5">
+                <div className="mt-1 flex flex-wrap items-center gap-3">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${matchLabelStyles[topMatch.matchProfile.label]}`}
+                  >
+                    {topMatch.matchProfile.label}
+                  </span>
+                  <span className="rounded-full bg-[rgba(255,255,255,0.55)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]">
+                    Score {topMatch.score}
+                  </span>
+                </div>
+
+                <div>
+                  <h2 className="text-3xl font-semibold md:text-4xl">{topMatch.name}</h2>
+                  <p className="mt-2 text-base text-[var(--forest)]">{topMatch.archetype}</p>
+                </div>
+
+                <p className="text-base leading-8 text-[var(--muted)]">{topMatch.summary}</p>
+                <p className="text-base leading-8 text-[var(--foreground)]">
+                  {topMatch.matchProfile.fitSummary}
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {topMatch.matchProfile.strengthChips.map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="card border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-5">
+                  <p className="eyebrow">Best if</p>
+                  <div className="mt-3 grid gap-3 text-sm leading-7 text-[var(--muted)]">
+                    {topMatch.matchProfile.bestIf.map((item) => (
+                      <p key={item}>• {item}</p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card p-5">
+                  <p className="eyebrow">Watch out for</p>
+                  <div className="mt-3 grid gap-3 text-sm leading-7 text-[var(--muted)]">
+                    {topMatch.matchProfile.watchOutFor.map((item) => (
+                      <p key={item}>• {item}</p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card p-5">
+                  <p className="eyebrow">Why it ranks here</p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+                    {topMatch.matchProfile.whyItRanksHere}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4 text-sm leading-7 text-[var(--muted)]">
+                  <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span>{" "}
+                  {topMatch.tradeoff}
+                </div>
+
+                <Link
+                  href={`/towns/${topMatch.slug}`}
+                  className="inline-flex text-sm font-semibold text-[var(--accent)]"
+                >
+                  View town profile
+                </Link>
+              </div>
+            </div>
+          </article>
+        ) : null}
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          {secondaryMatches.map((town) => (
             <article key={town.slug} className="card relative overflow-hidden p-5 md:p-6">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
               <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
@@ -118,6 +236,7 @@ export default async function ResultsPage({
               </div>
 
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{town.summary}</p>
+              <p className="mt-4 text-sm leading-7 text-[var(--foreground)]">{town.matchProfile.fitSummary}</p>
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {town.matchProfile.strengthChips.map((item) => (
@@ -129,16 +248,24 @@ export default async function ResultsPage({
 
               <div className="mt-5 space-y-4 text-sm leading-7 text-[var(--muted)]">
                 <div>
-                  <p className="font-semibold text-[var(--foreground)]">Why this matched</p>
-                  <p className="mt-1">{town.matchProfile.whyMatched}</p>
+                  <p className="font-semibold text-[var(--foreground)]">Best if</p>
+                  <div className="mt-1 grid gap-2">
+                    {town.matchProfile.bestIf.map((item) => (
+                      <p key={item}>• {item}</p>
+                    ))}
+                  </div>
                 </div>
                 <div>
-                  <p className="font-semibold text-[var(--foreground)]">How it differs</p>
-                  <p className="mt-1">{town.matchProfile.differenceNote}</p>
+                  <p className="font-semibold text-[var(--foreground)]">Watch out for</p>
+                  <div className="mt-1 grid gap-2">
+                    {town.matchProfile.watchOutFor.map((item) => (
+                      <p key={item}>• {item}</p>
+                    ))}
+                  </div>
                 </div>
                 <div>
-                  <p className="font-semibold text-[var(--foreground)]">Main caution</p>
-                  <p className="mt-1">{town.matchProfile.cautionNote}</p>
+                  <p className="font-semibold text-[var(--foreground)]">Why it ranks here</p>
+                  <p className="mt-1">{town.matchProfile.whyItRanksHere}</p>
                 </div>
               </div>
 
@@ -164,6 +291,31 @@ export default async function ResultsPage({
             ))}
           </div>
         </div>
+
+        {relatedGuides.length > 0 ? (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <p className="eyebrow">Read next</p>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Guides that fit this result set
+              </h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {relatedGuides.map((guide) => (
+                <Link key={guide.slug} href={`/guides/${guide.slug}`} className="card p-5 transition hover:-translate-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                    {guide.category}
+                  </p>
+                  <h3 className="mt-3 text-xl font-semibold">{guide.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{guide.bestWhen}</p>
+                  <span className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]">
+                    Read guide →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
           <Link

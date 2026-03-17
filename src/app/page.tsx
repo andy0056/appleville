@@ -4,20 +4,26 @@ import { TownCard } from "@/components/town-card";
 import { buildPageMetadata } from "@/lib/metadata";
 import { towns } from "@/lib/towns";
 
-const featured = towns.slice(0, 6);
+const featuredSlugs = ["dharamshala", "palampur", "bir", "solan"];
+const featured = featuredSlugs
+  .map((slug) => towns.find((town) => town.slug === slug))
+  .filter((town): town is (typeof towns)[number] => Boolean(town));
 
-const valueBlocks = [
+const startHere = [
   {
-    title: "Match",
-    body: "Start with a shortlist shaped by budget, pace, access, tourist pressure, and how you want daily life to feel.",
+    title: "Take the quiz",
+    body: "Best when you want a shortlist fast and you want pace, access, work fit, and long-stay tradeoffs weighed together.",
+    href: "/quiz",
   },
   {
-    title: "Compare",
-    body: "See where similar towns separate on quiet, family fit, remote-work ease, and long-stay practicality.",
+    title: "Browse towns",
+    body: "Best when you already know some town names and want clearer distinctions before the shortlist hardens.",
+    href: "/towns",
   },
   {
-    title: "Reality-check",
-    body: "Read the likely friction early, before you spend time or money on the wrong scouting trip or stay.",
+    title: "Read guides",
+    body: "Best when the real question is about tradeoffs, family fit, remote work, or how to test a move properly.",
+    href: "/guides",
   },
 ];
 
@@ -56,24 +62,16 @@ export default function Home() {
                 Choose a Himachal base for work, family, and everyday life.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:text-xl md:leading-8">
-                Appleville is a practical decision tool for people comparing towns
-                for remote work, a longer stay, or a gradual move. It helps you
-                narrow by pace, budget, access, and long-stay fit before the
-                shortlist gets fuzzy.
+                Appleville helps you match, compare, and reality-check Himachal
+                towns before the shortlist turns into a vague travel fantasy.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs text-[var(--muted)] sm:text-sm">
-              <span className="rounded-full bg-[rgba(255,255,255,0.45)] px-3 py-1">Remote-work fit</span>
-              <span className="rounded-full bg-[rgba(255,255,255,0.45)] px-3 py-1">Long-stay tradeoffs</span>
-              <span className="rounded-full bg-[rgba(255,255,255,0.45)] px-3 py-1">Town-by-town comparison</span>
-            </div>
             <div className="card p-5 md:p-6">
-              <p className="eyebrow">Why take the quiz first</p>
+              <p className="eyebrow">How Appleville helps</p>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] md:text-base">
-                Most Himachal towns sound appealing on their own. The quiz filters
-                by the things that start to matter once you plan to stay: work
-                setup, road access, tourist pressure, budget comfort, family fit,
-                and how quiet or social you want day-to-day life to feel.
+                Match by lifestyle fit, browse towns by strength, and compare
+                tradeoffs before you spend time or money on the wrong scouting
+                trip or trial stay.
               </p>
             </div>
             <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
@@ -90,26 +88,30 @@ export default function Home() {
                 Browse towns
               </Link>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
-              Built for choosing a base, not chasing a perfect-sounding travel list.
-            </p>
+            <Link href="/how-it-works" className="secondary-link text-sm font-semibold">
+              See how Appleville works
+            </Link>
           </div>
 
           <div className="card relative overflow-hidden p-6 md:p-8">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
-            <p className="eyebrow">What this helps with</p>
+            <p className="eyebrow">Start here</p>
             <div className="mt-5 grid gap-4">
-              {valueBlocks.map((item) => (
+              {startHere.map((item) => (
                 <div
                   key={item.title}
                   className="rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 md:p-5"
                 >
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--forest)]">
-                    {item.title}
-                  </p>
+                  <p className="text-lg font-semibold text-[var(--foreground)]">{item.title}</p>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted)] md:text-base">
                     {item.body}
                   </p>
+                  <Link
+                    href={item.href}
+                    className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]"
+                  >
+                    Open {item.title.toLowerCase()}
+                  </Link>
                 </div>
               ))}
             </div>
@@ -121,8 +123,8 @@ export default function Home() {
         <div className="flex items-end justify-between gap-4">
           <SectionHeading
             eyebrow="Featured towns"
-            title="Start with the towns people usually shortlist first"
-            body="Each profile covers pace, work reality, stay notes, and where the tradeoff tends to show up."
+            title="Start with four different fit profiles"
+            body="These are good entry points when you want four clearly different answers to work, pace, access, and long-stay shape."
           />
           <Link href="/towns" className="text-sm font-medium text-[var(--accent)]">
             View all towns
@@ -153,11 +155,11 @@ export default function Home() {
             </div>
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5">
-                <p className="text-sm font-semibold text-[var(--forest)]">Useful if you are</p>
-                <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--muted)]">
-                  {fitProfiles.map((item) => (
-                    <p key={item}>• {item}</p>
-                  ))}
+              <p className="text-sm font-semibold text-[var(--forest)]">Useful if you are</p>
+              <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--muted)]">
+                {fitProfiles.map((item) => (
+                  <p key={item}>• {item}</p>
+                ))}
                 </div>
               </div>
               <div className="rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5">
@@ -172,15 +174,24 @@ export default function Home() {
           </div>
           <div className="mt-8 flex flex-col gap-4 rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
-              Take the quiz if you want a faster shortlist. Browse towns first if
-              you already know the names you are deciding between.
+              Take the quiz if you want a faster shortlist. Browse towns or read
+              guides first if you are still working out what kind of tradeoff
+              matters most.
             </p>
-            <Link
-              href="/quiz"
-              className="rounded-full bg-[var(--accent)] px-5 py-3 text-center text-sm font-semibold text-white shadow-sm"
-            >
-              Start with the quiz
-            </Link>
+            <div className="grid gap-3 sm:flex sm:flex-wrap">
+              <Link
+                href="/quiz"
+                className="rounded-full bg-[var(--accent)] px-5 py-3 text-center text-sm font-semibold text-white shadow-sm"
+              >
+                Start with the quiz
+              </Link>
+              <Link
+                href="/guides"
+                className="rounded-full border border-[var(--line)] bg-[var(--card)] px-5 py-3 text-center text-sm font-semibold"
+              >
+                Read guides
+              </Link>
+            </div>
           </div>
         </div>
       </section>

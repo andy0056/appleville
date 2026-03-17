@@ -1,0 +1,56 @@
+import Link from "next/link";
+
+const productLinks = [
+  { href: "/quiz", label: "Quiz" },
+  { href: "/towns", label: "Towns" },
+  { href: "/compare", label: "Compare" },
+  { href: "/guides", label: "Guides" },
+];
+
+const trustLinks = [
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/about", label: "About" },
+];
+
+export function SiteFooter() {
+  return (
+    <footer className="border-t border-[var(--line)]/80 bg-[rgba(255,250,242,0.75)]">
+      <div className="container-app grid gap-8 py-10 md:grid-cols-[1.1fr_0.45fr_0.45fr]">
+        <div className="space-y-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--forest)]">
+            Appleville
+          </p>
+          <p className="max-w-md text-sm leading-7 text-[var(--muted)]">
+            A practical tool for matching, comparing, and reality-checking
+            Himachal towns for longer stays, remote work, and everyday life.
+          </p>
+          <p className="text-sm leading-7 text-[var(--muted)]">
+            Directional guidance, not certainty.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-[var(--foreground)]">Product</p>
+          <div className="grid gap-2 text-sm text-[var(--muted)]">
+            {productLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="secondary-link">
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-[var(--foreground)]">Trust</p>
+          <div className="grid gap-2 text-sm text-[var(--muted)]">
+            {trustLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="secondary-link">
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

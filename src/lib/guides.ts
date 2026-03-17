@@ -9,6 +9,8 @@ export type Guide = {
   title: string;
   summary: string;
   category: string;
+  useCase: "shortlist" | "remote-work" | "family" | "trial-move" | "fit-basics";
+  bestWhen: string;
   intro: string;
   sections: GuideSection[];
   takeaways?: string[];
@@ -22,6 +24,8 @@ export const guides: Guide[] = [
     summary:
       "How to tell whether a beautiful Himachal stop can actually support your weekday life.",
     category: "Decision-making",
+    useCase: "fit-basics",
+    bestWhen: "You are trying to separate mountain fantasy from everyday fit.",
     intro:
       "Many Himachal towns are easy to love for a week. The harder question is whether the same place still works once you add calls, errands, weather shifts, sleep, and the fifth ordinary Tuesday.",
     takeaways: [
@@ -85,6 +89,8 @@ export const guides: Guide[] = [
     summary:
       "Three Kangra-area options, three different answers to pace, access, and long-stay fit.",
     category: "Town comparisons",
+    useCase: "shortlist",
+    bestWhen: "These three towns are already on your shortlist and you need clearer separation.",
     intro:
       "These towns often land on the same shortlist because they sit in the same broader region. In practice, they solve different problems, and the wrong choice usually comes from reading them as slight variations of one another.",
     takeaways: [
@@ -148,6 +154,8 @@ export const guides: Guide[] = [
     summary:
       "A grounded look at access, routine friction, seasonality, and expectations.",
     category: "Relocation reality",
+    useCase: "fit-basics",
+    bestWhen: "You are getting serious about a move and want the hidden friction surfaced early.",
     intro:
       "The biggest mistake is usually not choosing the wrong pretty town. It is assuming daily life in the hills will be simpler than it is, or that beauty will cancel out every other inconvenience.",
     takeaways: [
@@ -198,6 +206,8 @@ export const guides: Guide[] = [
     summary:
       "There is no single best remote-work town in Himachal. The better question is what kind of workday you need the town to support.",
     category: "Remote work",
+    useCase: "remote-work",
+    bestWhen: "Remote-work reliability or workday shape is driving the shortlist.",
     intro:
       "Remote workers often start with scenery and then get corrected by daily rhythm. The right town depends on whether you need low friction, social overlap, quiet concentration, or easier access to the rest of India.",
     takeaways: [
@@ -255,6 +265,8 @@ export const guides: Guide[] = [
     summary:
       "Family fit in Himachal is less about the prettiest town and more about access, routine, and whether everyday life feels manageable.",
     category: "Family fit",
+    useCase: "family",
+    bestWhen: "Family routine, access, and day-to-day manageability matter more than scene.",
     intro:
       "Families usually need a steadier answer than solo travelers or short-stay remote workers. The right town often comes down to services, travel ease, school options, and whether daily life feels calm in a useful way, not just a scenic way.",
     takeaways: [
@@ -317,6 +329,8 @@ export const guides: Guide[] = [
     summary:
       "Use a short, structured trial stay to test fit before you sign a longer lease or shift your routines.",
     category: "Move planning",
+    useCase: "trial-move",
+    bestWhen: "You want a disciplined trial stay instead of guessing from a short first visit.",
     intro:
       "A trial stay is most useful when you treat it like fieldwork instead of a preview vacation. The goal is not to fall in love quickly. It is to learn what the town asks from you when life is ordinary.",
     takeaways: [
@@ -379,6 +393,8 @@ export const guides: Guide[] = [
     summary:
       "In Himachal, quiet versus social is often the bigger choice than town size. It shapes work rhythm, mood, and how long you want to stay.",
     category: "Lifestyle fit",
+    useCase: "shortlist",
+    bestWhen: "Your real question is whether you need protected quiet or more visible social energy.",
     intro:
       "People often describe towns as scenic, practical, or touristy. In everyday life, the more important split is often simpler: does the place protect your attention, or keep pulling it outward?",
     takeaways: [

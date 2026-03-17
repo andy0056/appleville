@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { siteMetadata } from "@/lib/metadata";
 import "./globals.css";
@@ -44,7 +45,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="page-shell">
           <SiteHeader />
-          {children}
+          <div className="min-h-[calc(100vh-64px)]">{children}</div>
+          <SiteFooter />
         </div>
       </body>
     </html>

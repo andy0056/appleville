@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getTownCardHighlights, getTownMetricRow } from "@/lib/town-discovery";
 import { Town } from "@/lib/towns";
 
 export function TownCard({ town }: { town: Town }) {
+  const highlights = getTownCardHighlights(town);
+  const metrics = getTownMetricRow(town);
+
   return (
     <Link
       href={`/towns/${town.slug}`}
@@ -33,7 +37,7 @@ export function TownCard({ town }: { town: Town }) {
       <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{town.summary}</p>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        {town.vibe.map((tag) => (
+        {highlights.map((tag) => (
           <span
             key={tag}
             className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-3 py-1 text-xs text-[var(--muted)]"
@@ -43,8 +47,14 @@ export function TownCard({ town }: { town: Town }) {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between text-sm">
-        <span className="text-[var(--muted)]">Remote work {town.remoteWork}/5</span>
+      <div className="mt-6 grid gap-3 text-sm text-[var(--muted)]">
+        <div className="flex flex-wrap gap-3">
+          {metrics.map((item) => (
+            <span key={item.label}>
+              {item.label} {item.value}/5
+            </span>
+          ))}
+        </div>
         <span className="font-semibold text-[var(--accent)] transition group-hover:translate-x-0.5">
           Explore →
         </span>

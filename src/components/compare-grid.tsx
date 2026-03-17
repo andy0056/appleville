@@ -121,6 +121,10 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
       </div>
 
       <div className="hidden overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--card)] md:block">
+        <div className="border-b border-[var(--line)] bg-[rgba(255,255,255,0.38)] px-5 py-4 text-sm leading-7 text-[var(--muted)]">
+          Several towns can be strongest in the same dimension. That means a tie
+          within this selected set, not an overall winner.
+        </div>
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="bg-[var(--accent-soft)]/60">
             <tr>

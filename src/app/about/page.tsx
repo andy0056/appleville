@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildPageMetadata } from "@/lib/metadata";
 
 export const metadata = buildPageMetadata({
@@ -19,13 +20,31 @@ export default function AboutPage() {
           helps them decide where life might actually work.
         </p>
         <p className="text-base leading-8 text-[var(--muted)]">
-          Build Your Life in Himachal is being designed as a calmer, more useful,
-          and more practical tool for people choosing a base in the state.
+          Appleville is designed as a calmer, more useful, and more practical tool
+          for people choosing a base in the state. The focus is fit, tradeoffs,
+          and everyday livability rather than fantasy-first travel advice.
         </p>
         <p className="text-base leading-8 text-[var(--muted)]">
-          The first version focuses on matching users to towns based on how they
-          want to live and work — not just where they want to holiday.
+          The editorial stance is intentionally grounded. Towns are described as
+          directional guidance, not certainty, because neighborhood feel,
+          housing quality, seasonality, and routine friction can change the
+          experience a lot inside the same place.
         </p>
+        <div className="compact-callout">
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            Want the method, not just the mission?
+          </p>
+          <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+            Read how the quiz, town traits, results, compare flow, and guides are
+            meant to be used.
+          </p>
+          <Link
+            href="/how-it-works"
+            className="mt-4 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+          >
+            Read how Appleville works
+          </Link>
+        </div>
       </div>
     </main>
   );

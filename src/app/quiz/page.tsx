@@ -21,6 +21,9 @@ export default function QuizPage() {
             Answer a few practical questions and we’ll suggest the Himachal towns
             that seem most aligned with how you want to live and work.
           </p>
+          <Link href="/how-it-works#quiz" className="secondary-link inline-flex text-sm font-semibold">
+            What this quiz considers
+          </Link>
         </div>
 
         <QuizForm />

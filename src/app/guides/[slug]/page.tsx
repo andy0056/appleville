@@ -79,16 +79,25 @@ export default async function GuideDetailPage({
             </p>
           </div>
 
-          {guide.takeaways?.length ? (
-            <aside className="card p-6 md:p-8">
+          <aside className="space-y-5">
+            <div className="compact-callout">
+              <p className="eyebrow">Use this guide when</p>
+              <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+                {guide.bestWhen}
+              </p>
+            </div>
+
+            {guide.takeaways?.length ? (
+              <div className="card p-6 md:p-8">
               <p className="eyebrow">Quick takeaways</p>
               <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--muted)]">
                 {guide.takeaways.map((item) => (
                   <p key={item}>• {item}</p>
                 ))}
               </div>
-            </aside>
-          ) : null}
+              </div>
+            ) : null}
+          </aside>
         </div>
 
         <div className="space-y-5">
@@ -114,6 +123,36 @@ export default async function GuideDetailPage({
             </section>
           ))}
         </div>
+
+        <section className="card p-6 md:p-8">
+          <p className="eyebrow">How to use this with Appleville</p>
+          <div className="mt-4 grid gap-3 sm:flex sm:flex-wrap">
+            <Link
+              href="/quiz"
+              className="rounded-full bg-[var(--accent)] px-5 py-3 text-center text-sm font-semibold text-white"
+            >
+              Take the quiz
+            </Link>
+            <Link
+              href="/compare"
+              className="rounded-full border border-[var(--line)] bg-[var(--card)] px-5 py-3 text-center text-sm font-semibold"
+            >
+              Compare towns
+            </Link>
+            <Link
+              href="/how-it-works#town-pages"
+              className="rounded-full border border-[var(--line)] bg-[var(--card)] px-5 py-3 text-center text-sm font-semibold"
+            >
+              How town pages are read
+            </Link>
+            <Link
+              href="/how-it-works#use-it-well"
+              className="secondary-link self-center text-sm font-semibold"
+            >
+              How to use guides with the tool
+            </Link>
+          </div>
+        </section>
 
         {relatedTowns.length ? (
           <section className="space-y-4">
