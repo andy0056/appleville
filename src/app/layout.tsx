@@ -48,7 +48,9 @@ export default function RootLayout({
           <div className="min-h-[calc(100vh-92px)] pt-3 md:min-h-[calc(100vh-104px)] md:pt-4">
             {children}
           </div>
-          <SiteFooter />
+          <div className="mt-10 md:mt-14">
+            <SiteFooter />
+          </div>
         </div>
       </body>
     </html>
