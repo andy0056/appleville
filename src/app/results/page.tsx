@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShareActions } from "@/components/share-actions";
 import {
   getValidAnswersFromSearchParams,
   hasCompleteQuizAnswers,
@@ -88,6 +89,12 @@ export default async function ResultsPage({
             how each town fits differently and what each one asks from you in return.
           </p>
         </div>
+
+        <ShareActions
+          title="Your Himachal town matches"
+          text="Reopen this Appleville result set with the same answers."
+          hint="Copy or share this URL to revisit the same quiz results."
+        />
 
         <div className="grid gap-4 lg:grid-cols-3">
           {top.map((town) => (

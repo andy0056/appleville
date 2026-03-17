@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CompareGrid } from "@/components/compare-grid";
 import { CompareSelector } from "@/components/compare-selector";
+import { ShareActions } from "@/components/share-actions";
 import { buildPageMetadata } from "@/lib/metadata";
 import { towns } from "@/lib/towns";
 
@@ -22,6 +23,11 @@ export default async function ComparePage({
 }) {
   const resolvedSearchParams = await searchParams;
   const rawCompare = resolvedSearchParams.towns;
+  const hasUrlSelection = Array.isArray(rawCompare)
+    ? rawCompare.length > 0
+    : typeof rawCompare === "string"
+      ? rawCompare.length > 0
+      : false;
   const selectedSlugs = Array.isArray(rawCompare)
     ? rawCompare
     : typeof rawCompare === "string"
@@ -40,7 +46,17 @@ export default async function ComparePage({
           </p>
         </div>
 
-        <CompareSelector towns={towns} initialSelected={selectedSlugs.slice(0, 4)} />
+        <ShareActions
+          title="Compare Himachal towns side by side"
+          text="Reopen this Appleville comparison with the same town set."
+          hint="Copy or share this URL to reopen the same comparison state."
+        />
+
+        <CompareSelector
+          towns={towns}
+          initialSelected={selectedSlugs.slice(0, 4)}
+          hasUrlSelection={hasUrlSelection}
+        />
 
         <CompareGrid slugs={selectedSlugs.slice(0, 4)} />
 

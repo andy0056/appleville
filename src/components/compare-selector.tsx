@@ -1,22 +1,77 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Town } from "@/lib/towns";
 
 type CompareSelectorProps = {
   towns: Town[];
   initialSelected: string[];
+  hasUrlSelection: boolean;
 };
 
-export function CompareSelector({ towns, initialSelected }: CompareSelectorProps) {
+const compareStorageKey = "appleville:compare:towns";
+
+export function CompareSelector({
+  towns,
+  initialSelected,
+  hasUrlSelection,
+}: CompareSelectorProps) {
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>(initialSelected);
+  const allowPersistenceRef = useRef(hasUrlSelection);
 
   const selectedCount = selected.length;
   const canCompare = selectedCount >= 2;
 
   const sortedTowns = useMemo(() => towns.slice().sort((a, b) => a.name.localeCompare(b.name)), [towns]);
+
+  useEffect(() => {
+    if (hasUrlSelection) {
+      allowPersistenceRef.current = true;
+      return;
+    }
+
+    const saved = window.localStorage.getItem(compareStorageKey);
+    if (!saved) {
+      allowPersistenceRef.current = true;
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) {
+        allowPersistenceRef.current = true;
+        return;
+      }
+
+      const valid = parsed
+        .filter((value): value is string => typeof value === "string")
+        .filter((slug) => towns.some((town) => town.slug === slug))
+        .slice(0, 4);
+
+      if (valid.length < 2) {
+        allowPersistenceRef.current = true;
+        return;
+      }
+      if (valid.join(",") === initialSelected.join(",")) {
+        allowPersistenceRef.current = true;
+        return;
+      }
+
+      allowPersistenceRef.current = true;
+      router.replace(`/compare?towns=${valid.join(",")}`);
+    } catch {
+      window.localStorage.removeItem(compareStorageKey);
+      allowPersistenceRef.current = true;
+    }
+  }, [hasUrlSelection, initialSelected, router, towns]);
+
+  useEffect(() => {
+    if (!allowPersistenceRef.current || selected.length < 2) return;
+
+    window.localStorage.setItem(compareStorageKey, JSON.stringify(selected));
+  }, [selected]);
 
   function toggleTown(slug: string) {
     setSelected((prev) => {
