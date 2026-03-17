@@ -1,10 +1,44 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata";
 import { getTownBySlug, type Town } from "@/lib/towns";
 import { getGuideBySlug, guides } from "@/lib/guides";
 
 export function generateStaticParams() {
   return guides.map((guide) => ({ slug: guide.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const guide = getGuideBySlug(slug);
+
+  if (!guide) {
+    return buildPageMetadata({
+      title: "Guide not found",
+      description: "The requested Himachal guide could not be found.",
+      pathname: `/guides/${slug}`,
+      type: "article",
+    });
+  }
+
+  const guideImage =
+    guide.relatedTownSlugs
+      ?.map((townSlug) => getTownBySlug(townSlug))
+      .find((town): town is Town => Boolean(town))
+      ?.image.src ?? "/images/towns/palampur.jpg";
+
+  return buildPageMetadata({
+    title: guide.title,
+    description: `${guide.summary} Read practical takeaways, structured sections, and related towns.`,
+    pathname: `/guides/${guide.slug}`,
+    image: guideImage,
+    type: "article",
+  });
 }
 
 export default async function GuideDetailPage({

@@ -1,5 +1,14 @@
 import Link from "next/link";
 import { QuizForm } from "@/components/quiz-form";
+import { buildPageMetadata } from "@/lib/metadata";
+
+export const metadata = buildPageMetadata({
+  title: "Take the Himachal town match quiz",
+  description:
+    "Answer a few practical questions about pace, access, budget, and work style to get a sharper Himachal shortlist.",
+  pathname: "/quiz",
+  image: "/images/towns/dharamshala.jpg",
+});
 
 export default function QuizPage() {
   return (

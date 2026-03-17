@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
 import { TownCard } from "@/components/town-card";
+import { buildPageMetadata } from "@/lib/metadata";
 import { towns } from "@/lib/towns";
 
 const featured = towns.slice(0, 6);
@@ -32,6 +33,14 @@ const lessUsefulFor = [
   "Finding the cheapest possible stay without caring much about fit",
   "Assuming one town will work the same way for every season and every household",
 ];
+
+export const metadata = buildPageMetadata({
+  title: "Choose a Himachal base for work, family, and everyday life",
+  description:
+    "Use Appleville to match, compare, and reality-check Himachal towns for remote work, longer stays, and practical moves.",
+  pathname: "/",
+  image: "/images/towns/palampur.jpg",
+});
 
 export default function Home() {
   return (

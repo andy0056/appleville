@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
 import { guides } from "@/lib/guides";
+import { buildPageMetadata } from "@/lib/metadata";
 
 const overviewBlocks = [
   {
@@ -18,6 +19,14 @@ const overviewBlocks = [
 ];
 
 const categories = [...new Set(guides.map((guide) => guide.category))];
+
+export const metadata = buildPageMetadata({
+  title: "Himachal guides for choosing a base",
+  description:
+    "Read decision-support guides on remote work, family fit, trial stays, and tradeoffs across Himachal towns.",
+  pathname: "/guides",
+  image: "/images/towns/palampur.jpg",
+});
 
 export default function GuidesPage() {
   return (

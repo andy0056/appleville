@@ -5,6 +5,7 @@ import {
   quizQuestions,
   scoreTowns,
 } from "@/lib/quiz";
+import { buildPageMetadata } from "@/lib/metadata";
 
 const matchLabelStyles = {
   "Best fit": "bg-[var(--accent)] text-white",
@@ -12,6 +13,15 @@ const matchLabelStyles = {
   "Aspirational fit": "bg-[var(--accent-soft)] text-[var(--foreground)]",
   "Alternative fit": "bg-[rgba(255,255,255,0.55)] text-[var(--foreground)]",
 } as const;
+
+export const metadata = buildPageMetadata({
+  title: "Your Himachal town matches",
+  description:
+    "See your best-fit Himachal towns with tradeoffs, match notes, and links to grounded town profiles.",
+  pathname: "/results",
+  image: "/images/towns/dharamshala.jpg",
+  noIndex: true,
+});
 
 export default async function ResultsPage({
   searchParams,

@@ -1,3 +1,13 @@
+import { buildPageMetadata } from "@/lib/metadata";
+
+export const metadata = buildPageMetadata({
+  title: "Why Appleville exists",
+  description:
+    "Read why Appleville focuses on fit, tradeoffs, and everyday life in Himachal instead of travel fantasy.",
+  pathname: "/about",
+  image: "/images/towns/naggar.jpg",
+});
+
 export default function AboutPage() {
   return (
     <main className="container-app py-14 md:py-20">

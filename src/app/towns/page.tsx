@@ -1,6 +1,15 @@
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/metadata";
 import { TownCard } from "@/components/town-card";
 import { towns } from "@/lib/towns";
+
+export const metadata = buildPageMetadata({
+  title: "Browse Himachal town profiles",
+  description:
+    "Explore grounded profiles for Bir, Dharamshala, McLeodganj, Palampur, Shimla, Solan, Manali, and Naggar.",
+  pathname: "/towns",
+  image: "/images/towns/bir.jpg",
+});
 
 export default function TownsPage() {
   return (

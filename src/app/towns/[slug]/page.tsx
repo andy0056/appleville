@@ -1,10 +1,36 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata";
 import { getTownBySlug, towns } from "@/lib/towns";
 
 export function generateStaticParams() {
   return towns.map((town) => ({ slug: town.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const town = getTownBySlug(slug);
+
+  if (!town) {
+    return buildPageMetadata({
+      title: "Town profile not found",
+      description: "The requested Himachal town profile could not be found.",
+      pathname: `/towns/${slug}`,
+    });
+  }
+
+  return buildPageMetadata({
+    title: `${town.name}, Himachal: who it fits and what to expect`,
+    description: `${town.summary} Read a grounded profile covering fit, remote-work reality, practical reality, and the main tradeoff.`,
+    pathname: `/towns/${town.slug}`,
+    image: town.image.src,
+  });
 }
 
 export default async function TownDetailPage({

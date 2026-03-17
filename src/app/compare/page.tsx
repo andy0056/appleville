@@ -1,9 +1,19 @@
 import Link from "next/link";
 import { CompareGrid } from "@/components/compare-grid";
 import { CompareSelector } from "@/components/compare-selector";
+import { buildPageMetadata } from "@/lib/metadata";
 import { towns } from "@/lib/towns";
 
 const fallbackSlugs = ["palampur", "dharamshala", "solan"];
+
+export const metadata = buildPageMetadata({
+  title: "Compare Himachal towns side by side",
+  description:
+    "Compare likely Himachal base options across quiet, access, family fit, remote-work ease, and long-stay practicality.",
+  pathname: "/compare",
+  image: "/images/towns/dharamshala.jpg",
+  noIndex: true,
+});
 
 export default async function ComparePage({
   searchParams,

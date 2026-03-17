@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
+import { siteMetadata } from "@/lib/metadata";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Build Your Life in Himachal",
-  description: "Find the Himachal town that fits your lifestyle, budget, and work needs.",
+  metadataBase: new URL(siteMetadata.url),
+  title: "Appleville | Build Your Life in Himachal",
+  description:
+    "Find the Himachal town that fits your lifestyle, budget, and work needs.",
+  openGraph: {
+    siteName: siteMetadata.name,
+    type: "website",
+    images: [
+      {
+        url: siteMetadata.defaultImage,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [siteMetadata.defaultImage],
+  },
 };
 
 export default function RootLayout({
