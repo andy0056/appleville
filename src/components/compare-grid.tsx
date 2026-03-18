@@ -194,6 +194,63 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
                 </td>
               ))}
             </tr>
+            <tr className="border-t border-[var(--line)] bg-[var(--accent-soft)]/30 align-top">
+              <td className="px-5 py-3" colSpan={selected.length + 1}>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">Practical data</p>
+              </td>
+            </tr>
+            <tr className="border-t border-[var(--line)] align-top">
+              <td className="px-5 py-4">
+                <p className="font-medium">Monthly estimate</p>
+                <p className="mt-1 max-w-[18rem] text-xs leading-6 text-[var(--muted)]">
+                  Rough total for solo (1BHK + groceries + utilities).
+                </p>
+              </td>
+              {selected.map((town) => {
+                const low = town.costOfLiving.rent1bhkRange[0] + town.costOfLiving.groceriesCouple[0] + 2000;
+                const high = town.costOfLiving.rent1bhkRange[1] + town.costOfLiving.groceriesCouple[1] + 5000;
+                return (
+                  <td key={town.slug} className="px-5 py-4 font-medium text-[var(--foreground)]">
+                    ₹{low.toLocaleString("en-IN")}–{high.toLocaleString("en-IN")}/mo
+                  </td>
+                );
+              })}
+            </tr>
+            <tr className="border-t border-[var(--line)] align-top">
+              <td className="px-5 py-4">
+                <p className="font-medium">ICU access</p>
+                <p className="mt-1 max-w-[18rem] text-xs leading-6 text-[var(--muted)]">
+                  Nearest facility with ICU and approximate drive time.
+                </p>
+              </td>
+              {selected.map((town) => (
+                <td key={town.slug} className="px-5 py-4 text-[var(--muted)]">
+                  <p className="font-medium text-[var(--foreground)]">{town.healthcare.driveTimeMinutes[0]}–{town.healthcare.driveTimeMinutes[1]} min</p>
+                  <p className="mt-1 text-xs">{town.healthcare.icuLocation}</p>
+                </td>
+              ))}
+            </tr>
+            <tr className="border-t border-[var(--line)] align-top">
+              <td className="px-5 py-4">
+                <p className="font-medium">Nearest airport</p>
+              </td>
+              {selected.map((town) => (
+                <td key={town.slug} className="px-5 py-4 text-[var(--muted)]">
+                  <p className="font-medium text-[var(--foreground)]">{town.transport.airportDistanceKm} km</p>
+                  <p className="mt-1 text-xs">{town.transport.nearestAirport}</p>
+                </td>
+              ))}
+            </tr>
+            <tr className="border-t border-[var(--line)] align-top">
+              <td className="px-5 py-4">
+                <p className="font-medium">Best months</p>
+              </td>
+              {selected.map((town) => (
+                <td key={town.slug} className="px-5 py-4 font-medium text-[var(--foreground)]">
+                  {town.seasonality.bestMonths}
+                </td>
+              ))}
+            </tr>
           </tbody>
         </table>
       </div>
@@ -259,6 +316,25 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
               <div>
                 <p className="font-semibold text-[var(--foreground)]">Tradeoff</p>
                 <p className="mt-1">{town.tradeoff}</p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">Monthly est.</p>
+                <p className="mt-1 text-sm font-semibold">₹{(town.costOfLiving.rent1bhkRange[0] + town.costOfLiving.groceriesCouple[0] + 2000).toLocaleString("en-IN")}–{(town.costOfLiving.rent1bhkRange[1] + town.costOfLiving.groceriesCouple[1] + 5000).toLocaleString("en-IN")}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">ICU access</p>
+                <p className="mt-1 text-sm font-semibold">{town.healthcare.driveTimeMinutes[0]}–{town.healthcare.driveTimeMinutes[1]} min</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">Airport</p>
+                <p className="mt-1 text-sm font-semibold">{town.transport.airportDistanceKm} km</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">Best months</p>
+                <p className="mt-1 text-xs font-semibold">{town.seasonality.bestMonths}</p>
               </div>
             </div>
 

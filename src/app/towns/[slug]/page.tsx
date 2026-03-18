@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { CostSnapshot } from "@/components/cost-snapshot";
+import { SeasonCard } from "@/components/season-card";
+import { TransitCard } from "@/components/transit-card";
 import { buildPageMetadata } from "@/lib/metadata";
 import { getGuideBySlug, type Guide } from "@/lib/guides";
 import { getTownBySlug, towns, type Town } from "@/lib/towns";
@@ -210,6 +213,10 @@ export default async function TownDetailPage({
               <p className="eyebrow">The tradeoff</p>
               <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.tradeoff}</p>
             </div>
+
+            <CostSnapshot town={town} />
+            <TransitCard town={town} />
+            <SeasonCard town={town} />
 
             <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
               <div className="card p-5 md:p-6">
