@@ -114,10 +114,11 @@ export function QuizForm() {
             What this quiz considers
           </Link>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-2 md:space-y-3">
           {quizQuestions.map((quizQuestion, index) => {
             const value = answers[quizQuestion.key];
             const option = quizQuestion.options.find((item) => item.value === value);
+            if (!option && index !== step) return null;
             return (
               <button
                 key={quizQuestion.key}
@@ -194,7 +195,7 @@ export function QuizForm() {
                     key={option.value}
                     type="button"
                     onClick={() => handleSelect(question.key, option.value)}
-                    className={`press-scale rounded-2xl border px-4 py-4 text-left text-sm leading-6 md:px-5 md:py-5 md:text-base ${
+                    className={`press-scale rounded-2xl border px-4 py-3 text-left text-sm leading-6 md:px-5 md:py-5 md:text-base ${
                       isActive
                         ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
                         : "border-[var(--line)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--accent)]/50"

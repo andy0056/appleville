@@ -49,7 +49,7 @@ export default async function ResultsPage({
 
   if (!hasCompleteAnswers) {
     return (
-      <main className="container-app py-14 md:py-20">
+      <main className="container-app py-8 md:py-20">
         <div className="max-w-3xl space-y-6">
           <div className="space-y-3">
             <p className="eyebrow">Results</p>
@@ -83,7 +83,7 @@ export default async function ResultsPage({
   }
 
   return (
-    <main className="container-app py-14 md:py-20">
+    <main className="container-app py-8 md:py-20">
       <div className="max-w-5xl space-y-6 md:space-y-8">
         <div className="space-y-3">
           <p className="eyebrow">Results</p>

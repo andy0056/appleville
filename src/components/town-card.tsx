@@ -10,10 +10,10 @@ export function TownCard({ town, priority = false }: { town: Town; priority?: bo
   return (
     <Link
       href={`/towns/${town.slug}`}
-      className="group hover-lift-soft card relative overflow-hidden p-6"
+      className="group hover-lift-soft card relative overflow-hidden p-4 md:p-6"
     >
-      <div className="-mx-6 -mt-6 mb-4 overflow-hidden border-b border-[var(--line)] bg-[rgba(234,215,191,0.25)]">
-        <div className="relative aspect-[4/3]">
+      <div className="-mx-4 -mt-4 mb-4 overflow-hidden border-b border-[var(--line)] bg-[rgba(234,215,191,0.25)] md:-mx-6 md:-mt-6">
+        <div className="relative aspect-[16/10] md:aspect-[4/3]">
           <Image
             src={town.image.src}
             alt={town.image.alt}

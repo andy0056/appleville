@@ -37,7 +37,7 @@ export default async function ComparePage({
   const hasSelectedComparison = selectedSlugs.length >= 2;
 
   return (
-    <main className="container-app py-14 md:py-20">
+    <main className="container-app py-8 md:py-16">
       <div className="space-y-8">
         <div className="space-y-3">
           <p className="eyebrow">Compare</p>

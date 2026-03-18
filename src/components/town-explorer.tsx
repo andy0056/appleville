@@ -44,8 +44,8 @@ export function TownExplorer({ towns }: { towns: Town[] }) {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="card p-5 md:p-6">
+    <div className="space-y-5 md:space-y-8">
+      <div className="card p-4 md:p-6">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="space-y-4">
             <label className="grid gap-2">
@@ -70,7 +70,7 @@ export function TownExplorer({ towns }: { towns: Town[] }) {
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 Filter by fit
               </p>
-              <p className="text-sm leading-7 text-[var(--muted)]">
+              <p className="hidden text-sm leading-7 text-[var(--muted)] md:block">
                 These tags follow Appleville&apos;s editorial reading of each town,
                 not just one raw score.
               </p>

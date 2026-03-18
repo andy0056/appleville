@@ -64,8 +64,8 @@ export default async function TownDetailPage({
     .slice(0, 2);
 
   return (
-    <main className="container-app py-12 md:py-16">
-      <div className="max-w-6xl space-y-8 md:space-y-10">
+    <main className="container-app py-8 md:py-16">
+      <div className="max-w-6xl space-y-5 md:space-y-10">
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },

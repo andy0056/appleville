@@ -12,7 +12,7 @@ export const metadata = buildPageMetadata({
 
 export default function HowItWorksPage() {
   return (
-    <main className="container-app py-14 md:py-20">
+    <main className="container-app py-8 md:py-20">
       <div className="mx-auto max-w-5xl space-y-10">
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div className="space-y-4">

@@ -51,9 +51,9 @@ export const metadata = buildPageMetadata({
 export default function Home() {
   return (
     <main>
-      <section className="container-app py-12 md:py-20">
+      <section className="container-app py-8 md:py-20">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-          <div className="space-y-6 md:space-y-7">
+          <div className="space-y-4 md:space-y-7">
             <div
               className="motion-enter-fade inline-flex rounded-full border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-4 py-2 text-xs font-medium text-[var(--foreground)] shadow-sm md:text-sm"
               style={{ animationDuration: "200ms" }}
@@ -62,7 +62,7 @@ export default function Home() {
             </div>
             <div className="space-y-4 md:space-y-5">
               <h1
-                className="motion-enter-up max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-6xl"
+                className="motion-enter-up max-w-4xl text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:text-6xl"
                 style={{ animationDelay: "60ms", animationDuration: "320ms" }}
               >
                 Choose a Himachal base for work, family, and everyday life.
@@ -113,24 +113,24 @@ export default function Home() {
           </div>
 
           <div
-            className="motion-enter-fade card relative overflow-hidden p-6 md:p-8"
+            className="motion-enter-fade card relative overflow-hidden p-4 md:p-8"
             style={{ animationDelay: "300ms", animationDuration: "180ms" }}
           >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
             <p className="eyebrow">Start here</p>
-            <div className="mt-5 grid gap-4">
+            <div className="mt-3 grid gap-3 md:mt-5 md:gap-4">
               {startHere.map((item) => (
                 <div
                   key={item.title}
-                  className="hover-lift-soft rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 md:p-5"
+                  className="hover-lift-soft rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-3 md:p-5"
                 >
                   <p className="text-lg font-semibold text-[var(--foreground)]">{item.title}</p>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted)] md:text-base">
+                  <p className="mt-2 text-sm leading-7 text-[var(--muted)] md:mt-3 md:text-base">
                     {item.body}
                   </p>
                   <Link
                     href={item.href}
-                    className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]"
+                    className="mt-2 inline-flex text-sm font-semibold text-[var(--accent)] md:mt-4"
                   >
                     Open {item.title.toLowerCase()}
                   </Link>
@@ -141,7 +141,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-app py-14 md:py-20">
+      <section className="container-app py-8 md:py-20">
         <div className="flex items-end justify-between gap-4">
           <SectionHeading
             eyebrow="Featured towns"
@@ -161,11 +161,11 @@ export default function Home() {
       </section>
 
       <section className="container-app pb-8">
-        <div className="card p-8 md:p-10">
+        <div className="card p-5 md:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             <div>
               <p className="eyebrow">Who this is for</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+              <h2 className="mt-3 text-lg font-semibold tracking-tight md:text-3xl">
                 Useful when the decision is about everyday life, not just scenery.
               </h2>
               <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--muted)]">

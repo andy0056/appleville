@@ -14,8 +14,8 @@ export const metadata = buildPageMetadata({
 
 export default function TownsPage() {
   return (
-    <main className="container-app py-12 md:py-16">
-      <div className="space-y-10 md:space-y-12">
+    <main className="container-app py-8 md:py-16">
+      <div className="space-y-6 md:space-y-12">
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,300px)] lg:items-end lg:gap-8">
           <div className="space-y-6">
             <SectionHeading
@@ -30,7 +30,7 @@ export default function TownsPage() {
             </p>
           </div>
 
-          <div className="compact-callout">
+          <div className="compact-callout hidden md:block">
             <p className="eyebrow">Reading lens</p>
             <p className="mt-3 text-sm leading-7 text-pretty text-[var(--muted)]">
               These town pages are meant to help with fit, tradeoffs, and

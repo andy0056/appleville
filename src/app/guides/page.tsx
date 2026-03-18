@@ -49,7 +49,7 @@ export const metadata = buildPageMetadata({
 
 export default function GuidesPage() {
   return (
-    <main className="container-app py-14 md:py-20">
+    <main className="container-app py-8 md:py-20">
       <div className="space-y-10">
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <SectionHeading

@@ -57,7 +57,7 @@ export default async function GuideDetailPage({
     .filter((town): town is Town => Boolean(town));
 
   return (
-    <main className="container-app py-14 md:py-20">
+    <main className="container-app py-8 md:py-20">
       <article className="mx-auto max-w-4xl space-y-8">
         <div className="space-y-4">
           <Breadcrumb
