@@ -6,6 +6,7 @@ const productLinks = [
   { href: "/compare", label: "Compare" },
   { href: "/guides", label: "Guides" },
   { href: "/first-30-days", label: "First 30 days" },
+  { href: "/property-rules", label: "Property rules" },
 ];
 
 const trustLinks = [
