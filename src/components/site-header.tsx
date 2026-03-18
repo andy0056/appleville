@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,22 +8,31 @@ const navLinks = [
   { href: "/quiz", label: "Quiz" },
   { href: "/towns", label: "Towns" },
   { href: "/compare", label: "Compare" },
-  { href: "/guides", label: "Guides" },
-  { href: "/first-30-days", label: "First 30 days" },
-  { href: "/property-rules", label: "Property rules" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/about", label: "About" },
 ];
 
+const resourceLinks = [
+  { href: "/guides", label: "Guides", sub: "Editorial deep dives on town fit" },
+  { href: "/first-30-days", label: "First 30 days", sub: "Settling playbook — town by town" },
+  { href: "/property-rules", label: "Property rules", sub: "Section 118, leases & legal routes" },
+];
+
+const allLinks = [...navLinks, ...resourceLinks];
+
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const showQuizButton = pathname !== "/";
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   function isActiveLink(href: string) {
     return pathname === href || pathname.startsWith(`${href}/`);
   }
+
+  const isResourceActive = resourceLinks.some((l) => isActiveLink(l.href));
 
   useEffect(() => {
     function handleScroll() {
@@ -35,6 +44,24 @@ export function SiteHeader() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  /* Close dropdown on outside click */
+  useEffect(() => {
+    if (!resourcesOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setResourcesOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [resourcesOpen]);
+
+  /* Close dropdown on route change */
+  useEffect(() => {
+    setResourcesOpen(false);
+    setMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -79,6 +106,7 @@ export function SiteHeader() {
             </span>
           </Link>
 
+          {/* Desktop nav */}
           <nav className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => (
               <Link
@@ -94,6 +122,54 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Resources dropdown */}
+            <div ref={dropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setResourcesOpen((p) => !p)}
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-medium transition ${
+                  isResourceActive
+                    ? "bg-[var(--accent-soft)] text-[var(--foreground)] shadow-[inset_0_0_0_1px_rgba(143,93,59,0.14)]"
+                    : "text-[var(--muted)] hover:bg-[rgba(255,255,255,0.58)] hover:text-[var(--foreground)]"
+                }`}
+                aria-expanded={resourcesOpen}
+              >
+                Resources
+                <svg
+                  className={`h-3.5 w-3.5 transition-transform ${resourcesOpen ? "rotate-180" : ""}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {resourcesOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-2 shadow-[0_20px_50px_rgba(44,34,27,0.12)]">
+                  {resourceLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`block rounded-xl px-4 py-3 transition ${
+                        isActiveLink(link.href)
+                          ? "bg-[var(--accent-soft)]"
+                          : "hover:bg-[rgba(255,255,255,0.6)]"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-[var(--foreground)]">
+                        {link.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-5 text-[var(--muted)]">
+                        {link.sub}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -119,6 +195,7 @@ export function SiteHeader() {
         </div>
       </div>
 
+      {/* Mobile menu */}
       {menuOpen ? (
         <div className="lg:hidden">
           <div
@@ -132,7 +209,7 @@ export function SiteHeader() {
           >
             <div className="mx-auto w-full max-w-[1120px] rounded-[28px] border border-[var(--line)] bg-[var(--card)] p-4 shadow-[0_24px_60px_rgba(44,34,27,0.12)]">
               <div className="grid gap-3 text-base">
-                {navLinks.map((link) => (
+                {allLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
