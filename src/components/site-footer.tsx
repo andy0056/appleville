@@ -11,6 +11,7 @@ const productLinks = [
   { href: "/womens-safety", label: "Women's safety" },
   { href: "/banking", label: "Banking & money" },
   { href: "/community", label: "Community & wellbeing" },
+  { href: "/food", label: "Food reality" },
 ];
 
 const trustLinks = [
