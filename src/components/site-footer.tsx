@@ -9,6 +9,7 @@ const productLinks = [
   { href: "/property-rules", label: "Property rules" },
   { href: "/power-backup", label: "Power backup" },
   { href: "/womens-safety", label: "Women's safety" },
+  { href: "/banking", label: "Banking & money" },
 ];
 
 const trustLinks = [
