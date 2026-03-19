@@ -16,6 +16,7 @@ const resourceLinks = [
   { href: "/guides", label: "Guides", sub: "Editorial deep dives on town fit" },
   { href: "/first-30-days", label: "First 30 days", sub: "Settling playbook — town by town" },
   { href: "/property-rules", label: "Property rules", sub: "Section 118, leases & legal routes" },
+  { href: "/power-backup", label: "Power backup", sub: "Outages, UPS tiers & heating strategy" },
 ];
 
 const allLinks = [...navLinks, ...resourceLinks];
@@ -57,11 +58,6 @@ export function SiteHeader() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [resourcesOpen]);
 
-  /* Close dropdown on route change */
-  useEffect(() => {
-    setResourcesOpen(false);
-    setMenuOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -153,6 +149,7 @@ export function SiteHeader() {
                     <Link
                       key={link.href}
                       href={link.href}
+                      onClick={() => setResourcesOpen(false)}
                       className={`block rounded-xl px-4 py-3 transition ${
                         isActiveLink(link.href)
                           ? "bg-[var(--accent-soft)]"

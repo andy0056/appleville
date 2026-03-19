@@ -7,6 +7,7 @@ const productLinks = [
   { href: "/guides", label: "Guides" },
   { href: "/first-30-days", label: "First 30 days" },
   { href: "/property-rules", label: "Property rules" },
+  { href: "/power-backup", label: "Power backup" },
 ];
 
 const trustLinks = [
