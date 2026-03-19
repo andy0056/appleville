@@ -19,6 +19,7 @@ const resourceLinks = [
   { href: "/power-backup", label: "Power backup", sub: "Outages, UPS tiers & heating strategy" },
   { href: "/womens-safety", label: "Women's safety", sub: "Town profiles, safe spaces & healthcare" },
   { href: "/banking", label: "Banking & money", sub: "Banks, UPI, forex & non-resident accounts" },
+  { href: "/community", label: "Community & wellbeing", sub: "Coworking, mental health & peer support" },
 ];
 
 const allLinks = [...navLinks, ...resourceLinks];

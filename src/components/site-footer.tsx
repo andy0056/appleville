@@ -10,6 +10,7 @@ const productLinks = [
   { href: "/power-backup", label: "Power backup" },
   { href: "/womens-safety", label: "Women's safety" },
   { href: "/banking", label: "Banking & money" },
+  { href: "/community", label: "Community & wellbeing" },
 ];
 
 const trustLinks = [
