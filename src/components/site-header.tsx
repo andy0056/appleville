@@ -17,6 +17,7 @@ const resourceLinks = [
   { href: "/first-30-days", label: "First 30 days", sub: "Settling playbook — town by town" },
   { href: "/property-rules", label: "Property rules", sub: "Section 118, leases & legal routes" },
   { href: "/power-backup", label: "Power backup", sub: "Outages, UPS tiers & heating strategy" },
+  { href: "/womens-safety", label: "Women's safety", sub: "Town profiles, safe spaces & healthcare" },
 ];
 
 const allLinks = [...navLinks, ...resourceLinks];
