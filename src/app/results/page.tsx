@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ExpandableBlock } from "@/components/expandable-block";
+import { MobileActionBar } from "@/components/mobile-action-bar";
+import { ResultRecapChips } from "@/components/result-recap-chips";
 import { ShareActions } from "@/components/share-actions";
 import { buildDecisionProfile } from "@/lib/decision-profile";
 import { guides } from "@/lib/guides";
@@ -43,9 +46,25 @@ export default async function ResultsPage({
   const topMatch = top[0];
   const secondaryMatches = top.slice(1);
   const profile = buildDecisionProfile(answers).filter((item) => item.value);
+  const recapPreview = profile.slice(0, 4);
+  const recapRemainder = profile.slice(4);
   const relatedGuides = getRelatedGuideSlugsForResultSet(answers, top)
     .map((slug) => guides.find((guide) => guide.slug === slug))
     .filter((guide): guide is RelatedGuide => Boolean(guide));
+  const answerDetails = quizQuestions
+    .map((question) => {
+      const selectedValue = answers[question.key];
+      const option = question.options.find((item) => item.value === selectedValue);
+      if (!option) return null;
+
+      return {
+        key: question.key,
+        label: question.label,
+        value: option.label,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+  const compareHref = `/compare?towns=${top.map((town) => town.slug).join(",")}`;
 
   if (!hasCompleteAnswers) {
     return (
@@ -83,63 +102,69 @@ export default async function ResultsPage({
   }
 
   return (
-    <main className="container-app py-8 md:py-20">
-      <div className="max-w-5xl space-y-6 md:space-y-8">
+    <main className="container-app py-8 pb-28 md:py-20 md:pb-20">
+      <div className="max-w-5xl space-y-5 md:space-y-8">
         <div className="space-y-3">
           <p className="eyebrow">Results</p>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Your best-fit Himachal towns</h1>
-          <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Your best-fit Himachal towns
+          </h1>
+          <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:leading-8">
             These matches are based on your priorities around pace, access,
             remote-work fit, budget, and long-stay practicality.
           </p>
         </div>
 
         <div className="card p-5 md:p-6">
-          <p className="text-sm leading-7 text-[var(--muted)]">
+          <p className="text-sm leading-6 text-[var(--muted)] md:leading-7">
             Read these as best-fit directions, not guarantees. The useful part is
             how each town fits differently and what each one asks from you in return.
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <div
-            className="motion-enter-up card p-5 md:p-6"
-            style={{ animationDuration: "220ms" }}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="motion-enter-up card p-5 md:p-6"
+          style={{ animationDuration: "220ms" }}
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-2">
               <p className="eyebrow">Answer recap</p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                <Link href="/quiz" className="secondary-link font-semibold">
-                  Change answers
-                </Link>
-                <Link href="/how-it-works#results" className="secondary-link font-semibold">
-                  How these matches are produced
-                </Link>
-              </div>
+              <p className="text-sm leading-6 text-[var(--muted)]">
+                A quick read of the priorities shaping this result set.
+              </p>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {profile.map((item) => (
-                <span
-                  key={item.id}
-                  className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.45)] px-3 py-2 text-sm text-[var(--muted)]"
+            <div className="flex flex-wrap gap-3 text-sm">
+              <Link href="/quiz" className="secondary-link font-semibold">
+                Change answers
+              </Link>
+              <Link href="/how-it-works#results" className="secondary-link font-semibold">
+                How these matches are produced
+              </Link>
+            </div>
+          </div>
+          <div className="mt-4">
+            <ResultRecapChips items={recapPreview} />
+          </div>
+          <ExpandableBlock
+            className="mt-4"
+            expandLabel="Review answer details"
+            collapseLabel="Hide answer details"
+          >
+            <div className="grid gap-3">
+              {recapRemainder.length ? <ResultRecapChips items={recapRemainder} /> : null}
+              {answerDetails.map((item) => (
+                <div
+                  key={item.key}
+                  className="rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-4 py-3"
                 >
-                  <span className="font-semibold text-[var(--foreground)]">{item.label}:</span>{" "}
-                  {item.value}
-                </span>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.value}</p>
+                </div>
               ))}
             </div>
-          </div>
-
-          <div
-            className="motion-enter-fade"
-            style={{ animationDelay: "80ms", animationDuration: "200ms" }}
-          >
-            <ShareActions
-              title="Your Himachal town matches"
-              text="Reopen this Appleville result set with the same answers."
-              hint="Copy or share this URL to revisit the same quiz results."
-            />
-          </div>
+          </ExpandableBlock>
         </div>
 
         {topMatch ? (
@@ -166,8 +191,10 @@ export default async function ResultsPage({
                   <p className="mt-2 text-base text-[var(--forest)]">{topMatch.archetype}</p>
                 </div>
 
-                <p className="text-base leading-8 text-[var(--muted)]">{topMatch.summary}</p>
-                <p className="text-base leading-8 text-[var(--foreground)]">
+                <p className="text-sm leading-6 text-[var(--muted)] md:text-base md:leading-8">
+                  {topMatch.summary}
+                </p>
+                <p className="text-base leading-7 text-[var(--foreground)] md:leading-8">
                   {topMatch.matchProfile.fitSummary}
                 </p>
 
@@ -186,7 +213,7 @@ export default async function ResultsPage({
               <div className="space-y-4">
                 <div className="card border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-5">
                   <p className="eyebrow">Best if</p>
-                  <div className="mt-3 grid gap-3 text-sm leading-7 text-[var(--muted)]">
+                  <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--muted)]">
                     {topMatch.matchProfile.bestIf.map((item) => (
                       <p key={item}>• {item}</p>
                     ))}
@@ -195,7 +222,7 @@ export default async function ResultsPage({
 
                 <div className="card p-5">
                   <p className="eyebrow">Watch out for</p>
-                  <div className="mt-3 grid gap-3 text-sm leading-7 text-[var(--muted)]">
+                  <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--muted)]">
                     {topMatch.matchProfile.watchOutFor.map((item) => (
                       <p key={item}>• {item}</p>
                     ))}
@@ -204,12 +231,12 @@ export default async function ResultsPage({
 
                 <div className="card p-5">
                   <p className="eyebrow">Why it ranks here</p>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+                  <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
                     {topMatch.matchProfile.whyItRanksHere}
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4 text-sm leading-7 text-[var(--muted)]">
+                <div className="rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4 text-sm leading-6 text-[var(--muted)]">
                   <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span>{" "}
                   {topMatch.tradeoff}
                 </div>
@@ -224,6 +251,13 @@ export default async function ResultsPage({
             </div>
           </article>
         ) : null}
+
+        <MobileActionBar
+          primaryLabel="Compare these towns"
+          primaryHref={compareHref}
+          secondaryLabel="Retake quiz"
+          secondaryHref="/quiz"
+        />
 
         <div className="grid gap-4 lg:grid-cols-2">
           {secondaryMatches.map((town, index) => (
@@ -246,29 +280,29 @@ export default async function ResultsPage({
                   Score {town.score}
                 </span>
               </div>
-              <div className="mt-4 flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-semibold">{town.name}</h2>
-                  <p className="mt-1 text-sm text-[var(--forest)]">{town.archetype}</p>
-                </div>
+              <div className="mt-4">
+                <h2 className="text-2xl font-semibold">{town.name}</h2>
+                <p className="mt-1 text-sm text-[var(--forest)]">{town.archetype}</p>
               </div>
 
-              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{town.summary}</p>
-              <p className="mt-4 text-sm leading-7 text-[var(--foreground)]">{town.matchProfile.fitSummary}</p>
+              <p className="mt-4 text-sm leading-6 text-[var(--muted)]">{town.matchProfile.fitSummary}</p>
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {town.matchProfile.strengthChips.map((item) => (
-                  <span key={item} className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]">
+                  <span
+                    key={item}
+                    className="rounded-full border border-[var(--line)] px-3 py-1 text-xs text-[var(--muted)]"
+                  >
                     {item}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-5 space-y-4 text-sm leading-7 text-[var(--muted)]">
+              <div className="mt-5 space-y-4 text-sm leading-6 text-[var(--muted)]">
                 <div>
                   <p className="font-semibold text-[var(--foreground)]">Best if</p>
                   <div className="mt-1 grid gap-2">
-                    {town.matchProfile.bestIf.map((item) => (
+                    {town.matchProfile.bestIf.slice(0, 2).map((item) => (
                       <p key={item}>• {item}</p>
                     ))}
                   </div>
@@ -276,38 +310,51 @@ export default async function ResultsPage({
                 <div>
                   <p className="font-semibold text-[var(--foreground)]">Watch out for</p>
                   <div className="mt-1 grid gap-2">
-                    {town.matchProfile.watchOutFor.map((item) => (
+                    {town.matchProfile.watchOutFor.slice(0, 2).map((item) => (
                       <p key={item}>• {item}</p>
                     ))}
                   </div>
                 </div>
-                <div>
+              </div>
+
+              <div className="hidden md:block">
+                <div className="mt-4">
                   <p className="font-semibold text-[var(--foreground)]">Why it ranks here</p>
-                  <p className="mt-1">{town.matchProfile.whyItRanksHere}</p>
+                  <p className="mt-1 text-sm leading-7 text-[var(--muted)]">
+                    {town.matchProfile.whyItRanksHere}
+                  </p>
+                </div>
+                <div className="mt-5 rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4 text-sm leading-7 text-[var(--muted)]">
+                  <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span>{" "}
+                  {town.tradeoff}
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4 text-sm leading-7 text-[var(--muted)]">
-                <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span> {town.tradeoff}
-              </div>
+              <ExpandableBlock
+                className="mt-4 md:hidden"
+                expandLabel="See why it ranks here"
+                collapseLabel="Hide extra match detail"
+              >
+                <div className="space-y-4 text-sm leading-6 text-[var(--muted)]">
+                  <div>
+                    <p className="font-semibold text-[var(--foreground)]">Why it ranks here</p>
+                    <p className="mt-1">{town.matchProfile.whyItRanksHere}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[rgba(143,93,59,0.16)] bg-[rgba(234,215,191,0.24)] p-4">
+                    <span className="font-semibold text-[var(--foreground)]">Tradeoff:</span>{" "}
+                    {town.tradeoff}
+                  </div>
+                </div>
+              </ExpandableBlock>
 
-              <Link href={`/towns/${town.slug}`} className="mt-6 inline-block text-sm font-semibold text-[var(--accent)]">
+              <Link
+                href={`/towns/${town.slug}`}
+                className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]"
+              >
                 View town profile
               </Link>
             </article>
           ))}
-        </div>
-
-        <div className="card p-6 md:p-8">
-          <p className="eyebrow">Backup options</p>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {backups.map((town) => (
-              <Link key={town.slug} href={`/towns/${town.slug}`} className="rounded-2xl border border-[var(--line)] p-5 transition hover:bg-[rgba(255,255,255,0.35)]">
-                <h3 className="text-xl font-semibold">{town.name}</h3>
-                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{town.tradeoff}</p>
-              </Link>
-            ))}
-          </div>
         </div>
 
         {relatedGuides.length > 0 ? (
@@ -320,12 +367,18 @@ export default async function ResultsPage({
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {relatedGuides.map((guide) => (
-                <Link key={guide.slug} href={`/guides/${guide.slug}`} className="hover-lift-soft card p-5">
+                <Link
+                  key={guide.slug}
+                  href={`/guides/${guide.slug}`}
+                  className="hover-lift-soft card p-5"
+                >
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
                     {guide.category}
                   </p>
                   <h3 className="mt-3 text-xl font-semibold">{guide.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{guide.bestWhen}</p>
+                  <p className="mt-3 text-sm leading-6 text-[var(--muted)] md:leading-7">
+                    {guide.bestWhen}
+                  </p>
                   <span className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]">
                     Read guide →
                   </span>
@@ -335,14 +388,41 @@ export default async function ResultsPage({
           </div>
         ) : null}
 
-        <div className="grid gap-3 sm:flex sm:flex-wrap sm:gap-4">
+        <div className="card p-6 md:p-8">
+          <p className="eyebrow">Backup options</p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {backups.map((town) => (
+              <Link
+                key={town.slug}
+                href={`/towns/${town.slug}`}
+                className="rounded-2xl border border-[var(--line)] p-5 transition hover:bg-[rgba(255,255,255,0.35)]"
+              >
+                <h3 className="text-xl font-semibold">{town.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted)] md:leading-7">
+                  {town.tradeoff}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <ShareActions
+          title="Your Himachal town matches"
+          text="Reopen this Appleville result set with the same answers."
+          hint="Copy or share this URL to revisit the same quiz results."
+        />
+
+        <div className="hidden gap-3 sm:flex sm:flex-wrap sm:gap-4 md:flex">
           <Link
-            href={`/compare?towns=${top.map((town) => town.slug).join(",")}`}
+            href={compareHref}
             className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-white"
           >
             Compare these towns
           </Link>
-          <Link href="/quiz" className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-sm font-semibold">
+          <Link
+            href="/quiz"
+            className="rounded-full border border-[var(--line)] bg-[var(--card)] px-6 py-3 text-sm font-semibold"
+          >
             Retake quiz
           </Link>
         </div>
