@@ -52,6 +52,7 @@ export function SiteHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const showQuizButton = pathname !== "/";
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const previousPathnameRef = useRef(pathname);
 
   function isActiveLink(href: string) {
     return pathname === href || pathname.startsWith(`${href}/`);
@@ -102,7 +103,10 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   useEffect(() => {
-    if (!menuOpen && !resourcesOpen) return;
+    const previousPathname = previousPathnameRef.current;
+    previousPathnameRef.current = pathname;
+
+    if (previousPathname === pathname) return;
 
     const frame = window.requestAnimationFrame(() => {
       setMenuOpen(false);
@@ -110,7 +114,7 @@ export function SiteHeader() {
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [menuOpen, pathname, resourcesOpen]);
+  }, [pathname]);
 
   return (
     <header
