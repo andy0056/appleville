@@ -74,6 +74,8 @@ const intentPhraseMap: Record<
     "tap water",
     "drinking water",
     "water safe",
+    "water situation",
+    "water",
     "groceries",
     "grocery",
     "food",
@@ -143,6 +145,18 @@ const intentPhraseMap: Record<
   ],
 };
 
+const topicIntentMap: Partial<Record<AssistantTopic, AssistantIntentKind>> = {
+  property: "property",
+  safety: "women_safety",
+  food: "food_water",
+  water: "food_water",
+  banking: "banking",
+  power: "power",
+  community: "community",
+  moving: "moving",
+  method: "method",
+};
+
 const townFitSignals = [
   "best town",
   "best towns",
@@ -176,6 +190,14 @@ function mapTopicsToPageTypes(topics: AssistantTopic[]) {
   return unique(topics.flatMap((topic) => topicToPageTypes[topic] ?? []));
 }
 
+function getIntentKindsForTopics(topics: AssistantTopic[]) {
+  return unique(
+    topics
+      .map((topic) => topicIntentMap[topic] ?? null)
+      .filter((intentKind): intentKind is AssistantIntentKind => Boolean(intentKind)),
+  );
+}
+
 function buildClauseCandidates(
   normalizedText: string,
   clauseIndex: number,
@@ -197,6 +219,20 @@ function buildClauseCandidates(
         focusTopics: explicitTopics,
       });
     }
+  }
+
+  for (const kind of getIntentKindsForTopics(explicitTopics)) {
+    if (kind === "comparison" || kind === "town_fit" || kind === "generic") {
+      continue;
+    }
+
+    candidates.push({
+      kind,
+      score: kind === "property" || kind === "method" ? 82 : 70,
+      clauseIndex,
+      evidence: explicitTopics.slice(0, 3),
+      focusTopics: explicitTopics,
+    });
   }
 
   const clauseHasComparisonCue = hasComparisonCue(` ${normalizedText} `);
