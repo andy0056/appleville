@@ -20,6 +20,7 @@ import {
   type AssistantResponderResult,
 } from "./responders/shared.ts";
 import { buildTownFitResponse } from "./responders/town-fit.ts";
+import { buildTownOverviewResponse } from "./responders/town-overview.ts";
 import { buildWomenSafetyResponse } from "./responders/women-safety.ts";
 
 function buildFallbackResponse(
@@ -63,7 +64,13 @@ function buildFallbackResponse(
 }
 
 function resolveResponder(intent: AssistantIntent): AssistantResponderResult | null {
-  switch (intent.intentKind) {
+  if (intent.queryFrame.answerShape === "single_town_overview") {
+    return buildTownOverviewResponse(intent);
+  }
+
+  const effectiveKind = intent.focusDomainKind ?? intent.intentKind;
+
+  switch (effectiveKind) {
     case "property":
       return buildPropertyResponse(intent);
     case "women_safety":
@@ -126,5 +133,6 @@ export function generateAssistantResponse(
     conversationContext: nextContext,
     didFallback: false,
     responderKind: intent.intentKind,
+    answerShape: intent.queryFrame.answerShape,
   };
 }

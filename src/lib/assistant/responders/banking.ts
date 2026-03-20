@@ -25,10 +25,75 @@ function getBankingTown(slug: string) {
   return bankingTowns.find((entry) => entry.slug === slug);
 }
 
+const bankingRank = {
+  full: 4,
+  good: 3,
+  limited: 2,
+  minimal: 1,
+} as const;
+
 export function buildBankingResponse(intent: AssistantIntent): AssistantResponderResult {
   const town = intent.townSlugs[0] ? getTownBySlug(intent.townSlugs[0]) : null;
   const bankingTown = town ? getBankingTown(town.slug) : null;
   const relatedGuideSlug = town ? getPrimaryRelatedGuideSlug([town.slug]) : null;
+  const comparedTowns = intent.queryFrame.comparisonTownSlugs
+    .map((slug) => getTownBySlug(slug))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+
+  if (intent.queryFrame.primaryIntentKind === "comparison" && comparedTowns.length >= 2) {
+    const comparedBanking = comparedTowns
+      .map((entry) => ({ town: entry, banking: getBankingTown(entry.slug) }))
+      .filter((entry): entry is { town: NonNullable<typeof entry.town>; banking: NonNullable<typeof entry.banking> } => Boolean(entry.banking));
+
+    if (comparedBanking.length >= 2) {
+      const sorted = comparedBanking
+        .slice()
+        .sort(
+          (left, right) =>
+            bankingRank[right.banking.bankingLevel] - bankingRank[left.banking.bankingLevel],
+        );
+      const stronger = sorted[0];
+      const thinner = sorted[sorted.length - 1];
+
+      return {
+        answer: `${stronger.town.name} is the easier banking base in this comparison. ${thinner.town.name} is still workable, but it asks for more planning around branch depth, cash handling, or backup routines.`,
+        keyPoints: ensureKeyPoints([
+          `${stronger.town.name}: ${stronger.banking.headline}`,
+          `${thinner.town.name}: ${thinner.banking.headline}`,
+          hybridRule.detail,
+        ]),
+        caution: "Even the stronger town is still a hill-town banking setup, so keep cash backup and do not rely on one branch or one payment rail.",
+        citations: [
+          buildCitation(
+            "Banking and money in Himachal",
+            `/banking#${resourceSectionAnchors.banking.banksByTown}`,
+            "Banks by town",
+            summarizeText(`${stronger.town.name}: ${stronger.banking.headline}`, 1, 120),
+          ),
+          buildCitation(
+            "Banking and money in Himachal",
+            `/banking#${resourceSectionAnchors.banking.cashRule}`,
+            "Cash rule",
+            summarizeText(hybridRule.detail, 1, 120),
+          ),
+        ],
+        nextLinks: dedupeNextLinks(
+          [
+            buildResourceLink(
+              "Open banking guide",
+              "/banking",
+              "Read the full banking, cash, and payment-access guide.",
+            ),
+            buildTownProfileLink(stronger.town.slug),
+            buildTownProfileLink(thinner.town.slug, `Read the grounded town page for ${thinner.town.name}.`),
+          ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
+        ),
+        confidence: "high",
+        resolvedTownSlugs: comparedTowns.map((entry) => entry.slug),
+        resolvedPageTypes: ["resource"],
+      };
+    }
+  }
 
   if (intent.subIntent === "account_opening") {
     const townLine = bankingTown

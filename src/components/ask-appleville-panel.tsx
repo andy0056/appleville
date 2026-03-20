@@ -59,7 +59,11 @@ function normalizeStoredAssistantResponse(
         ? candidate.conversationContext
         : {
             activeIntentKind: null,
+            activePrimaryIntentKind: null,
+            activeFocusDomainKind: null,
             activeTownSlugs: [],
+            activeMentionedTownSlugs: [],
+            activeComparisonTownSlugs: [],
             activeTopics: [],
             activePageTypes: [],
             activeUserProfile: null,
@@ -72,6 +76,13 @@ function normalizeStoredAssistantResponse(
         ? candidate.fallbackReason
         : undefined,
     responderKind: candidate.responderKind ?? "generic",
+    answerShape:
+      candidate.answerShape === "single_domain" ||
+      candidate.answerShape === "single_town_overview" ||
+      candidate.answerShape === "comparison" ||
+      candidate.answerShape === "overview_plus_comparison"
+        ? candidate.answerShape
+        : undefined,
   };
 }
 

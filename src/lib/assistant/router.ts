@@ -1,291 +1,246 @@
+import { sanitizeConversationContext, isFollowUpQuery } from "./context.ts";
+import { resolveAssistantQueryFrame } from "./precedence.ts";
 import {
-  assistantStopwords,
-  buyerProfileAliases,
-  indianLocationAliases,
-  knownDomainTerms,
-  topicAliases,
-  topicToPageTypes,
-  townAliases,
-} from "./aliases.ts";
-import { isFollowUpQuery, sanitizeConversationContext } from "./context.ts";
+  findTopics,
+  findTownSlugs,
+  hasComparisonCue,
+  hasKnownDomainSignal,
+  includesAny,
+  inferUserProfile,
+  parseAssistantQuery,
+} from "./query-parser.ts";
+import { topicToPageTypes } from "./aliases.ts";
 import type {
   AssistantConversationContext,
   AssistantIntent,
+  AssistantIntentCandidate,
   AssistantIntentKind,
   AssistantPageType,
   AssistantSubIntent,
   AssistantTopic,
-  AssistantUserProfile,
 } from "./types.ts";
 
 function unique<T>(items: T[]) {
   return Array.from(new Set(items));
 }
 
-export function normalizeText(input: string) {
-  return input
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+const intentPhraseMap: Record<
+  Exclude<AssistantIntentKind, "comparison" | "generic" | "town_fit">,
+  string[]
+> = {
+  method: [
+    "how appleville works",
+    "how this works",
+    "what do you consider",
+    "how do you decide",
+    "how do you score",
+    "how are matches produced",
+    "citation",
+    "citations",
+  ],
+  property: [
+    "property",
+    "buy land",
+    "buy property",
+    "purchase property",
+    "buy a flat",
+    "buy a house",
+    "section 118",
+    "gpa",
+    "poa",
+    "ownership",
+    "owner",
+    "lease",
+    "registered lease",
+    "can i buy",
+    "can outsiders buy",
+  ],
+  women_safety: [
+    "women safety",
+    "women s safety",
+    "safe for women",
+    "solo woman",
+    "solo women",
+    "for women",
+    "female traveler",
+    "harassment",
+    "eve teasing",
+    "stalking",
+    "woman",
+    "women",
+    "safety",
+  ],
+  food_water: [
+    "tap water",
+    "drinking water",
+    "water safe",
+    "groceries",
+    "grocery",
+    "food",
+    "delivery",
+    "protein",
+    "dairy",
+    "cheese",
+    "milk",
+    "bakery",
+    "sourdough",
+  ],
+  banking: [
+    "bank account",
+    "open account",
+    "atm",
+    "upi",
+    "cash",
+    "forex",
+    "remittance",
+    "banking",
+    "bank",
+    "payment",
+    "payments",
+    "money",
+  ],
+  power: [
+    "power cut",
+    "power cuts",
+    "power",
+    "electricity",
+    "outage",
+    "outages",
+    "inverter",
+    "ups",
+    "backup",
+    "heating",
+    "heater",
+  ],
+  community: [
+    "coworking",
+    "community",
+    "lonely",
+    "loneliness",
+    "mental health",
+    "therapy",
+    "therapist",
+    "aa",
+    "na",
+    "social life",
+    "friends",
+    "isolation",
+  ],
+  moving: [
+    "trial move",
+    "first 30 days",
+    "first month",
+    "settle",
+    "moving",
+    "move",
+    "sim",
+    "utilities",
+    "utility",
+    "proof of address",
+    "rental setup",
+    "onboarding",
+    "broadband",
+  ],
+};
 
-export function tokenize(input: string) {
-  return normalizeText(input)
-    .split(" ")
-    .filter((token) => token && !assistantStopwords.has(token));
-}
+const townFitSignals = [
+  "best town",
+  "best towns",
+  "which town",
+  "which towns",
+  "remote work",
+  "family",
+  "quiet",
+  "quieter",
+  "access",
+  "long stay",
+  "longer stay",
+  "long term",
+  "social",
+  "fit",
+  "better town",
+  "rank",
+] as const;
 
-function findTownSlugs(normalizedQuery: string) {
-  return unique(
-    Object.entries(townAliases)
-      .filter(([alias]) => normalizedQuery.includes(alias))
-      .map(([, slug]) => slug),
-  );
-}
-
-function findTopics(normalizedQuery: string) {
-  return unique(
-    Object.entries(topicAliases)
-      .filter(([alias]) => normalizedQuery.includes(alias))
-      .flatMap(([, topics]) => topics),
-  );
-}
-
-function hasKnownDomainSignal(normalizedQuery: string) {
-  if (!normalizedQuery) return false;
-  return Array.from(knownDomainTerms).some((term) => normalizedQuery.includes(term));
-}
+const townOverviewPhrases = [
+  "tell me about",
+  "about",
+  "what is",
+  "what s",
+  "what about",
+  "how is",
+  "like",
+] as const;
 
 function mapTopicsToPageTypes(topics: AssistantTopic[]) {
   return unique(topics.flatMap((topic) => topicToPageTypes[topic] ?? []));
 }
 
-function includesAny(normalizedQuery: string, phrases: string[]) {
-  return phrases.some((phrase) => normalizedQuery.includes(phrase));
-}
+function buildClauseCandidates(
+  normalizedText: string,
+  clauseIndex: number,
+  clauseTownSlugs: string[],
+  explicitTopics: AssistantTopic[],
+): AssistantIntentCandidate[] {
+  const candidates: AssistantIntentCandidate[] = [];
 
-function inferUserProfile(normalizedQuery: string): AssistantUserProfile {
-  for (const [phrase, profile] of Object.entries(buyerProfileAliases)) {
-    if (normalizedQuery.includes(phrase)) {
-      return profile;
+  for (const [kind, phrases] of Object.entries(intentPhraseMap) as [
+    Exclude<AssistantIntentKind, "comparison" | "generic" | "town_fit">,
+    string[],
+  ][]) {
+    if (includesAny(normalizedText, phrases)) {
+      candidates.push({
+        kind,
+        score: kind === "property" || kind === "method" ? 90 : 74,
+        clauseIndex,
+        evidence: phrases.filter((phrase) => normalizedText.includes(phrase)).slice(0, 3),
+        focusTopics: explicitTopics,
+      });
     }
   }
 
-  const fromMatch = normalizedQuery.match(/\bfrom ([a-z ]+)\b/);
-  if (fromMatch) {
-    const location = fromMatch[1].trim();
-    if (indianLocationAliases.has(location)) {
-      return "out_of_state_indian";
-    }
-  }
-
-  return null;
-}
-
-function inferIntentKind(
-  normalizedQuery: string,
-  explicitTownSlugs: string[],
-  followUp: boolean,
-  context: AssistantConversationContext,
-): AssistantIntentKind {
-  const wantsComparison =
-    explicitTownSlugs.length >= 2 ||
-    normalizedQuery.includes(" vs ") ||
-    normalizedQuery.includes(" versus ") ||
-    normalizedQuery.includes("compare ");
-
-  let intentKind: AssistantIntentKind = "generic";
-
+  const clauseHasComparisonCue = hasComparisonCue(` ${normalizedText} `);
   if (
-    includesAny(normalizedQuery, [
-      "how appleville works",
-      "how this works",
-      "what do you consider",
-      "how do you decide",
-      "how do you score",
-      "how are matches produced",
-      "citation",
-      "citations",
-    ])
+    clauseTownSlugs.length >= 2 ||
+    clauseHasComparisonCue ||
+    (clauseTownSlugs.length >= 1 && normalizedText.includes(" or "))
   ) {
-    intentKind = "method";
-  } else if (
-    includesAny(normalizedQuery, [
-      "property",
-      "buy land",
-      "buy property",
-      "purchase property",
-      "buy a flat",
-      "buy a house",
-      "section 118",
-      "gpa",
-      "poa",
-      "ownership",
-      "owner",
-      "lease",
-      "registered lease",
-      "can i buy",
-      "can outsiders buy",
-    ])
-  ) {
-    intentKind = "property";
-  } else if (
-    includesAny(normalizedQuery, [
-      "women safety",
-      "safe for women",
-      "solo woman",
-      "solo women",
-      "for women",
-      "female traveler",
-      "harassment",
-      "eve teasing",
-      "stalking",
-      "women",
-      "woman",
-      "safety",
-    ])
-  ) {
-    intentKind = "women_safety";
-  } else if (
-    includesAny(normalizedQuery, [
-      "tap water",
-      "drinking water",
-      "water safe",
-      "groceries",
-      "grocery",
-      "food",
-      "delivery",
-      "protein",
-      "dairy",
-      "cheese",
-      "milk",
-      "bakery",
-      "sourdough",
-    ])
-  ) {
-    intentKind = "food_water";
-  } else if (
-    includesAny(normalizedQuery, [
-      "bank account",
-      "open account",
-      "atm",
-      "upi",
-      "cash",
-      "forex",
-      "remittance",
-      "banking",
-      "bank",
-      "payment",
-      "payments",
-      "money",
-    ])
-  ) {
-    intentKind = "banking";
-  } else if (
-    includesAny(normalizedQuery, [
-      "power cut",
-      "power cuts",
-      "power",
-      "electricity",
-      "outage",
-      "outages",
-      "inverter",
-      "ups",
-      "backup",
-      "heating",
-      "heater",
-    ])
-  ) {
-    intentKind = "power";
-  } else if (
-    includesAny(normalizedQuery, [
-      "coworking",
-      "community",
-      "lonely",
-      "loneliness",
-      "mental health",
-      "therapy",
-      "therapist",
-      "aa",
-      "na",
-      "social life",
-      "friends",
-      "isolation",
-    ])
-  ) {
-    intentKind = "community";
-  } else if (
-    includesAny(normalizedQuery, [
-      "trial move",
-      "first 30 days",
-      "first month",
-      "settle",
-      "moving",
-      "move",
-      "sim",
-      "utilities",
-      "utility",
-      "proof of address",
-      "rental setup",
-      "onboarding",
-      "broadband",
-    ])
-  ) {
-    intentKind = "moving";
-  } else if (wantsComparison) {
-    intentKind = "comparison";
-  } else if (
-    includesAny(normalizedQuery, [
-      "best town",
-      "best towns",
-      "which town",
-      "which towns",
-      "remote work",
-      "family",
-      "quiet",
-      "quieter",
-      "access",
-      "long stay",
-      "longer stay",
-      "long term",
-      "social",
-      "fit",
-    ])
-  ) {
-    intentKind = "town_fit";
+    candidates.push({
+      kind: "comparison",
+      score: clauseTownSlugs.length >= 2 ? 84 : 72,
+      clauseIndex,
+      evidence: ["comparison"],
+      focusTopics: explicitTopics,
+    });
   }
 
-  if (!followUp) return intentKind;
+  const looksLikeTownOverview =
+    clauseTownSlugs.length === 1 && includesAny(normalizedText, townOverviewPhrases);
 
-  if (context.activeIntentKind === "comparison" && explicitTownSlugs.length >= 2) {
-    return "comparison";
+  if (includesAny(normalizedText, townFitSignals) || clauseTownSlugs.length === 1) {
+    candidates.push({
+      kind: "town_fit",
+      score: looksLikeTownOverview ? 64 : clauseTownSlugs.length === 1 ? 58 : 52,
+      clauseIndex,
+      evidence: clauseTownSlugs.length === 1 ? ["single-town"] : ["town-fit"],
+      focusTopics: explicitTopics.filter((topic) =>
+        [
+          "town-fit",
+          "remote-work",
+          "family",
+          "quiet",
+          "access",
+          "long-stay",
+          "social",
+          "beauty",
+          "tourism",
+          "cost",
+        ].includes(topic),
+      ),
+    });
   }
 
-  if (
-    context.activeIntentKind === "comparison" &&
-    context.activeTownSlugs.length >= 2 &&
-    (intentKind === "generic" || intentKind === "town_fit")
-  ) {
-    return "comparison";
-  }
-
-  if (intentKind === "generic" && context.activeIntentKind) {
-    return context.activeIntentKind;
-  }
-
-  if (
-    context.activeIntentKind &&
-    ["property", "women_safety", "food_water", "banking", "power", "community", "moving"].includes(
-      context.activeIntentKind,
-    ) &&
-    (intentKind === "generic" || intentKind === context.activeIntentKind)
-  ) {
-    return context.activeIntentKind;
-  }
-
-  return intentKind;
+  return candidates;
 }
 
 function inferSubIntent(
@@ -335,9 +290,6 @@ function inferSubIntent(
       }
       if (includesAny(normalizedQuery, ["delivery", "swiggy", "zomato"])) {
         return "delivery";
-      }
-      if (includesAny(normalizedQuery, ["protein", "meat", "trout", "mutton", "chicken"])) {
-        return "groceries";
       }
       return "groceries";
     case "banking":
@@ -393,10 +345,12 @@ function inferSubIntent(
 }
 
 function getTopicsForIntent(
-  intentKind: AssistantIntentKind,
+  primaryIntentKind: AssistantIntentKind,
+  focusDomainKind: AssistantIntentKind | null,
   explicitTopics: AssistantTopic[],
   followUp: boolean,
   context: AssistantConversationContext,
+  frameTopics: AssistantTopic[],
 ) {
   const domainTopics: Record<AssistantIntentKind, AssistantTopic[]> = {
     town_fit: ["town-fit"],
@@ -413,19 +367,22 @@ function getTopicsForIntent(
   };
 
   if (explicitTopics.length) return explicitTopics;
-  if (followUp && context.activeTopics.length) {
-    return unique([...context.activeTopics, ...(domainTopics[intentKind] ?? [])]);
-  }
-  return domainTopics[intentKind] ?? [];
+  if (frameTopics.length) return frameTopics;
+  if (followUp && context.activeTopics.length) return context.activeTopics;
+
+  return domainTopics[focusDomainKind ?? primaryIntentKind] ?? [];
 }
 
 function getPageTypesForIntent(
-  intentKind: AssistantIntentKind,
+  primaryIntentKind: AssistantIntentKind,
+  focusDomainKind: AssistantIntentKind | null,
   topics: AssistantTopic[],
   followUp: boolean,
   context: AssistantConversationContext,
 ): AssistantPageType[] {
-  switch (intentKind) {
+  const effectiveIntentKind = focusDomainKind ?? primaryIntentKind;
+
+  switch (effectiveIntentKind) {
     case "property":
     case "women_safety":
     case "food_water":
@@ -452,42 +409,83 @@ export function parseAssistantIntent(
   message: string,
   context?: AssistantConversationContext | null,
 ): AssistantIntent {
-  const normalizedQuery = normalizeText(message);
   const cleanContext = sanitizeConversationContext(context);
-  const explicitTownSlugs = findTownSlugs(normalizedQuery);
+  const { normalizedQuery, clauses, mentions } = parseAssistantQuery(message);
   const followUp = isFollowUpQuery(normalizedQuery);
-  const townSlugs = explicitTownSlugs.length
-    ? explicitTownSlugs
-    : followUp
-      ? cleanContext.activeTownSlugs
-      : [];
-  const intentKind = inferIntentKind(
+  const explicitTownSlugs = findTownSlugs(normalizedQuery);
+  const explicitTopics = findTopics(normalizedQuery);
+
+  const candidates = clauses.flatMap((clause) =>
+    buildClauseCandidates(
+      clause.normalizedText,
+      clause.index,
+      unique(
+        mentions
+          .filter((mention) => mention.kind === "town" && mention.clauseIndex === clause.index)
+          .map((mention) => mention.value),
+      ),
+      findTopics(clause.normalizedText),
+    ),
+  );
+
+  const queryFrame = resolveAssistantQueryFrame({
     normalizedQuery,
-    explicitTownSlugs,
+    clauses,
+    mentions,
+    candidates,
+    explicitTopics,
+    followUp,
+    context: cleanContext,
+  });
+
+  const primaryIntentKind = queryFrame.primaryIntentKind;
+  const focusDomainKind = queryFrame.focusDomainKind;
+  const townSlugs = queryFrame.comparisonTownSlugs.length
+    ? queryFrame.comparisonTownSlugs
+    : queryFrame.subjectTownSlugs.length
+      ? queryFrame.subjectTownSlugs
+      : queryFrame.mentionedTownSlugs.length
+        ? queryFrame.mentionedTownSlugs
+        : followUp
+          ? cleanContext.activeTownSlugs
+          : [];
+  const topics = getTopicsForIntent(
+    primaryIntentKind,
+    focusDomainKind,
+    explicitTopics,
+    followUp,
+    cleanContext,
+    queryFrame.focusTopics,
+  );
+  const pageTypes = getPageTypesForIntent(
+    primaryIntentKind,
+    focusDomainKind,
+    topics,
     followUp,
     cleanContext,
   );
-  const explicitTopics = findTopics(normalizedQuery);
-  const topics = getTopicsForIntent(intentKind, explicitTopics, followUp, cleanContext);
-  const pageTypes = getPageTypesForIntent(intentKind, topics, followUp, cleanContext);
   const userProfile = inferUserProfile(normalizedQuery) ?? (followUp ? cleanContext.activeUserProfile : null);
-  const wantsComparison = intentKind === "comparison";
+  const wantsComparison = primaryIntentKind === "comparison";
   const wantsTownRanking =
-    intentKind === "town_fit" &&
-    townSlugs.length <= 1 &&
-    (normalizedQuery.includes("best") ||
-      normalizedQuery.includes("which towns") ||
-      normalizedQuery.includes("which town") ||
-      normalizedQuery.includes("top") ||
-      townSlugs.length === 0);
-  const wantsMethod = intentKind === "method";
+    (primaryIntentKind === "comparison" && focusDomainKind === "town_fit") ||
+    (primaryIntentKind === "town_fit" &&
+      queryFrame.answerShape !== "single_town_overview" &&
+      (normalizedQuery.includes("best") ||
+        normalizedQuery.includes("which towns") ||
+        normalizedQuery.includes("which town") ||
+        normalizedQuery.includes("top") ||
+        townSlugs.length === 0));
+  const wantsMethod = primaryIntentKind === "method" || focusDomainKind === "method";
 
   return {
     rawQuery: message,
     normalizedQuery,
-    intentKind,
-    subIntent: inferSubIntent(intentKind, normalizedQuery, townSlugs),
+    intentKind: primaryIntentKind,
+    primaryIntentKind,
+    focusDomainKind,
+    subIntent: inferSubIntent(focusDomainKind ?? primaryIntentKind, normalizedQuery, townSlugs),
     explicitTownSlugs,
+    mentionedTownSlugs: queryFrame.mentionedTownSlugs,
     townSlugs,
     topics,
     pageTypes,
@@ -500,7 +498,10 @@ export function parseAssistantIntent(
       hasKnownDomainSignal(normalizedQuery) ||
       explicitTownSlugs.length > 0 ||
       topics.length > 0 ||
-      intentKind !== "generic" ||
+      primaryIntentKind !== "generic" ||
       (followUp && cleanContext.activeIntentKind !== null),
+    queryFrame,
   };
 }
+
+export { normalizeText } from "./query-parser.ts";

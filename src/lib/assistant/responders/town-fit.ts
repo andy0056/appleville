@@ -179,6 +179,35 @@ function getGuideForTopic(topic: AssistantTopic) {
   }
 }
 
+function getComparisonFocusLabel(topic: AssistantTopic) {
+  switch (topic) {
+    case "remote-work":
+      return "for remote work";
+    case "family":
+      return "for family routine";
+    case "quiet":
+      return "as a calmer everyday base";
+    case "access":
+      return "for easier access and errands";
+    case "long-stay":
+      return "as a steadier everyday base";
+    case "social":
+      return "if you want more visible social energy";
+    default:
+      return "as a steadier everyday base";
+  }
+}
+
+function getOrderedComparisonTowns(intent: AssistantIntent) {
+  const slugs = intent.queryFrame.comparisonTownSlugs.length
+    ? intent.queryFrame.comparisonTownSlugs
+    : intent.townSlugs;
+
+  return slugs
+    .map((slug) => getTownBySlug(slug))
+    .filter((town): town is NonNullable<typeof town> => Boolean(town));
+}
+
 function buildRankingResponse(intent: AssistantIntent): AssistantResponderResult {
   const dominantTopic = getDominantTopic(intent.topics);
   const weights = getWeightsForTopics(intent.topics);
@@ -295,27 +324,46 @@ function buildSingleTownResponse(intent: AssistantIntent, town: Town): Assistant
 function buildComparisonResponse(intent: AssistantIntent, selectedTowns: Town[]): AssistantResponderResult {
   const dominantTopic = getDominantTopic(intent.topics);
   const weights = getWeightsForTopics(intent.topics);
+  const comparisonFocusLabel = getComparisonFocusLabel(dominantTopic);
   const ranked = selectedTowns
     .map((town) => ({ town, score: scoreTown(town, weights) }))
     .sort((left, right) => right.score - left.score)
     .map((entry) => entry.town);
   const [leader, runnerUp] = ranked;
+  const orderedComparisonTowns = getOrderedComparisonTowns(intent);
+  const subjectTown = intent.queryFrame.subjectTownSlugs[0]
+    ? getTownBySlug(intent.queryFrame.subjectTownSlugs[0])
+    : orderedComparisonTowns[0] ?? null;
+  const contrastedTown =
+    orderedComparisonTowns.find((town) => town.slug !== subjectTown?.slug) ?? runnerUp;
   const guideSlug =
     leader.relatedGuideSlugs.find((slug) => runnerUp.relatedGuideSlugs.includes(slug)) ??
     getGuideForTopic(dominantTopic);
 
   const answer =
-    dominantTopic === "quiet"
-      ? `${leader.name} reads calmer in this comparison, while ${runnerUp.name} keeps more movement or convenience in the mix.`
-      : dominantTopic === "family"
-        ? `${leader.name} reads safer for family routine in this comparison, while ${runnerUp.name} is still viable if its atmosphere or location matters more to you.`
-        : dominantTopic === "remote-work"
-          ? `${leader.name} reads stronger for remote work in this comparison, while ${runnerUp.name} makes more sense if you are optimizing for a different kind of workday energy.`
-          : `${leader.name} reads stronger for this question, while ${runnerUp.name} is the more conditional alternative in the current comparison.`;
+    intent.queryFrame.answerShape === "overview_plus_comparison" && subjectTown && contrastedTown
+      ? leader.slug === subjectTown.slug
+        ? `Against ${contrastedTown.name}, ${subjectTown.name} ranks better ${comparisonFocusLabel} because it holds up more cleanly once routine, tradeoffs, and everyday usability enter the picture.`
+        : `Against ${contrastedTown.name}, ${subjectTown.name} ranks lower ${comparisonFocusLabel} unless you specifically want its atmosphere, movement, or visual energy more than a steadier daily base.`
+      : dominantTopic === "quiet"
+        ? `${leader.name} reads calmer in this comparison, while ${runnerUp.name} keeps more movement or convenience in the mix.`
+        : dominantTopic === "family"
+          ? `${leader.name} reads safer for family routine in this comparison, while ${runnerUp.name} is still viable if its atmosphere or location matters more to you.`
+          : dominantTopic === "remote-work"
+            ? `${leader.name} reads stronger for remote work in this comparison, while ${runnerUp.name} makes more sense if you are optimizing for a different kind of workday energy.`
+            : `${leader.name} reads stronger ${comparisonFocusLabel}, while ${runnerUp.name} is the more conditional alternative in the current comparison.`;
 
   return {
     answer,
-    keyPoints: ensureKeyPoints(ranked.slice(0, 3).map((town) => buildTownFitLine(town, dominantTopic))),
+    keyPoints: ensureKeyPoints(
+      intent.queryFrame.answerShape === "overview_plus_comparison" && subjectTown && contrastedTown
+        ? [
+            `${subjectTown.name}: ${summarizeText(subjectTown.summary, 1, 120)}`,
+            `${leader.name}: ${buildTownFitLine(leader, dominantTopic).replace(`${leader.name}: `, "")}`,
+            `${contrastedTown.name}: ${summarizeText(contrastedTown.tradeoff, 1, 120)}`,
+          ]
+        : ranked.slice(0, 3).map((town) => buildTownFitLine(town, dominantTopic)),
+    ),
     caution: summarizeText(
       `${leader.tradeoff} ${runnerUp.tradeoff}`,
       2,
@@ -335,7 +383,9 @@ function buildComparisonResponse(intent: AssistantIntent, selectedTowns: Town[])
     ),
     nextLinks: dedupeNextLinks([
       buildCompareLink(
-        ranked.map((town) => town.slug),
+        orderedComparisonTowns.length >= 2
+          ? orderedComparisonTowns.map((town) => town.slug)
+          : ranked.map((town) => town.slug),
         "Open the side-by-side comparison instead of relying on a short answer.",
       )!,
       buildTownProfileLink(leader.slug)!,
@@ -349,9 +399,7 @@ function buildComparisonResponse(intent: AssistantIntent, selectedTowns: Town[])
 
 export function buildTownFitResponse(intent: AssistantIntent): AssistantResponderResult {
   if (intent.intentKind === "comparison") {
-    const selectedTowns = intent.townSlugs
-      .map((slug) => getTownBySlug(slug))
-      .filter((town): town is NonNullable<typeof town> => Boolean(town));
+    const selectedTowns = getOrderedComparisonTowns(intent);
 
     if (selectedTowns.length >= 2) {
       return buildComparisonResponse(intent, selectedTowns);

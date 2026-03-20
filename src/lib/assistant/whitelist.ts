@@ -1,7 +1,9 @@
 import type { AssistantIntent, AssistantSearchOptions } from "./types.ts";
 
 export function getAssistantSearchOptions(intent: AssistantIntent): AssistantSearchOptions {
-  switch (intent.intentKind) {
+  const effectiveKind = intent.focusDomainKind ?? intent.intentKind;
+
+  switch (effectiveKind) {
     case "property":
       return {
         allowedPathnames: ["/property-rules"],

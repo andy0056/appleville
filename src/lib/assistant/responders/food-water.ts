@@ -41,11 +41,116 @@ function getDeliveryForTown(slug: string) {
   return deliveryReality.find((entry) => entry.town.toLowerCase().includes(slug));
 }
 
+const waterSafetyRank = {
+  excellent: 3,
+  caution: 2,
+  "ro-essential": 1,
+} as const;
+
 export function buildFoodWaterResponse(intent: AssistantIntent): AssistantResponderResult {
   const town = intent.townSlugs[0] ? getTownBySlug(intent.townSlugs[0]) : null;
   const waterZone = town ? getWaterZoneForTown(town.slug) : null;
   const deliveryTown = town ? getDeliveryForTown(town.slug) : null;
   const relatedGuideSlug = town ? getPrimaryRelatedGuideSlug([town.slug]) : null;
+  const comparedTowns = intent.queryFrame.comparisonTownSlugs
+    .map((slug) => getTownBySlug(slug))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+
+  if (intent.queryFrame.primaryIntentKind === "comparison" && comparedTowns.length >= 2) {
+    const [firstTown, secondTown] = comparedTowns;
+    const firstWaterZone = getWaterZoneForTown(firstTown.slug);
+    const secondWaterZone = getWaterZoneForTown(secondTown.slug);
+    const firstDelivery = getDeliveryForTown(firstTown.slug);
+    const secondDelivery = getDeliveryForTown(secondTown.slug);
+
+    if (intent.subIntent === "water" && firstWaterZone && secondWaterZone) {
+      const saferTown =
+        waterSafetyRank[firstWaterZone.safety] >= waterSafetyRank[secondWaterZone.safety]
+          ? firstTown
+          : secondTown;
+      const tighterTown = saferTown.slug === firstTown.slug ? secondTown : firstTown;
+      const saferZone = saferTown.slug === firstTown.slug ? firstWaterZone : secondWaterZone;
+      const tighterZone = tighterTown.slug === firstTown.slug ? firstWaterZone : secondWaterZone;
+
+      return {
+        answer: `${saferTown.name} reads cleaner on water risk than ${tighterTown.name}, but neither town changes Appleville's core rule: newcomers should still purify or boil instead of trusting direct tap use.`,
+        keyPoints: ensureKeyPoints([
+          `${saferTown.name}: ${saferZone.detail}`,
+          `${tighterTown.name}: ${tighterZone.detail}`,
+          waterVerdict,
+        ]),
+        caution: "Treat this as a relative water-read, not a reason to skip purification when you first settle in.",
+        citations: [
+          buildCitation(
+            "Food reality in Himachal",
+            `/food#${resourceSectionAnchors.food.drinkingWater}`,
+            "Drinking water",
+            summarizeText(`${saferTown.name}: ${saferZone.detail}`, 1, 120),
+          ),
+          buildCitation(
+            "Food reality in Himachal",
+            `/food#${resourceSectionAnchors.food.quickRealityCheck}`,
+            "Quick reality check",
+            summarizeText(waterVerdict, 1, 120),
+          ),
+        ],
+        nextLinks: dedupeNextLinks(
+          [
+            buildResourceLink(
+              "Open food and water guide",
+              "/food",
+              "Read the full water, groceries, and delivery page.",
+            ),
+            buildTownProfileLink(saferTown.slug),
+            buildTownProfileLink(tighterTown.slug, `Read the grounded town page for ${tighterTown.name}.`),
+          ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
+        ),
+        confidence: "high",
+        resolvedTownSlugs: comparedTowns.map((entry) => entry.slug),
+        resolvedPageTypes: ["resource"],
+      };
+    }
+
+    if (intent.subIntent === "delivery" && firstDelivery && secondDelivery) {
+      const strongerTown =
+        Number(firstDelivery.available) >= Number(secondDelivery.available) ? firstTown : secondTown;
+      const weakerTown = strongerTown.slug === firstTown.slug ? secondTown : firstTown;
+      const strongerDelivery = strongerTown.slug === firstTown.slug ? firstDelivery : secondDelivery;
+      const weakerDelivery = weakerTown.slug === firstTown.slug ? firstDelivery : secondDelivery;
+
+      return {
+        answer: `${strongerTown.name} is the easier food-delivery answer in this comparison. ${weakerTown.name} needs more walking, phone-ordering, or self-managed grocery routine instead of app confidence.`,
+        keyPoints: ensureKeyPoints([
+          `${strongerTown.name}: ${strongerDelivery.detail}`,
+          `${weakerTown.name}: ${weakerDelivery.detail}`,
+          groceryDelivery.detail,
+        ]),
+        caution: "Even the stronger town is still a hill-town delivery setup, not metro-grade convenience.",
+        citations: [
+          buildCitation(
+            "Food reality in Himachal",
+            `/food#${resourceSectionAnchors.food.delivery}`,
+            "Delivery reality",
+            summarizeText(`${strongerTown.name}: ${strongerDelivery.detail}`, 1, 120),
+          ),
+        ],
+        nextLinks: dedupeNextLinks(
+          [
+            buildResourceLink(
+              "Open food and water guide",
+              "/food",
+              "Read the full food delivery and groceries page.",
+            ),
+            buildTownProfileLink(strongerTown.slug),
+            buildTownProfileLink(weakerTown.slug, `Read the grounded town page for ${weakerTown.name}.`),
+          ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
+        ),
+        confidence: "high",
+        resolvedTownSlugs: comparedTowns.map((entry) => entry.slug),
+        resolvedPageTypes: ["resource"],
+      };
+    }
+  }
 
   if (intent.subIntent === "water") {
     if (town && waterZone) {

@@ -22,10 +22,75 @@ function getCommunityTown(slug: string) {
   return communityTowns.find((entry) => entry.slug === slug);
 }
 
+const isolationRank = {
+  low: 4,
+  "low-medium": 3,
+  medium: 2,
+  "medium-high": 1,
+} as const;
+
 export function buildCommunityResponse(intent: AssistantIntent): AssistantResponderResult {
   const town = intent.townSlugs[0] ? getTownBySlug(intent.townSlugs[0]) : null;
   const communityTown = town ? getCommunityTown(town.slug) : null;
   const relatedGuideSlug = town ? getPrimaryRelatedGuideSlug([town.slug]) : null;
+  const comparedTowns = intent.queryFrame.comparisonTownSlugs
+    .map((slug) => getTownBySlug(slug))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+
+  if (intent.queryFrame.primaryIntentKind === "comparison" && comparedTowns.length >= 2) {
+    const comparedCommunity = comparedTowns
+      .map((entry) => ({ town: entry, community: getCommunityTown(entry.slug) }))
+      .filter((entry): entry is { town: NonNullable<typeof entry.town>; community: NonNullable<typeof entry.community> } => Boolean(entry.community));
+
+    if (comparedCommunity.length >= 2) {
+      const sorted = comparedCommunity
+        .slice()
+        .sort(
+          (left, right) =>
+            isolationRank[right.community.isolationRisk] - isolationRank[left.community.isolationRisk],
+        );
+      const easier = sorted[0];
+      const thinner = sorted[sorted.length - 1];
+
+      return {
+        answer: `${easier.town.name} is the easier community answer in this comparison. ${thinner.town.name} can still work, but it depends more on self-built routine and deliberate social scaffolding.`,
+        keyPoints: ensureKeyPoints([
+          `${easier.town.name}: ${easier.community.integrationTips[0] ?? easier.community.communitySignals}`,
+          `${thinner.town.name}: ${thinner.community.integrationTips[0] ?? thinner.community.communitySignals}`,
+          helplines[0].detail,
+        ]),
+        caution: "A town with lower isolation risk still needs an actual routine, one recurring room, and one support fallback if you are moving alone.",
+        citations: [
+          buildCitation(
+            "Community and wellbeing in Himachal",
+            `/community#${resourceSectionAnchors.community.townProfiles}`,
+            "Community by town",
+            summarizeText(easier.community.integrationTips[0] ?? easier.community.communitySignals, 1, 120),
+          ),
+          buildCitation(
+            "Community and wellbeing in Himachal",
+            `/community#${resourceSectionAnchors.community.helplines}`,
+            "Support lines",
+            summarizeText(helplines[0].detail, 1, 120),
+          ),
+        ],
+        nextLinks: dedupeNextLinks(
+          [
+            buildResourceLink(
+              "Open community guide",
+              "/community",
+              "Read the full community and wellbeing guide.",
+            ),
+            buildTownProfileLink(easier.town.slug),
+            buildTownProfileLink(thinner.town.slug, `Read the grounded town page for ${thinner.town.name}.`),
+          ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
+        ),
+        confidence: "high",
+        resolvedTownSlugs: comparedTowns.map((entry) => entry.slug),
+        resolvedPageTypes: ["resource"],
+      };
+    }
+  }
 
   if (intent.subIntent === "mental_health") {
     return {

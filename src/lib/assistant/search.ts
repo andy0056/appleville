@@ -6,7 +6,7 @@ import type {
   AssistantSearchOptions,
   AssistantSearchResult,
 } from "./types.ts";
-import { normalizeText, tokenize } from "./router.ts";
+import { normalizeText, tokenize } from "./query-parser.ts";
 
 function unique<T>(items: T[]) {
   return Array.from(new Set(items));
@@ -15,7 +15,7 @@ function unique<T>(items: T[]) {
 function getExpandedTokens(intent: AssistantIntent) {
   const baseTokens = tokenize(intent.normalizedQuery);
   const topicTokens = intent.topics.flatMap((topic) => topic.split("-"));
-  const townTokens = intent.townSlugs.flatMap((slug) => {
+  const townTokens = intent.queryFrame.mentionedTownSlugs.flatMap((slug) => {
     const town = getTownBySlug(slug);
     return town ? tokenize(`${town.name} ${town.district}`) : [slug];
   });
@@ -54,7 +54,7 @@ function scoreChunk(chunk: AssistantChunk, intent: AssistantIntent) {
   }
 
   const explicitEntityMatches = chunk.entitySlugs.filter((slug) =>
-    intent.explicitTownSlugs.includes(slug),
+    intent.queryFrame.mentionedTownSlugs.includes(slug) || intent.explicitTownSlugs.includes(slug),
   );
   if (explicitEntityMatches.length) {
     score += explicitEntityMatches.length * 18;

@@ -9,7 +9,11 @@ import type {
 
 const emptyContext: AssistantConversationContext = {
   activeIntentKind: null,
+  activePrimaryIntentKind: null,
+  activeFocusDomainKind: null,
   activeTownSlugs: [],
+  activeMentionedTownSlugs: [],
+  activeComparisonTownSlugs: [],
   activeTopics: [],
   activePageTypes: [],
   activeUserProfile: null,
@@ -61,9 +65,21 @@ export function sanitizeConversationContext(
 ): AssistantConversationContext {
   if (!value) return emptyContext;
 
+  const primaryIntentKind = sanitizeIntentKind(
+    value.activePrimaryIntentKind ?? value.activeIntentKind,
+  );
+
   return {
-    activeIntentKind: sanitizeIntentKind(value.activeIntentKind),
+    activeIntentKind: primaryIntentKind,
+    activePrimaryIntentKind: primaryIntentKind,
+    activeFocusDomainKind: sanitizeIntentKind(value.activeFocusDomainKind),
     activeTownSlugs: unique((value.activeTownSlugs ?? []).filter(Boolean)).slice(0, 4),
+    activeMentionedTownSlugs: unique(
+      (value.activeMentionedTownSlugs ?? value.activeTownSlugs ?? []).filter(Boolean),
+    ).slice(0, 4),
+    activeComparisonTownSlugs: unique(
+      (value.activeComparisonTownSlugs ?? []).filter(Boolean),
+    ).slice(0, 4),
     activeTopics: unique((value.activeTopics ?? []).filter(Boolean) as AssistantTopic[]).slice(
       0,
       6,
@@ -105,7 +121,9 @@ export function buildConversationContextPatch(
   const cleanPreviousContext = sanitizeConversationContext(previousContext);
 
   return {
-    activeIntentKind: intent.intentKind,
+    activeIntentKind: intent.primaryIntentKind,
+    activePrimaryIntentKind: intent.primaryIntentKind,
+    activeFocusDomainKind: intent.focusDomainKind,
     activeTownSlugs: unique(
       intent.explicitTownSlugs.length
         ? intent.explicitTownSlugs
@@ -114,6 +132,20 @@ export function buildConversationContextPatch(
           : intent.townSlugs.length
             ? intent.townSlugs
             : cleanPreviousContext.activeTownSlugs,
+    ).slice(0, 4),
+    activeMentionedTownSlugs: unique(
+      intent.queryFrame.mentionedTownSlugs.length
+        ? intent.queryFrame.mentionedTownSlugs
+        : intent.explicitTownSlugs.length
+          ? intent.explicitTownSlugs
+          : cleanPreviousContext.activeMentionedTownSlugs,
+    ).slice(0, 4),
+    activeComparisonTownSlugs: unique(
+      intent.queryFrame.comparisonTownSlugs.length
+        ? intent.queryFrame.comparisonTownSlugs
+        : intent.primaryIntentKind === "comparison"
+          ? cleanPreviousContext.activeComparisonTownSlugs
+          : [],
     ).slice(0, 4),
     activeTopics: unique(
       intent.topics.length ? intent.topics : cleanPreviousContext.activeTopics,

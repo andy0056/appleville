@@ -23,10 +23,76 @@ function getPlaybookTown(slug: string) {
   return playbookTowns.find((entry) => entry.slug === slug);
 }
 
+const settleSpeedRank = {
+  fastest: 5,
+  fast: 4,
+  moderate: 3,
+  slow: 2,
+  slowest: 1,
+} as const;
+
 export function buildMovingResponse(intent: AssistantIntent): AssistantResponderResult {
   const town = intent.townSlugs[0] ? getTownBySlug(intent.townSlugs[0]) : null;
   const playbookTown = town ? getPlaybookTown(town.slug) : null;
   const relatedGuideSlug = town ? getPrimaryRelatedGuideSlug([town.slug]) : null;
+  const comparedTowns = intent.queryFrame.comparisonTownSlugs
+    .map((slug) => getTownBySlug(slug))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+
+  if (intent.queryFrame.primaryIntentKind === "comparison" && comparedTowns.length >= 2) {
+    const comparedPlaybooks = comparedTowns
+      .map((entry) => ({ town: entry, playbook: getPlaybookTown(entry.slug) }))
+      .filter((entry): entry is { town: NonNullable<typeof entry.town>; playbook: NonNullable<typeof entry.playbook> } => Boolean(entry.playbook));
+
+    if (comparedPlaybooks.length >= 2) {
+      const sorted = comparedPlaybooks
+        .slice()
+        .sort(
+          (left, right) =>
+            settleSpeedRank[right.playbook.settleSpeed] - settleSpeedRank[left.playbook.settleSpeed],
+        );
+      const easier = sorted[0];
+      const slower = sorted[sorted.length - 1];
+
+      return {
+        answer: `${easier.town.name} is the easier settling answer in this comparison. ${slower.town.name} is still liveable, but it asks for more patience around rental stability, utilities, or setup friction in the first two weeks.`,
+        keyPoints: ensureKeyPoints([
+          `${easier.town.name}: ${easier.playbook.overview}`,
+          `${slower.town.name}: ${slower.playbook.overview}`,
+          frictionPoints[0].detail,
+        ]),
+        caution: "Do not treat a scenic first impression as proof that setup friction will stay low once proof, connectivity, and errands enter the picture.",
+        citations: [
+          buildCitation(
+            "First 30 days in Himachal",
+            `/first-30-days#${resourceSectionAnchors.first30Days.townPlaybooks}`,
+            "Town playbooks",
+            summarizeText(easier.playbook.overview, 1, 120),
+          ),
+          buildCitation(
+            "First 30 days in Himachal",
+            `/first-30-days#${resourceSectionAnchors.first30Days.frictionPoints}`,
+            "Friction points",
+            summarizeText(frictionPoints[0].detail, 1, 120),
+          ),
+        ],
+        nextLinks: dedupeNextLinks(
+          [
+            buildResourceLink(
+              "Open first 30 days guide",
+              "/first-30-days",
+              "Read the full settling and logistics guide.",
+            ),
+            buildTownProfileLink(easier.town.slug),
+            buildTownProfileLink(slower.town.slug, `Read the grounded town page for ${slower.town.name}.`),
+          ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
+        ),
+        confidence: "high",
+        resolvedTownSlugs: comparedTowns.map((entry) => entry.slug),
+        resolvedPageTypes: ["resource"],
+      };
+    }
+  }
 
   if (intent.subIntent === "trial_move") {
     return {

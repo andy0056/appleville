@@ -70,6 +70,46 @@ export type AssistantUserProfile =
   | "company"
   | null;
 
+export type AssistantComparisonMode = "none" | "direct" | "ranking" | "contrast";
+
+export type AssistantAnswerShape =
+  | "single_domain"
+  | "single_town_overview"
+  | "comparison"
+  | "overview_plus_comparison";
+
+export type AssistantQueryClause = {
+  rawText: string;
+  normalizedText: string;
+  index: number;
+  clauseRole: "statement" | "question" | "follow_up";
+};
+
+export type AssistantMention = {
+  kind: "town" | "domain" | "comparison_cue" | "persona" | "ranking_cue";
+  value: string;
+  clauseIndex: number;
+};
+
+export type AssistantIntentCandidate = {
+  kind: AssistantIntentKind;
+  score: number;
+  clauseIndex: number;
+  evidence: string[];
+  focusTopics: AssistantTopic[];
+};
+
+export type AssistantQueryFrame = {
+  primaryIntentKind: AssistantIntentKind;
+  focusDomainKind: AssistantIntentKind | null;
+  focusTopics: AssistantTopic[];
+  mentionedTownSlugs: string[];
+  subjectTownSlugs: string[];
+  comparisonTownSlugs: string[];
+  comparisonMode: AssistantComparisonMode;
+  answerShape: AssistantAnswerShape;
+};
+
 export type AssistantChunk = {
   id: string;
   pathname: string;
@@ -98,7 +138,11 @@ export type AssistantNextLink = {
 
 export type AssistantConversationContext = {
   activeIntentKind: AssistantIntentKind | null;
+  activePrimaryIntentKind: AssistantIntentKind | null;
+  activeFocusDomainKind: AssistantIntentKind | null;
   activeTownSlugs: string[];
+  activeMentionedTownSlugs: string[];
+  activeComparisonTownSlugs: string[];
   activeTopics: AssistantTopic[];
   activePageTypes: AssistantPageType[];
   activeUserProfile: AssistantUserProfile;
@@ -108,8 +152,11 @@ export type AssistantIntent = {
   rawQuery: string;
   normalizedQuery: string;
   intentKind: AssistantIntentKind;
+  primaryIntentKind: AssistantIntentKind;
+  focusDomainKind: AssistantIntentKind | null;
   subIntent: AssistantSubIntent;
   explicitTownSlugs: string[];
+  mentionedTownSlugs: string[];
   townSlugs: string[];
   topics: AssistantTopic[];
   pageTypes: AssistantPageType[];
@@ -119,6 +166,7 @@ export type AssistantIntent = {
   wantsMethod: boolean;
   isFollowUp: boolean;
   hasKnownDomainSignal: boolean;
+  queryFrame: AssistantQueryFrame;
 };
 
 export type AssistantSearchResult = {
@@ -149,6 +197,7 @@ export type AssistantResponse = {
   didFallback: boolean;
   fallbackReason?: "no_match" | "low_confidence" | "out_of_scope";
   responderKind: AssistantIntentKind;
+  answerShape?: AssistantAnswerShape;
 };
 
 export type AssistantSearchOptions = {

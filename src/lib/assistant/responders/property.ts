@@ -50,7 +50,8 @@ function getProfileLabel(profile: AssistantUserProfile) {
 export function buildPropertyResponse(intent: AssistantIntent): AssistantResponderResult {
   const profile = intent.userProfile ?? "out_of_state_indian";
   const buyerType = getBuyerType(profile);
-  const town = intent.townSlugs[0] ? getTownBySlug(intent.townSlugs[0]) : null;
+  const town =
+    intent.townSlugs.length === 1 ? getTownBySlug(intent.townSlugs[0]) : null;
   const locationPhrase = town ? ` in ${town.name}` : " in Himachal Pradesh";
   const municipalRoute = purchaseRoutes[0];
   const permissionRoute = purchaseRoutes[1];
