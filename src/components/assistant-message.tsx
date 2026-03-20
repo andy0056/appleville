@@ -32,7 +32,7 @@ export function AssistantMessage(props: AssistantMessageProps) {
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-[rgba(255,255,255,0.6)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--forest)]">
-                {response.didFallback ? "Grounded fallback" : "Short answer"}
+                {response.didFallback ? "Grounded fallback" : "Straight answer"}
               </span>
               <span className="rounded-full border border-[var(--line)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
                 {response.confidence} confidence
@@ -41,13 +41,13 @@ export function AssistantMessage(props: AssistantMessageProps) {
             <p className="text-sm leading-7 text-[var(--foreground)]">{response.answer}</p>
           </div>
 
-          {response.supportBullets.length ? (
+          {response.keyPoints.length ? (
             <div className="space-y-2">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--forest)]">
-                Why this answer
+                What matters
               </p>
               <div className="grid gap-2">
-                {response.supportBullets.map((bullet) => (
+                {response.keyPoints.map((bullet) => (
                   <p
                     key={bullet}
                     className="rounded-[18px] border border-[var(--line)] bg-[rgba(255,255,255,0.38)] px-3 py-3 text-xs leading-6 text-[var(--muted)]"
@@ -56,6 +56,17 @@ export function AssistantMessage(props: AssistantMessageProps) {
                   </p>
                 ))}
               </div>
+            </div>
+          ) : null}
+
+          {response.caution ? (
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--forest)]">
+                Use caution
+              </p>
+              <p className="rounded-[18px] border border-[var(--line)] bg-[rgba(234,215,191,0.18)] px-3 py-3 text-xs leading-6 text-[var(--muted)]">
+                {response.caution}
+              </p>
             </div>
           ) : null}
 

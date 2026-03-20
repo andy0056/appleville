@@ -21,6 +21,55 @@ export type AssistantTopic =
   | "cost"
   | "method";
 
+export type AssistantIntentKind =
+  | "town_fit"
+  | "comparison"
+  | "property"
+  | "women_safety"
+  | "food_water"
+  | "banking"
+  | "power"
+  | "community"
+  | "moving"
+  | "method"
+  | "generic";
+
+export type AssistantSubIntent =
+  | "ranking"
+  | "single_town"
+  | "eligibility"
+  | "purchase_route"
+  | "lease"
+  | "risk"
+  | "town_safety"
+  | "statewide_safety"
+  | "healthcare"
+  | "water"
+  | "groceries"
+  | "delivery"
+  | "account_opening"
+  | "cash_upi"
+  | "forex"
+  | "network"
+  | "outages"
+  | "backup"
+  | "heating"
+  | "coworking"
+  | "social"
+  | "mental_health"
+  | "trial_move"
+  | "settling"
+  | "utilities"
+  | "how_it_works"
+  | "fallback";
+
+export type AssistantUserProfile =
+  | "out_of_state_indian"
+  | "nri_oci"
+  | "foreign_national"
+  | "company"
+  | null;
+
 export type AssistantChunk = {
   id: string;
   pathname: string;
@@ -48,18 +97,23 @@ export type AssistantNextLink = {
 };
 
 export type AssistantConversationContext = {
+  activeIntentKind: AssistantIntentKind | null;
   activeTownSlugs: string[];
   activeTopics: AssistantTopic[];
   activePageTypes: AssistantPageType[];
+  activeUserProfile: AssistantUserProfile;
 };
 
 export type AssistantIntent = {
   rawQuery: string;
   normalizedQuery: string;
+  intentKind: AssistantIntentKind;
+  subIntent: AssistantSubIntent;
   explicitTownSlugs: string[];
   townSlugs: string[];
   topics: AssistantTopic[];
   pageTypes: AssistantPageType[];
+  userProfile: AssistantUserProfile;
   wantsComparison: boolean;
   wantsTownRanking: boolean;
   wantsMethod: boolean;
@@ -86,11 +140,21 @@ export type AssistantRequest = {
 
 export type AssistantResponse = {
   answer: string;
-  supportBullets: string[];
+  keyPoints: string[];
+  caution?: string;
   citations: AssistantCitation[];
   nextLinks: AssistantNextLink[];
   confidence: "high" | "medium" | "low";
   conversationContext: AssistantConversationContext;
   didFallback: boolean;
   fallbackReason?: "no_match" | "low_confidence" | "out_of_scope";
+  responderKind: AssistantIntentKind;
+};
+
+export type AssistantSearchOptions = {
+  allowedPathnames?: string[];
+  excludedPathnames?: string[];
+  allowedPageTypes?: AssistantPageType[];
+  requiredKeywords?: string[];
+  mustIncludePathname?: string | null;
 };

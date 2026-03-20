@@ -27,6 +27,93 @@ const starterPrompts = [
   "Is tap water safe in Himachal?",
 ];
 
+function normalizeStoredAssistantResponse(
+  value: unknown,
+): AssistantResponse | null {
+  if (typeof value !== "object" || value === null) return null;
+
+  const candidate = value as Partial<AssistantResponse> & {
+    supportBullets?: string[];
+  };
+
+  if (typeof candidate.answer !== "string") return null;
+
+  return {
+    answer: candidate.answer,
+    keyPoints: Array.isArray(candidate.keyPoints)
+      ? candidate.keyPoints
+      : Array.isArray(candidate.supportBullets)
+        ? candidate.supportBullets
+        : [],
+    caution: typeof candidate.caution === "string" ? candidate.caution : undefined,
+    citations: Array.isArray(candidate.citations) ? candidate.citations : [],
+    nextLinks: Array.isArray(candidate.nextLinks) ? candidate.nextLinks : [],
+    confidence:
+      candidate.confidence === "high" ||
+      candidate.confidence === "medium" ||
+      candidate.confidence === "low"
+        ? candidate.confidence
+        : "low",
+    conversationContext:
+      candidate.conversationContext && typeof candidate.conversationContext === "object"
+        ? candidate.conversationContext
+        : {
+            activeIntentKind: null,
+            activeTownSlugs: [],
+            activeTopics: [],
+            activePageTypes: [],
+            activeUserProfile: null,
+          },
+    didFallback: Boolean(candidate.didFallback),
+    fallbackReason:
+      candidate.fallbackReason === "no_match" ||
+      candidate.fallbackReason === "low_confidence" ||
+      candidate.fallbackReason === "out_of_scope"
+        ? candidate.fallbackReason
+        : undefined,
+    responderKind: candidate.responderKind ?? "generic",
+  };
+}
+
+function normalizeStoredMessages(value: unknown): ClientMessage[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((message) => {
+      if (typeof message !== "object" || message === null) return null;
+
+      const candidate = message as Partial<ClientMessage> & {
+        response?: unknown;
+      };
+
+      if (candidate.role === "user" && typeof candidate.content === "string") {
+        return {
+          id: typeof candidate.id === "string" ? candidate.id : `${Date.now()}-stored-user`,
+          role: "user" as const,
+          content: candidate.content,
+        };
+      }
+
+      if (candidate.role === "assistant") {
+        const response = normalizeStoredAssistantResponse(candidate.response);
+        if (!response) return null;
+
+        return {
+          id:
+            typeof candidate.id === "string"
+              ? candidate.id
+              : `${Date.now()}-stored-assistant`,
+          role: "assistant" as const,
+          response,
+        };
+      }
+
+      return null;
+    })
+    .filter((message): message is ClientMessage => Boolean(message))
+    .slice(-10);
+}
+
 function buildHistory(messages: ClientMessage[]): AssistantHistoryMessage[] {
   return messages.map((message) =>
     message.role === "user"
@@ -46,7 +133,7 @@ function loadSavedConversation() {
       context?: AssistantConversationContext;
     };
     return {
-      messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+      messages: normalizeStoredMessages(parsed.messages),
       context: parsed.context ?? null,
     };
   } catch {

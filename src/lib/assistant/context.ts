@@ -1,19 +1,59 @@
 import type {
   AssistantConversationContext,
   AssistantIntent,
+  AssistantIntentKind,
   AssistantPageType,
-  AssistantSearchResult,
   AssistantTopic,
+  AssistantUserProfile,
 } from "./types.ts";
 
 const emptyContext: AssistantConversationContext = {
+  activeIntentKind: null,
   activeTownSlugs: [],
   activeTopics: [],
   activePageTypes: [],
+  activeUserProfile: null,
 };
 
 function unique<T>(items: T[]) {
   return Array.from(new Set(items));
+}
+
+function sanitizeIntentKind(value: unknown): AssistantIntentKind | null {
+  if (typeof value !== "string") return null;
+
+  return (
+    [
+      "town_fit",
+      "comparison",
+      "property",
+      "women_safety",
+      "food_water",
+      "banking",
+      "power",
+      "community",
+      "moving",
+      "method",
+      "generic",
+    ] as const
+  ).includes(value as AssistantIntentKind)
+    ? (value as AssistantIntentKind)
+    : null;
+}
+
+function sanitizeUserProfile(value: unknown): AssistantUserProfile {
+  if (typeof value !== "string") return null;
+
+  return (
+    [
+      "out_of_state_indian",
+      "nri_oci",
+      "foreign_national",
+      "company",
+    ] as const
+  ).includes(value as Exclude<AssistantUserProfile, null>)
+    ? (value as AssistantUserProfile)
+    : null;
 }
 
 export function sanitizeConversationContext(
@@ -22,6 +62,7 @@ export function sanitizeConversationContext(
   if (!value) return emptyContext;
 
   return {
+    activeIntentKind: sanitizeIntentKind(value.activeIntentKind),
     activeTownSlugs: unique((value.activeTownSlugs ?? []).filter(Boolean)).slice(0, 4),
     activeTopics: unique((value.activeTopics ?? []).filter(Boolean) as AssistantTopic[]).slice(
       0,
@@ -30,6 +71,7 @@ export function sanitizeConversationContext(
     activePageTypes: unique(
       (value.activePageTypes ?? []).filter(Boolean) as AssistantPageType[],
     ).slice(0, 4),
+    activeUserProfile: sanitizeUserProfile(value.activeUserProfile),
   };
 }
 
@@ -37,37 +79,52 @@ export function isFollowUpQuery(normalizedQuery: string) {
   if (!normalizedQuery) return false;
 
   return (
-    normalizedQuery.split(" ").length <= 7 ||
+    normalizedQuery.split(" ").length <= 8 ||
     normalizedQuery.startsWith("and ") ||
     normalizedQuery.startsWith("what about") ||
     normalizedQuery.startsWith("how about") ||
     normalizedQuery.startsWith("what if") ||
     normalizedQuery.startsWith("which one") ||
     normalizedQuery.startsWith("for families") ||
-    normalizedQuery.startsWith("for longer stays")
+    normalizedQuery.startsWith("for longer stays") ||
+    normalizedQuery.startsWith("what about for") ||
+    normalizedQuery.startsWith("what about lease") ||
+    normalizedQuery.startsWith("and which") ||
+    normalizedQuery.startsWith("and what")
   );
 }
 
 export function buildConversationContextPatch(
   intent: AssistantIntent,
-  results: AssistantSearchResult[],
   previousContext?: AssistantConversationContext | null,
+  options?: {
+    resolvedTownSlugs?: string[];
+    resolvedPageTypes?: AssistantPageType[];
+  },
 ): AssistantConversationContext {
   const cleanPreviousContext = sanitizeConversationContext(previousContext);
-  const resultTownSlugs = results.flatMap((result) => result.chunk.entitySlugs).slice(0, 4);
-  const resultPageTypes = results.map((result) => result.chunk.pageType).slice(0, 4);
 
   return {
+    activeIntentKind: intent.intentKind,
     activeTownSlugs: unique(
       intent.explicitTownSlugs.length
         ? intent.explicitTownSlugs
-        : cleanPreviousContext.activeTownSlugs.length
-          ? cleanPreviousContext.activeTownSlugs
-          : resultTownSlugs,
+        : options?.resolvedTownSlugs?.length
+          ? options.resolvedTownSlugs
+          : intent.townSlugs.length
+            ? intent.townSlugs
+            : cleanPreviousContext.activeTownSlugs,
     ).slice(0, 4),
-    activeTopics: unique(intent.topics).slice(0, 6),
+    activeTopics: unique(
+      intent.topics.length ? intent.topics : cleanPreviousContext.activeTopics,
+    ).slice(0, 6),
     activePageTypes: unique(
-      intent.pageTypes.length ? intent.pageTypes : resultPageTypes,
+      options?.resolvedPageTypes?.length
+        ? options.resolvedPageTypes
+        : intent.pageTypes.length
+          ? intent.pageTypes
+          : cleanPreviousContext.activePageTypes,
     ).slice(0, 4),
+    activeUserProfile: intent.userProfile ?? cleanPreviousContext.activeUserProfile,
   };
 }
