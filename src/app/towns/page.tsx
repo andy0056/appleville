@@ -28,6 +28,12 @@ export default function TownsPage() {
               Use this when you already know some town names, or when you want
               to narrow by decision filters before the shortlist gets noisy.
             </p>
+            <Link
+              href="/how-it-works#town-pages"
+              className="secondary-link inline-flex text-sm font-semibold md:hidden"
+            >
+              How Appleville reads towns
+            </Link>
           </div>
 
           <div className="compact-callout hidden md:block">

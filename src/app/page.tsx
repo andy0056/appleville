@@ -27,6 +27,12 @@ const startHere = [
   },
 ];
 
+const helpPoints = [
+  "Match by lifestyle fit",
+  "Browse towns by strength",
+  "Compare tradeoffs before scouting",
+];
+
 const fitProfiles = [
   "Remote workers choosing a steadier base",
   "Families weighing pace, access, and everyday practicality",
@@ -76,17 +82,6 @@ export default function Home() {
               </p>
             </div>
             <div
-              className="motion-enter-up card p-5 md:p-6"
-              style={{ animationDelay: "180ms", animationDuration: "260ms" }}
-            >
-              <p className="eyebrow">How Appleville helps</p>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] md:text-base">
-                Match by lifestyle fit, browse towns by strength, and compare
-                tradeoffs before you spend time or money on the wrong scouting
-                trip or trial stay.
-              </p>
-            </div>
-            <div
               className="motion-enter-up grid gap-3 sm:flex sm:flex-wrap sm:gap-4"
               style={{ animationDelay: "240ms", animationDuration: "240ms" }}
             >
@@ -103,6 +98,22 @@ export default function Home() {
                 Browse towns
               </Link>
             </div>
+            <div
+              className="motion-enter-up rounded-[24px] border border-[var(--line)] bg-[rgba(255,255,255,0.38)] p-4 md:p-5"
+              style={{ animationDelay: "180ms", animationDuration: "260ms" }}
+            >
+              <p className="eyebrow">How Appleville helps</p>
+              <div className="mt-3 grid gap-2 md:grid-cols-3 md:gap-3">
+                {helpPoints.map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-[18px] border border-[var(--line)] bg-[rgba(255,250,242,0.6)] px-3 py-3 text-sm leading-6 text-[var(--muted)]"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
             <Link
               href="/how-it-works"
               className="motion-enter-up secondary-link text-sm font-semibold"
@@ -113,10 +124,10 @@ export default function Home() {
           </div>
 
           <div
-            className="motion-enter-fade card relative overflow-hidden p-4 md:p-8"
+            className="motion-enter-fade space-y-3 md:card md:relative md:overflow-hidden md:p-8"
             style={{ animationDelay: "300ms", animationDuration: "180ms" }}
           >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--forest)]" />
+            <div className="hidden md:absolute md:inset-x-0 md:top-0 md:block md:h-1 md:bg-gradient-to-r md:from-[var(--accent)] md:to-[var(--forest)]" />
             <p className="eyebrow">Start here</p>
             <div className="mt-3 grid gap-3 md:mt-5 md:gap-4">
               {startHere.map((item) => (
@@ -141,8 +152,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-app py-8 md:py-20">
-        <div className="flex items-end justify-between gap-4">
+      <section className="container-app pt-4 pb-8 md:py-20">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <SectionHeading
             eyebrow="Featured towns"
             title="Start with four different fit profiles"
@@ -153,7 +164,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-5 grid gap-4 md:mt-8 md:grid-cols-2 xl:grid-cols-3">
           {featured.map((town, index) => (
             <TownCard key={town.slug} town={town} priority={index < 2} />
           ))}
@@ -165,28 +176,28 @@ export default function Home() {
           <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             <div>
               <p className="eyebrow">Who this is for</p>
-              <h2 className="mt-3 text-lg font-semibold tracking-tight md:text-3xl">
+              <h2 className="mt-3 text-xl font-semibold tracking-tight md:text-3xl">
                 Useful when the decision is about everyday life, not just scenery.
               </h2>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--muted)]">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)] md:mt-4 md:text-base md:leading-8">
                 If you are balancing work setup, family needs, access, quiet, or
                 a longer stay, this is built for that kind of choice. It is less
                 about finding a perfect town and more about finding the tradeoff
                 you can actually live with.
               </p>
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-6">
               <div className="rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5">
-              <p className="text-sm font-semibold text-[var(--forest)]">Useful if you are</p>
-              <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--muted)]">
-                {fitProfiles.map((item) => (
-                  <p key={item}>• {item}</p>
-                ))}
+                <p className="text-sm font-semibold text-[var(--forest)]">Useful if you are</p>
+                <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--muted)]">
+                  {fitProfiles.map((item) => (
+                    <p key={item}>• {item}</p>
+                  ))}
                 </div>
               </div>
               <div className="rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5">
                 <p className="text-sm font-semibold text-[var(--forest)]">Less useful if you are</p>
-                <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--muted)]">
+                <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--muted)]">
                   {lessUsefulFor.map((item) => (
                     <p key={item}>• {item}</p>
                   ))}
@@ -194,8 +205,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="mt-8 flex flex-col gap-4 rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="max-w-2xl text-sm leading-7 text-[var(--muted)]">
+          <div className="mt-6 flex flex-col gap-4 rounded-[22px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-2xl text-sm leading-6 text-[var(--muted)] md:leading-7">
               Take the quiz if you want a faster shortlist. Browse towns or read
               guides first if you are still working out what kind of tradeoff
               matters most.
@@ -219,7 +230,7 @@ export default function Home() {
       </section>
 
       <section className="container-app pb-12 md:pb-16">
-        <div className="rounded-[28px] border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-6 py-6 text-sm leading-7 text-[var(--muted)] md:px-8 md:py-7 md:text-base">
+        <div className="rounded-[28px] border border-[var(--line)] bg-[rgba(255,250,242,0.7)] px-5 py-5 text-sm leading-6 text-[var(--muted)] md:px-8 md:py-7 md:text-base md:leading-7">
           Town advice here is meant as directional guidance, not certainty. Roads,
           seasons, housing quality, and neighborhood feel can shift the experience
           a lot inside the same town.

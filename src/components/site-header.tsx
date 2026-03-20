@@ -23,7 +23,27 @@ const resourceLinks = [
   { href: "/food", label: "Food reality", sub: "Markets, water safety, delivery & seasonal costs" },
 ];
 
-const allLinks = [...navLinks, ...resourceLinks];
+const mobileMenuSections = [
+  {
+    label: "Start",
+    links: [
+      { href: "/quiz", label: "Quiz", sub: "Get a fast shortlist by fit" },
+      { href: "/towns", label: "Towns", sub: "Browse the current town set" },
+      { href: "/compare", label: "Compare", sub: "Read towns side by side" },
+    ],
+  },
+  {
+    label: "Resources",
+    links: resourceLinks,
+  },
+  {
+    label: "Trust",
+    links: [
+      { href: "/how-it-works", label: "How it works", sub: "What the product considers" },
+      { href: "/about", label: "About", sub: "Why Appleville exists" },
+    ],
+  },
+] as const;
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -81,6 +101,17 @@ export function SiteHeader() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    if (!menuOpen && !resourcesOpen) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      setMenuOpen(false);
+      setResourcesOpen(false);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [menuOpen, pathname, resourcesOpen]);
+
   return (
     <header
       className={`sticky top-0 z-50 border-b backdrop-blur-xl transition-[background-color,border-color] duration-[180ms] ease-out ${
@@ -98,10 +129,10 @@ export function SiteHeader() {
           }`}
         >
           <Link href="/" className="flex flex-col pr-2" onClick={() => setMenuOpen(false)}>
-            <span className="text-[0.98rem] font-semibold tracking-[0.22em] text-[var(--forest)] uppercase">
+            <span className="text-[0.9rem] font-semibold tracking-[0.2em] text-[var(--forest)] uppercase sm:text-[0.98rem]">
               Appleville
             </span>
-            <span className="text-[0.92rem] leading-6 text-[var(--muted)]">
+            <span className="text-[0.84rem] leading-5 text-[var(--muted)] sm:text-[0.92rem] sm:leading-6">
               Build Your Life in Himachal
             </span>
           </Link>
@@ -209,34 +240,32 @@ export function SiteHeader() {
             className="absolute inset-x-0 top-full z-50 px-4 pb-4"
           >
             <div className="mx-auto w-full max-w-[1120px] rounded-[28px] border border-[var(--line)] bg-[var(--card)] p-4 shadow-[0_24px_60px_rgba(44,34,27,0.12)]">
-              <div className="grid gap-3 text-base">
-                {allLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    aria-current={isActiveLink(link.href) ? "page" : undefined}
-                    className={`rounded-2xl border px-4 py-3.5 text-[15px] font-medium transition ${
-                      isActiveLink(link.href)
-                        ? "border-[rgba(143,93,59,0.2)] bg-[var(--accent-soft)] text-[var(--foreground)]"
-                        : "border-[var(--line)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground)]"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
+              <div className="space-y-5">
+                {mobileMenuSections.map((section) => (
+                  <div key={section.label} className="space-y-3">
+                    <p className="mobile-section-label">{section.label}</p>
+                    <div className="grid gap-2.5">
+                      {section.links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMenuOpen(false)}
+                          aria-current={isActiveLink(link.href) ? "page" : undefined}
+                          className={`rounded-2xl border px-4 py-3.5 transition ${
+                            isActiveLink(link.href)
+                              ? "border-[rgba(143,93,59,0.2)] bg-[var(--accent-soft)] text-[var(--foreground)]"
+                              : "border-[var(--line)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground)]"
+                          }`}
+                        >
+                          <p className="text-[15px] font-semibold">{link.label}</p>
+                          <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                            {link.sub}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </div>
-
-              <div className="mt-5 grid gap-3">
-                {showQuizButton ? (
-                  <Link
-                    href="/quiz"
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-full bg-[var(--accent)] px-5 py-3.5 text-center text-[15px] font-semibold text-white"
-                  >
-                    Take the quiz
-                  </Link>
-                ) : null}
               </div>
             </div>
           </div>

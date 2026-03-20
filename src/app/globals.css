@@ -95,6 +95,14 @@ a {
   padding: 20px;
 }
 
+.mobile-section-label {
+  color: var(--forest);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 @keyframes motion-fade-in {
   from {
     opacity: 0;
