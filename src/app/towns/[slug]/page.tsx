@@ -38,6 +38,97 @@ export async function generateMetadata({
   });
 }
 
+function QuickReadCard({ town }: { town: Town }) {
+  return (
+    <div className="card bg-[rgba(255,250,242,0.94)] p-5 md:p-6">
+      <p className="eyebrow">Quick read</p>
+      <div className="mt-4 space-y-4 text-sm leading-6 text-[var(--muted)]">
+        <div>
+          <p className="font-semibold text-[var(--foreground)]">Best for</p>
+          <p className="mt-1">{town.goodFor.slice(0, 3).join(", ")}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-[var(--foreground)]">Use caution if</p>
+          <p className="mt-1">{town.notIdealFor.slice(0, 2).join(", ")}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-[var(--foreground)]">Overall feel</p>
+          <p className="mt-1">{town.localFeel}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SnapshotCard({ town }: { town: Town }) {
+  const metrics = [
+    ["Remote work", town.remoteWork],
+    ["Accessibility", town.accessibility],
+    ["Quiet", town.quiet],
+    ["Family fit", town.familyFit],
+    ["Tourism", town.tourismIntensity],
+    ["Long-stay fit", town.longStayFit],
+  ];
+
+  return (
+    <div className="card p-5 md:p-6">
+      <p className="eyebrow">Snapshot</p>
+      <div className="mt-5 space-y-4">
+        {metrics.map(([label, value]) => (
+          <div key={label as string}>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span>{label}</span>
+              <span className="text-[var(--muted)]">{value}/5</span>
+            </div>
+            <div className="h-2 rounded-full bg-[var(--accent-soft)]/85">
+              <div
+                className="h-2 rounded-full bg-[var(--accent)]"
+                style={{ width: `${(Number(value) / 5) * 100}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CompareNextCard({
+  town,
+  relatedTowns,
+  compareSlugs,
+}: {
+  town: Town;
+  relatedTowns: Town[];
+  compareSlugs: string[];
+}) {
+  return (
+    <div className="card p-5 md:p-6">
+      <p className="eyebrow">Compare next</p>
+      <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
+        Put this town beside a few realistic alternatives before you let a single
+        page become the whole decision.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {[town, ...relatedTowns].map((item) => (
+          <span
+            key={item.slug}
+            className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-1 text-xs text-[var(--muted)]"
+          >
+            {item.name}
+          </span>
+        ))}
+      </div>
+      <Link
+        href={`/compare?towns=${compareSlugs.join(",")}`}
+        className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+      >
+        Compare this set
+      </Link>
+    </div>
+  );
+}
+
 export default async function TownDetailPage({
   params,
 }: {
@@ -48,14 +139,6 @@ export default async function TownDetailPage({
 
   if (!town) notFound();
 
-  const metrics = [
-    ["Remote work", town.remoteWork],
-    ["Accessibility", town.accessibility],
-    ["Quiet", town.quiet],
-    ["Family fit", town.familyFit],
-    ["Tourism", town.tourismIntensity],
-    ["Long-stay fit", town.longStayFit],
-  ];
   const compareSlugs = [town.slug, ...town.relatedTownSlugs].slice(0, 3);
   const relatedGuides = town.relatedGuideSlugs
     .map((guideSlug) => getGuideBySlug(guideSlug))
@@ -68,14 +151,18 @@ export default async function TownDetailPage({
 
   return (
     <main className="container-app py-8 md:py-16">
-      <div className="max-w-6xl space-y-5 md:space-y-10">
+      <div className="max-w-6xl space-y-5 md:space-y-8">
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
             { label: "Towns", href: "/towns" },
             { label: town.name },
           ]}
+          compactMobile
+          mobileBackHref="/towns"
+          mobileBackLabel="Towns"
         />
+
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:items-start">
           <div className="space-y-4 md:space-y-5">
             <p className="eyebrow">{town.district}</p>
@@ -126,162 +213,137 @@ export default async function TownDetailPage({
           </figure>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-start">
-          <aside className="space-y-4 lg:sticky lg:top-24">
-            <div className="card bg-[rgba(255,250,242,0.94)] p-5 md:p-6">
-              <p className="eyebrow">Quick read</p>
-              <div className="mt-4 space-y-4 text-sm leading-6 text-[var(--muted)]">
-                <div>
-                  <p className="font-semibold text-[var(--foreground)]">Best for</p>
-                  <p className="mt-1">{town.goodFor.slice(0, 3).join(", ")}</p>
-                </div>
-                <div>
-                  <p className="font-semibold text-[var(--foreground)]">Use caution if</p>
-                  <p className="mt-1">{town.notIdealFor.slice(0, 2).join(", ")}</p>
-                </div>
-                <div>
-                  <p className="font-semibold text-[var(--foreground)]">Overall feel</p>
-                  <p className="mt-1">{town.localFeel}</p>
-                </div>
-              </div>
-            </div>
+        <div className="space-y-4 lg:hidden">
+          <QuickReadCard town={town} />
+          <SnapshotCard town={town} />
+          <CompareNextCard
+            town={town}
+            relatedTowns={relatedTowns}
+            compareSlugs={compareSlugs}
+          />
+        </div>
 
-            <div className="card p-5 md:p-6">
-              <p className="eyebrow">Snapshot</p>
-              <div className="mt-5 space-y-4">
-                {metrics.map(([label, value]) => (
-                  <div key={label as string}>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span>{label}</span>
-                      <span className="text-[var(--muted)]">{value}/5</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-[var(--accent-soft)]/85">
-                      <div
-                        className="h-2 rounded-full bg-[var(--accent)]"
-                        style={{ width: `${(Number(value) / 5) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-start">
+          <aside className="hidden space-y-4 lg:sticky lg:top-24 lg:block">
+            <QuickReadCard town={town} />
+            <SnapshotCard town={town} />
+            <CompareNextCard
+              town={town}
+              relatedTowns={relatedTowns}
+              compareSlugs={compareSlugs}
+            />
           </aside>
 
-          <section className="space-y-4 md:space-y-5">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Best for</p>
-                <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
-                  {town.goodFor.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Not ideal for</p>
-                <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
-                  {town.notIdealFor.map((item) => (
-                    <li key={item}>• {item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Remote-work reality</p>
-                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.remoteWorkReality}</p>
-              </div>
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Practical reality</p>
-                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.practicalReality}</p>
+          <section className="space-y-6">
+            <div className="space-y-3">
+              <p className="eyebrow">Who it fits</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Best for</p>
+                  <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
+                    {town.goodFor.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Not ideal for</p>
+                  <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
+                    {town.notIdealFor.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Stay notes</p>
-                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.stayNotes}</p>
+            <div className="space-y-3">
+              <p className="eyebrow">How life here works</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Remote-work reality</p>
+                  <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
+                    {town.remoteWorkReality}
+                  </p>
+                </div>
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Local feel</p>
+                  <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
+                    {town.localFeel}
+                  </p>
+                </div>
               </div>
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Local feel</p>
-                <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.localFeel}</p>
+            </div>
+
+            <div className="space-y-3">
+              <p className="eyebrow">Practical layers</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Practical reality</p>
+                  <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
+                    {town.practicalReality}
+                  </p>
+                </div>
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Stay notes</p>
+                  <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
+                    {town.stayNotes}
+                  </p>
+                </div>
               </div>
             </div>
 
             <div className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
               <p className="eyebrow">The tradeoff</p>
-              <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">{town.tradeoff}</p>
+              <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
+                {town.tradeoff}
+              </p>
             </div>
 
-            <CostSnapshot town={town} />
-            <TransitCard town={town} />
-            <SeasonCard town={town} />
-
             <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-              <div className="card p-5 md:p-6">
-                <p className="eyebrow">Compare next</p>
-                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                  Put this town beside a few realistic alternatives before you
-                  let a single page become the whole decision.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {[town, ...relatedTowns].map((item) => (
-                    <span
-                      key={item.slug}
-                      className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-1 text-xs text-[var(--muted)]"
-                    >
-                      {item.name}
-                    </span>
-                  ))}
+              {relatedGuides.length ? (
+                <div className="card p-5 md:p-6">
+                  <p className="eyebrow">Related guides</p>
+                  <div className="mt-4 grid gap-3">
+                    {relatedGuides.map((guide) => (
+                      <Link
+                        key={guide.slug}
+                        href={`/guides/${guide.slug}`}
+                        className="hover-lift-soft rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-4 py-4"
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                          {guide.category}
+                        </p>
+                        <h2 className="mt-2 text-lg font-semibold">{guide.title}</h2>
+                        <p className="mt-2 text-sm leading-6 text-[var(--muted)] md:leading-7">
+                          {guide.bestWhen}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
+              ) : null}
+
+              <div className="compact-callout">
+                <p className="eyebrow">How Appleville reads this town</p>
+                <p className="mt-3 text-sm leading-6 text-[var(--muted)] md:leading-7">
+                  This page mixes fit, tradeoffs, and practical shape. It is
+                  directional guidance, not a promise about your exact street or stay.
+                </p>
                 <Link
-                  href={`/compare?towns=${compareSlugs.join(",")}`}
-                  className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-white"
+                  href="/how-it-works#town-pages"
+                  className="secondary-link mt-4 inline-flex text-sm font-semibold"
                 >
-                  Compare this set
+                  Read the method
                 </Link>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div className="compact-callout">
-                  <p className="eyebrow">How Appleville reads this town</p>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                    This page mixes fit, tradeoffs, and practical shape. It is
-                    directional guidance, not a promise about your exact street
-                    or stay.
-                  </p>
-                  <Link
-                    href="/how-it-works#town-pages"
-                    className="secondary-link mt-4 inline-flex text-sm font-semibold"
-                  >
-                    Read the method
-                  </Link>
-                </div>
-
-                {relatedGuides.length ? (
-                  <div className="card p-5 md:p-6">
-                    <p className="eyebrow">Related guide</p>
-                    <div className="mt-4 grid gap-3">
-                      {relatedGuides.map((guide) => (
-                        <Link
-                          key={guide.slug}
-                          href={`/guides/${guide.slug}`}
-                          className="hover-lift-soft rounded-[20px] border border-[var(--line)] bg-[rgba(255,255,255,0.35)] px-4 py-4"
-                        >
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
-                            {guide.category}
-                          </p>
-                          <h2 className="mt-2 text-lg font-semibold">{guide.title}</h2>
-                          <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                            {guide.bestWhen}
-                          </p>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
+            <div className="space-y-4">
+              <p className="eyebrow">Operational detail</p>
+              <CostSnapshot town={town} />
+              <TransitCard town={town} />
+              <SeasonCard town={town} />
             </div>
           </section>
         </div>

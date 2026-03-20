@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExpandableBlock } from "@/components/expandable-block";
 import { getTownBySlug, Town } from "@/lib/towns";
 
 const rows = [
@@ -93,6 +94,8 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
     .filter((town): town is Town => Boolean(town));
 
   const separationSummary = buildSeparationSummary(selected);
+  const primarySummary = separationSummary.slice(0, 2);
+  const extraSummary = separationSummary.slice(2);
 
   if (selected.length < 2) {
     return (
@@ -110,27 +113,59 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
         className="motion-enter-fade card p-5 md:p-6"
         style={{ animationDuration: "200ms" }}
       >
-        <p className="eyebrow">How these towns separate</p>
+        <div className="space-y-2">
+          <p className="eyebrow">How these towns separate</p>
+          <p className="text-sm leading-6 text-[var(--muted)]">
+            Several towns can be strongest in the same dimension. That means a tie
+            within this selected set, not an overall winner.
+          </p>
+        </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {separationSummary.map((item) => (
+          {primarySummary.map((item) => (
             <div
               key={item}
-              className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 text-sm leading-7 text-[var(--muted)]"
+              className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 text-sm leading-6 text-[var(--muted)]"
             >
               {item}
             </div>
           ))}
         </div>
+        {extraSummary.length ? (
+          <ExpandableBlock
+            className="mt-3 md:hidden"
+            expandLabel="Show all summary cues"
+            collapseLabel="Hide extra cues"
+          >
+            <div className="grid gap-3">
+              {extraSummary.map((item) => (
+                <div
+                  key={item}
+                  className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 text-sm leading-6 text-[var(--muted)]"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </ExpandableBlock>
+        ) : null}
+        {extraSummary.length ? (
+          <div className="mt-3 hidden md:grid md:grid-cols-3 md:gap-3">
+            {extraSummary.map((item) => (
+              <div
+                key={item}
+                className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] p-4 text-sm leading-6 text-[var(--muted)]"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div
         className="motion-enter-fade hidden overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--card)] md:block"
         style={{ animationDelay: "80ms", animationDuration: "220ms" }}
       >
-        <div className="border-b border-[var(--line)] bg-[rgba(255,255,255,0.38)] px-5 py-4 text-sm leading-7 text-[var(--muted)]">
-          Several towns can be strongest in the same dimension. That means a tie
-          within this selected set, not an overall winner.
-        </div>
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="bg-[var(--accent-soft)]/60">
             <tr>
@@ -167,7 +202,9 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
                           }`}
                         >
                           <div className="flex items-center justify-between gap-3">
-                            <span className="font-medium text-[var(--foreground)]">{town[row.key]}/5</span>
+                            <span className="font-medium text-[var(--foreground)]">
+                              {town[row.key]}/5
+                            </span>
                             {isWinner ? (
                               <span className="rounded-full bg-[rgba(255,255,255,0.55)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--forest)]">
                                 Strongest here
@@ -196,7 +233,9 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
             </tr>
             <tr className="border-t border-[var(--line)] bg-[var(--accent-soft)]/30 align-top">
               <td className="px-5 py-3" colSpan={selected.length + 1}>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">Practical data</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--forest)]">
+                  Practical data
+                </p>
               </td>
             </tr>
             <tr className="border-t border-[var(--line)] align-top">
@@ -207,8 +246,15 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
                 </p>
               </td>
               {selected.map((town) => {
-                const low = town.costOfLiving.rent1bhkRange[0] + town.costOfLiving.groceriesCouple[0] + 2000;
-                const high = town.costOfLiving.rent1bhkRange[1] + town.costOfLiving.groceriesCouple[1] + 5000;
+                const low =
+                  town.costOfLiving.rent1bhkRange[0] +
+                  town.costOfLiving.groceriesCouple[0] +
+                  2000;
+                const high =
+                  town.costOfLiving.rent1bhkRange[1] +
+                  town.costOfLiving.groceriesCouple[1] +
+                  5000;
+
                 return (
                   <td key={town.slug} className="px-5 py-4 font-medium text-[var(--foreground)]">
                     ₹{low.toLocaleString("en-IN")}–{high.toLocaleString("en-IN")}/mo
@@ -225,7 +271,9 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
               </td>
               {selected.map((town) => (
                 <td key={town.slug} className="px-5 py-4 text-[var(--muted)]">
-                  <p className="font-medium text-[var(--foreground)]">{town.healthcare.driveTimeMinutes[0]}–{town.healthcare.driveTimeMinutes[1]} min</p>
+                  <p className="font-medium text-[var(--foreground)]">
+                    {town.healthcare.driveTimeMinutes[0]}–{town.healthcare.driveTimeMinutes[1]} min
+                  </p>
                   <p className="mt-1 text-xs">{town.healthcare.icuLocation}</p>
                 </td>
               ))}
@@ -236,7 +284,9 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
               </td>
               {selected.map((town) => (
                 <td key={town.slug} className="px-5 py-4 text-[var(--muted)]">
-                  <p className="font-medium text-[var(--foreground)]">{town.transport.airportDistanceKm} km</p>
+                  <p className="font-medium text-[var(--foreground)]">
+                    {town.transport.airportDistanceKm} km
+                  </p>
                   <p className="mt-1 text-xs">{town.transport.nearestAirport}</p>
                 </td>
               ))}
@@ -282,33 +332,36 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
               ))}
             </div>
 
-            <div className="mt-5 space-y-3">
-              {rows.map((row) => {
-                const winningValue = getWinningValue(row, selected);
-                const isWinner = town[row.key] === winningValue;
+            <div className="mt-5 rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.34)] p-4">
+              <p className="text-sm font-semibold text-[var(--foreground)]">Fit dimensions</p>
+              <div className="mt-3 space-y-2">
+                {rows.map((row) => {
+                  const winningValue = getWinningValue(row, selected);
+                  const isWinner = town[row.key] === winningValue;
 
-                return (
-                  <div key={`${town.slug}-${row.key}`} className="rounded-2xl border border-[var(--line)] px-4 py-3">
-                    <div className="flex items-center justify-between gap-3">
+                  return (
+                    <div
+                      key={`${town.slug}-${row.key}`}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.48)] px-3 py-3"
+                    >
                       <div>
-                        <p className="text-sm font-medium">{row.label}</p>
-                        <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{row.description}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-[var(--foreground)]">{town[row.key]}/5</p>
+                        <p className="text-sm font-medium text-[var(--foreground)]">{row.label}</p>
                         {isWinner ? (
                           <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--forest)]">
                             Strongest here
                           </p>
                         ) : null}
                       </div>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">
+                        {town[row.key]}/5
+                      </p>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="mt-5 space-y-4 text-sm leading-7 text-[var(--muted)]">
+            <div className="mt-5 space-y-4 text-sm leading-6 text-[var(--muted)]">
               <div>
                 <p className="font-semibold text-[var(--foreground)]">Practical read</p>
                 <p className="mt-1">{town.practicalReality}</p>
@@ -319,26 +372,66 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">Monthly est.</p>
-                <p className="mt-1 text-sm font-semibold">₹{(town.costOfLiving.rent1bhkRange[0] + town.costOfLiving.groceriesCouple[0] + 2000).toLocaleString("en-IN")}–{(town.costOfLiving.rent1bhkRange[1] + town.costOfLiving.groceriesCouple[1] + 5000).toLocaleString("en-IN")}</p>
+            <ExpandableBlock
+              className="mt-4"
+              expandLabel="Show practical details"
+              collapseLabel="Hide practical details"
+            >
+              <div className="grid gap-3">
+                <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">
+                    Monthly estimate
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">
+                    ₹
+                    {(
+                      town.costOfLiving.rent1bhkRange[0] +
+                      town.costOfLiving.groceriesCouple[0] +
+                      2000
+                    ).toLocaleString("en-IN")}
+                    –
+                    {(
+                      town.costOfLiving.rent1bhkRange[1] +
+                      town.costOfLiving.groceriesCouple[1] +
+                      5000
+                    ).toLocaleString("en-IN")}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">
+                    ICU access
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {town.healthcare.driveTimeMinutes[0]}–{town.healthcare.driveTimeMinutes[1]} min
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                    {town.healthcare.icuLocation}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">
+                    Nearest airport
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {town.transport.airportDistanceKm} km
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                    {town.transport.nearestAirport}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">
+                    Best months
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">{town.seasonality.bestMonths}</p>
+                </div>
               </div>
-              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">ICU access</p>
-                <p className="mt-1 text-sm font-semibold">{town.healthcare.driveTimeMinutes[0]}–{town.healthcare.driveTimeMinutes[1]} min</p>
-              </div>
-              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">Airport</p>
-                <p className="mt-1 text-sm font-semibold">{town.transport.airportDistanceKm} km</p>
-              </div>
-              <div className="rounded-2xl border border-[var(--line)] bg-[rgba(255,255,255,0.4)] px-3 py-2.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--forest)]">Best months</p>
-                <p className="mt-1 text-xs font-semibold">{town.seasonality.bestMonths}</p>
-              </div>
-            </div>
+            </ExpandableBlock>
 
-            <Link href={`/towns/${town.slug}`} className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]">
+            <Link
+              href={`/towns/${town.slug}`}
+              className="mt-5 inline-block text-sm font-semibold text-[var(--accent)]"
+            >
               View full town profile
             </Link>
           </div>
@@ -363,7 +456,10 @@ export function CompareGrid({ slugs }: { slugs: string[] }) {
               ))}
             </div>
             <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{town.practicalReality}</p>
-            <Link href={`/towns/${town.slug}`} className="mt-4 inline-block text-sm font-semibold text-[var(--accent)]">
+            <Link
+              href={`/towns/${town.slug}`}
+              className="mt-4 inline-block text-sm font-semibold text-[var(--accent)]"
+            >
               View full town profile
             </Link>
           </div>

@@ -37,12 +37,12 @@ export default async function ComparePage({
   const hasSelectedComparison = selectedSlugs.length >= 2;
 
   return (
-    <main className="container-app py-8 md:py-16">
-      <div className="space-y-8">
+    <main className="container-app py-8 pb-28 md:py-16 md:pb-16">
+      <div className="space-y-6 md:space-y-8">
         <div className="space-y-3">
           <p className="eyebrow">Compare</p>
-          <h1 className="text-4xl font-semibold">Compare likely base options side by side</h1>
-          <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">
+          <h1 className="text-3xl font-semibold md:text-4xl">Compare likely base options side by side</h1>
+          <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:leading-8">
             Compare towns from your result shortlist or build your own side-by-side view.
             Look for where each place is strongest, and where the tradeoff starts to show.
           </p>
@@ -69,6 +69,7 @@ export default async function ComparePage({
               initialSelected={selectedSlugs.slice(0, 4)}
               hasUrlSelection={hasUrlSelection}
               collapsedByDefault
+              mobileMode="sheet"
             />
 
             <ShareActions

@@ -5,10 +5,35 @@ type BreadcrumbItem = {
   href?: string;
 };
 
-export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
+type BreadcrumbProps = {
+  items: BreadcrumbItem[];
+  compactMobile?: boolean;
+  mobileBackHref?: string;
+  mobileBackLabel?: string;
+};
+
+export function Breadcrumb({
+  items,
+  compactMobile = false,
+  mobileBackHref,
+  mobileBackLabel,
+}: BreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb" className="mb-4">
-      <ol className="flex flex-wrap items-center gap-1 text-sm text-[var(--muted)]">
+      {compactMobile && mobileBackHref && mobileBackLabel ? (
+        <Link
+          href={mobileBackHref}
+          className="secondary-link inline-flex items-center gap-2 text-sm font-semibold md:hidden"
+        >
+          <span aria-hidden="true">←</span>
+          {mobileBackLabel}
+        </Link>
+      ) : null}
+      <ol
+        className={`flex flex-wrap items-center gap-1 text-sm text-[var(--muted)] ${
+          compactMobile ? "hidden md:flex" : ""
+        }`}
+      >
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
