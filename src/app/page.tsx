@@ -57,7 +57,7 @@ export const metadata = buildPageMetadata({
 export default function Home() {
   return (
     <main>
-      <section className="container-app py-8 md:py-20">
+      <section id="overview" className="container-app scroll-mt-28 py-8 md:py-20">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div className="space-y-4 md:space-y-7">
             <div

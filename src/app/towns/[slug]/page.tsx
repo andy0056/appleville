@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { CostSnapshot } from "@/components/cost-snapshot";
 import { SeasonCard } from "@/components/season-card";
 import { TransitCard } from "@/components/transit-card";
+import { townSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import { getGuideBySlug, type Guide } from "@/lib/guides";
 import { getTownBySlug, towns, type Town } from "@/lib/towns";
@@ -164,7 +165,7 @@ export default async function TownDetailPage({
         />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)] lg:items-start">
-          <div className="space-y-4 md:space-y-5">
+          <div id={townSectionAnchors.overview} className="space-y-4 scroll-mt-28 md:space-y-5">
             <p className="eyebrow">{town.district}</p>
             <div className="space-y-2">
               <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{town.name}</h1>
@@ -213,6 +214,10 @@ export default async function TownDetailPage({
           </figure>
         </div>
 
+        <div id={townSectionAnchors.quickRead} className="scroll-mt-28" />
+        <div id={townSectionAnchors.snapshot} className="scroll-mt-28" />
+        <div id={townSectionAnchors.compareNext} className="scroll-mt-28" />
+
         <div className="space-y-4 lg:hidden">
           <QuickReadCard town={town} />
           <SnapshotCard town={town} />
@@ -238,7 +243,7 @@ export default async function TownDetailPage({
             <div className="space-y-3">
               <p className="eyebrow">Who it fits</p>
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="card p-5 md:p-6">
+                <div id={townSectionAnchors.bestFor} className="card scroll-mt-28 p-5 md:p-6">
                   <p className="eyebrow">Best for</p>
                   <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
                     {town.goodFor.map((item) => (
@@ -246,7 +251,7 @@ export default async function TownDetailPage({
                     ))}
                   </ul>
                 </div>
-                <div className="card p-5 md:p-6">
+                <div id={townSectionAnchors.notIdealFor} className="card scroll-mt-28 p-5 md:p-6">
                   <p className="eyebrow">Not ideal for</p>
                   <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--muted)]">
                     {town.notIdealFor.map((item) => (
@@ -260,13 +265,13 @@ export default async function TownDetailPage({
             <div className="space-y-3">
               <p className="eyebrow">How life here works</p>
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="card p-5 md:p-6">
+                <div id={townSectionAnchors.remoteWorkReality} className="card scroll-mt-28 p-5 md:p-6">
                   <p className="eyebrow">Remote-work reality</p>
                   <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
                     {town.remoteWorkReality}
                   </p>
                 </div>
-                <div className="card p-5 md:p-6">
+                <div id={townSectionAnchors.localFeel} className="card scroll-mt-28 p-5 md:p-6">
                   <p className="eyebrow">Local feel</p>
                   <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
                     {town.localFeel}
@@ -278,13 +283,13 @@ export default async function TownDetailPage({
             <div className="space-y-3">
               <p className="eyebrow">Practical layers</p>
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="card p-5 md:p-6">
+                <div id={townSectionAnchors.practicalReality} className="card scroll-mt-28 p-5 md:p-6">
                   <p className="eyebrow">Practical reality</p>
                   <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
                     {town.practicalReality}
                   </p>
                 </div>
-                <div className="card p-5 md:p-6">
+                <div id={townSectionAnchors.stayNotes} className="card scroll-mt-28 p-5 md:p-6">
                   <p className="eyebrow">Stay notes</p>
                   <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
                     {town.stayNotes}
@@ -293,7 +298,10 @@ export default async function TownDetailPage({
               </div>
             </div>
 
-            <div className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
+            <div
+              id={townSectionAnchors.tradeoff}
+              className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6"
+            >
               <p className="eyebrow">The tradeoff</p>
               <p className="mt-4 text-base leading-7 text-[var(--muted)] md:leading-8">
                 {town.tradeoff}
@@ -302,7 +310,10 @@ export default async function TownDetailPage({
 
             <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
               {relatedGuides.length ? (
-                <div className="card p-5 md:p-6">
+                <div
+                  id={townSectionAnchors.relatedGuides}
+                  className="card scroll-mt-28 p-5 md:p-6"
+                >
                   <p className="eyebrow">Related guides</p>
                   <div className="mt-4 grid gap-3">
                     {relatedGuides.map((guide) => (
@@ -324,7 +335,7 @@ export default async function TownDetailPage({
                 </div>
               ) : null}
 
-              <div className="compact-callout">
+              <div id={townSectionAnchors.method} className="compact-callout scroll-mt-28">
                 <p className="eyebrow">How Appleville reads this town</p>
                 <p className="mt-3 text-sm leading-6 text-[var(--muted)] md:leading-7">
                   This page mixes fit, tradeoffs, and practical shape. It is
@@ -339,7 +350,7 @@ export default async function TownDetailPage({
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div id={townSectionAnchors.operationalDetail} className="space-y-4 scroll-mt-28">
               <p className="eyebrow">Operational detail</p>
               <CostSnapshot town={town} />
               <TransitCard town={town} />

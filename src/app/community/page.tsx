@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   helplines,
@@ -61,7 +62,10 @@ export default function CommunityPage() {
         </div>
 
         {/* Helplines card */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.community.helplines}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8"
+        >
           <p className="eyebrow">Crisis &amp; support lines</p>
           <h2 className="mt-2 text-xl font-semibold md:text-2xl">
             Call now — free, 24/7
@@ -79,7 +83,7 @@ export default function CommunityPage() {
         </section>
 
         {/* Connection funnel */}
-        <section>
+        <section id={resourceSectionAnchors.community.newcomer} className="scroll-mt-28">
           <p className="eyebrow">Newcomer playbook</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             How to actually make friends
@@ -104,14 +108,18 @@ export default function CommunityPage() {
         </section>
 
         {/* Town profiles */}
-        <section>
+        <section id={resourceSectionAnchors.community.townProfiles} className="scroll-mt-28">
           <p className="eyebrow">Town-by-town profiles</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Community, coworking &amp; support by town
           </h2>
           <div className="mt-5 space-y-3">
             {communityTowns.map((town) => (
-              <details key={town.slug} className="card group overflow-hidden open:ring-1 open:ring-[var(--accent)]/20">
+              <details
+                key={town.slug}
+                id={`${town.slug}-community`}
+                className="card group scroll-mt-28 overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
+              >
                 <summary className="flex cursor-pointer flex-wrap items-center gap-2 p-4 md:gap-3 md:p-5 [&::-webkit-details-marker]:hidden">
                   <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${riskColors[town.isolationRisk]}`}>
                     {riskLabels[town.isolationRisk]}
@@ -211,7 +219,10 @@ export default function CommunityPage() {
         </section>
 
         {/* Sources */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.community.sources}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Key sources</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {communitySources.map((source) => (

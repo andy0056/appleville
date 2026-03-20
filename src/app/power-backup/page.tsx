@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   reliabilityRanking,
@@ -55,7 +56,10 @@ export default function PowerBackupPage() {
         </div>
 
         {/* Reliability ranking */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.powerBackup.reliability}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Power reliability ranking</p>
           <p className="mt-2 text-xs text-[var(--muted)]">
             Best → riskiest for remote work, assuming town-core / all-weather road rental.
@@ -79,7 +83,10 @@ export default function PowerBackupPage() {
         </section>
 
         {/* Your essentials load */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.powerBackup.essentialsLoad}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6"
+        >
           <p className="eyebrow">Your essentials load</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
             What you actually need to keep alive during an outage.
@@ -102,7 +109,7 @@ export default function PowerBackupPage() {
         </section>
 
         {/* Backup tiers */}
-        <section>
+        <section id={resourceSectionAnchors.powerBackup.backupTiers} className="scroll-mt-28">
           <p className="eyebrow">Backup system tiers</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Choose your resilience level
@@ -134,7 +141,7 @@ export default function PowerBackupPage() {
         </section>
 
         {/* Town-by-town outage profiles */}
-        <section>
+        <section id={resourceSectionAnchors.powerBackup.outageProfiles} className="scroll-mt-28">
           <div className="space-y-2">
             <p className="eyebrow">Outage profiles by town</p>
             <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
@@ -145,7 +152,8 @@ export default function PowerBackupPage() {
             {powerTowns.map((pt) => (
               <details
                 key={pt.slug}
-                className="card group overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
+                id={`${pt.slug}-power`}
+                className="card group scroll-mt-28 overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
               >
                 <summary className="flex cursor-pointer items-center gap-3 p-4 md:p-5 [&::-webkit-details-marker]:hidden">
                   <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${rankColors[pt.reliabilityRank]}`}>
@@ -210,7 +218,7 @@ export default function PowerBackupPage() {
         </section>
 
         {/* Heating options */}
-        <section>
+        <section id={resourceSectionAnchors.powerBackup.heating} className="scroll-mt-28">
           <p className="eyebrow">Heating &amp; water heating</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Staying warm without breaking the budget
@@ -236,7 +244,10 @@ export default function PowerBackupPage() {
         </section>
 
         {/* Insulation tips */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.powerBackup.insulation}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Low-cost insulation wins</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
             Most Himachal rentals aren&rsquo;t built to European winter expectations. These cheap fixes help.
@@ -252,7 +263,10 @@ export default function PowerBackupPage() {
         </section>
 
         {/* Property testing checklist */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.powerBackup.checklist}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8"
+        >
           <p className="eyebrow">Before signing a lease</p>
           <h2 className="mt-2 text-xl font-semibold md:text-2xl">
             Power &amp; heating property checklist

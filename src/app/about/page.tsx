@@ -12,7 +12,7 @@ export const metadata = buildPageMetadata({
 export default function AboutPage() {
   return (
     <main className="container-app py-8 md:py-20">
-      <div className="max-w-3xl space-y-6">
+      <div id="overview" className="max-w-3xl scroll-mt-28 space-y-6">
         <p className="eyebrow">About</p>
         <h1 className="text-4xl font-semibold">Why this exists</h1>
         <p className="text-base leading-8 text-[var(--muted)]">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   sheTravelPolicy,
@@ -73,7 +74,10 @@ export default function WomensSafetyPage() {
         </div>
 
         {/* SheTravel Policy card */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.womensSafety.policy}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8"
+        >
           <p className="eyebrow">Government initiative</p>
           <h2 className="mt-2 text-xl font-semibold md:text-2xl">
             {sheTravelPolicy.headline}
@@ -92,7 +96,7 @@ export default function WomensSafetyPage() {
         </section>
 
         {/* Crime statistics */}
-        <section>
+        <section id={resourceSectionAnchors.womensSafety.crimeData} className="scroll-mt-28">
           <p className="eyebrow">Crime data (2022–2024)</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             What the numbers actually say
@@ -144,14 +148,18 @@ export default function WomensSafetyPage() {
         </section>
 
         {/* Town safety profiles */}
-        <section>
+        <section id={resourceSectionAnchors.womensSafety.townProfiles} className="scroll-mt-28">
           <p className="eyebrow">Town-by-town assessment</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Safety profile for each town
           </h2>
           <div className="mt-5 space-y-3">
             {townSafetyProfiles.map((town) => (
-              <details key={town.slug} className="card group overflow-hidden open:ring-1 open:ring-[var(--accent)]/20">
+              <details
+                key={town.slug}
+                id={`${town.slug}-safety`}
+                className="card group scroll-mt-28 overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
+              >
                 <summary className="flex cursor-pointer items-center gap-3 p-4 md:p-5 [&::-webkit-details-marker]:hidden">
                   <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${safetyColors[town.safetyLevel]}`}>
                     {safetyLabels[town.safetyLevel]}
@@ -183,7 +191,7 @@ export default function WomensSafetyPage() {
         </section>
 
         {/* Safe spaces */}
-        <section>
+        <section id={resourceSectionAnchors.womensSafety.safeSpaces} className="scroll-mt-28">
           <p className="eyebrow">Vetted safe spaces</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Co-living, cafés &amp; hostels for women
@@ -238,7 +246,7 @@ export default function WomensSafetyPage() {
         </section>
 
         {/* Healthcare access */}
-        <section>
+        <section id={resourceSectionAnchors.womensSafety.healthcare} className="scroll-mt-28">
           <p className="eyebrow">Women&rsquo;s healthcare</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Gynecological &amp; maternity access by town
@@ -263,7 +271,10 @@ export default function WomensSafetyPage() {
         </section>
 
         {/* Practical tips */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.womensSafety.practicalTips}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8"
+        >
           <p className="eyebrow">Practical tips</p>
           <h2 className="mt-2 text-xl font-semibold md:text-2xl">
             What to know before you go

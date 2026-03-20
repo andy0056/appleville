@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   foodFacts,
@@ -73,7 +74,10 @@ export default function FoodPage() {
         </div>
 
         {/* Key facts */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.food.quickRealityCheck}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6"
+        >
           <p className="eyebrow">Quick reality check</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {foodFacts.map((fact) => (
@@ -87,7 +91,7 @@ export default function FoodPage() {
         </section>
 
         {/* Vegetable markets */}
-        <section>
+        <section id={resourceSectionAnchors.food.vegetableMarkets} className="scroll-mt-28">
           <p className="eyebrow">Where to buy groceries</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Vegetable mandis &amp; produce hubs
@@ -110,7 +114,7 @@ export default function FoodPage() {
         </section>
 
         {/* Seasonal impact */}
-        <section>
+        <section id={resourceSectionAnchors.food.seasonalSwings} className="scroll-mt-28">
           <p className="eyebrow">Seasonal swings</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             How food costs change by season
@@ -133,7 +137,10 @@ export default function FoodPage() {
         </section>
 
         {/* Drinking water */}
-        <section className="card border-amber-200/60 bg-amber-50/30 p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.food.drinkingWater}
+          className="card scroll-mt-28 border-amber-200/60 bg-amber-50/30 p-5 md:p-8"
+        >
           <p className="eyebrow text-amber-800">💧 Drinking water</p>
           <h2 className="mt-2 text-xl font-semibold text-amber-900 md:text-2xl">
             Is the tap water safe?
@@ -155,7 +162,7 @@ export default function FoodPage() {
         </section>
 
         {/* Animal protein */}
-        <section>
+        <section id={resourceSectionAnchors.food.animalProtein} className="scroll-mt-28">
           <p className="eyebrow">Meat &amp; fish</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Animal protein supply chain
@@ -173,7 +180,7 @@ export default function FoodPage() {
         </section>
 
         {/* Dairy & cheese */}
-        <section>
+        <section id={resourceSectionAnchors.food.dairy} className="scroll-mt-28">
           <p className="eyebrow">Dairy ecosystem</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Milk, cheese &amp; dairy
@@ -191,7 +198,7 @@ export default function FoodPage() {
         </section>
 
         {/* Organic & farm-to-table */}
-        <section>
+        <section id={resourceSectionAnchors.food.organic} className="scroll-mt-28">
           <p className="eyebrow">Farm-to-table &amp; organic</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Artisanal food &amp; organic spots
@@ -208,7 +215,7 @@ export default function FoodPage() {
         </section>
 
         {/* Bakeries */}
-        <section>
+        <section id={resourceSectionAnchors.food.bakeries} className="scroll-mt-28">
           <p className="eyebrow">Sourdough &amp; bakeries</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             The bakery renaissance
@@ -228,7 +235,10 @@ export default function FoodPage() {
         </section>
 
         {/* Imported groceries */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.food.specialtyGroceries}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Imported &amp; specialty groceries</p>
           <h2 className="mt-2 text-lg font-semibold">Where to find international ingredients</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -243,7 +253,7 @@ export default function FoodPage() {
         </section>
 
         {/* Food delivery */}
-        <section>
+        <section id={resourceSectionAnchors.food.delivery} className="scroll-mt-28">
           <p className="eyebrow">Food delivery</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Swiggy, Zomato &amp; grocery apps

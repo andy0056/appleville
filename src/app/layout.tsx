@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AskApplevilleLauncher } from "@/components/ask-appleville-launcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { siteMetadata } from "@/lib/metadata";
@@ -54,6 +55,7 @@ export default function RootLayout({
           <div className="mt-10 md:mt-14">
             <SiteFooter />
           </div>
+          <AskApplevilleLauncher />
         </div>
       </body>
     </html>

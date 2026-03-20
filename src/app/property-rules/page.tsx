@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors, slugifySectionId } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   section118Summary,
@@ -63,7 +64,10 @@ export default function PropertyRulesPage() {
         </div>
 
         {/* Section 118 summary */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.propertyRules.section118}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-8"
+        >
           <p className="eyebrow">The core restriction</p>
           <h2 className="mt-2 text-xl font-semibold md:text-2xl">
             {section118Summary.headline}
@@ -114,7 +118,7 @@ export default function PropertyRulesPage() {
         </section>
 
         {/* Buyer types */}
-        <section>
+        <section id={resourceSectionAnchors.propertyRules.buyerTypes} className="scroll-mt-28">
           <p className="eyebrow">Rules by buyer type</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             What applies to you
@@ -153,7 +157,7 @@ export default function PropertyRulesPage() {
         </section>
 
         {/* Purchase routes */}
-        <section>
+        <section id={resourceSectionAnchors.propertyRules.purchaseRoutes} className="scroll-mt-28">
           <p className="eyebrow">Practical options, ranked</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Routes to property in Himachal
@@ -181,7 +185,10 @@ export default function PropertyRulesPage() {
         </section>
 
         {/* Scam risks */}
-        <section className="card border-red-200/60 bg-red-50/30 p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.propertyRules.scamRisks}
+          className="card scroll-mt-28 border-red-200/60 bg-red-50/30 p-5 md:p-8"
+        >
           <p className="eyebrow text-red-700">Common scams & enforcement risks</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {scamRisks.map((risk) => (
@@ -198,7 +205,10 @@ export default function PropertyRulesPage() {
         </section>
 
         {/* Due diligence checklist */}
-        <section className="card p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.propertyRules.dueDiligence}
+          className="card scroll-mt-28 p-5 md:p-8"
+        >
           <p className="eyebrow">Before paying money</p>
           <h2 className="mt-2 text-xl font-semibold md:text-2xl">
             Due diligence checklist
@@ -219,7 +229,7 @@ export default function PropertyRulesPage() {
         </section>
 
         {/* Lease clause templates */}
-        <section>
+        <section id={resourceSectionAnchors.propertyRules.leaseClauses} className="scroll-mt-28">
           <p className="eyebrow">If you choose to lease</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             What your lease agreement should cover
@@ -245,14 +255,18 @@ export default function PropertyRulesPage() {
         </section>
 
         {/* FAQ */}
-        <section>
+        <section id={resourceSectionAnchors.propertyRules.faq} className="scroll-mt-28">
           <p className="eyebrow">Quick answers</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Frequently asked questions
           </h2>
           <div className="mt-5 space-y-3">
             {faqItems.map((item) => (
-              <details key={item.question} className="card group overflow-hidden">
+              <details
+                key={item.question}
+                id={slugifySectionId(item.question)}
+                className="card group scroll-mt-28 overflow-hidden"
+              >
                 <summary className="flex cursor-pointer items-center gap-3 p-4 md:p-5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
                   <span className="flex-1">{item.question}</span>
                   <svg

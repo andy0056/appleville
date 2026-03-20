@@ -14,7 +14,7 @@ export default function QuizPage() {
   return (
     <main className="container-app py-8 md:py-20">
       <div className="space-y-5 md:space-y-8">
-        <div className="max-w-3xl space-y-3">
+        <div id="overview" className="max-w-3xl scroll-mt-28 space-y-3">
           <p className="eyebrow">Quiz</p>
           <h1 className="text-2xl font-semibold md:text-4xl">Find your Himachal match</h1>
           <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">

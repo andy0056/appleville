@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { guideSectionAnchors, slugifySectionId } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import { getTownBySlug, type Town } from "@/lib/towns";
 import { getGuideBySlug, guides } from "@/lib/guides";
@@ -77,7 +78,7 @@ export default async function GuideDetailPage({
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="card p-6 md:p-8">
+          <div id={guideSectionAnchors.intro} className="card scroll-mt-28 p-6 md:p-8">
             <p className="eyebrow">Intro</p>
             <p className="mt-4 text-base leading-8 text-[var(--muted)]">
               {guide.intro}
@@ -93,7 +94,10 @@ export default async function GuideDetailPage({
             </div>
 
             {guide.takeaways?.length ? (
-              <div className="card p-6 md:p-8">
+              <div
+                id={guideSectionAnchors.takeaways}
+                className="card scroll-mt-28 p-6 md:p-8"
+              >
               <p className="eyebrow">Quick takeaways</p>
               <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--muted)]">
                 {guide.takeaways.map((item) => (
@@ -107,7 +111,11 @@ export default async function GuideDetailPage({
 
         <div className="space-y-5">
           {guide.sections.map((section) => (
-            <section key={section.title} className="card p-6 md:p-8">
+            <section
+              key={section.title}
+              id={slugifySectionId(section.title)}
+              className="card scroll-mt-28 p-6 md:p-8"
+            >
               <div className="space-y-4">
                 <h2 className="text-2xl font-semibold tracking-tight">
                   {section.title}
@@ -129,7 +137,10 @@ export default async function GuideDetailPage({
           ))}
         </div>
 
-        <section className="card p-6 md:p-8">
+        <section
+          id={guideSectionAnchors.toolLinks}
+          className="card scroll-mt-28 p-6 md:p-8"
+        >
           <p className="eyebrow">How to use this with Appleville</p>
           <div className="mt-4 grid gap-3 sm:flex sm:flex-wrap">
             <Link
@@ -160,7 +171,10 @@ export default async function GuideDetailPage({
         </section>
 
         {relatedTowns.length ? (
-          <section className="space-y-4">
+          <section
+            id={guideSectionAnchors.relatedTowns}
+            className="space-y-4 scroll-mt-28"
+          >
             <div className="space-y-2">
               <p className="eyebrow">Related towns</p>
               <h2 className="text-3xl font-semibold tracking-tight">

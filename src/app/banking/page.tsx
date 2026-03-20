@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   keyStats,
@@ -61,7 +62,10 @@ export default function BankingPage() {
         </div>
 
         {/* Key stats */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.banking.snapshot}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6"
+        >
           <p className="eyebrow">HP financial snapshot (2025)</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {keyStats.map((stat) => (
@@ -75,7 +79,7 @@ export default function BankingPage() {
         </section>
 
         {/* Town banking profiles */}
-        <section>
+        <section id={resourceSectionAnchors.banking.banksByTown} className="scroll-mt-28">
           <p className="eyebrow">Banks by town</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Where to find the Big Five
@@ -85,7 +89,11 @@ export default function BankingPage() {
           </p>
           <div className="mt-5 space-y-3">
             {bankingTowns.map((town) => (
-              <details key={town.slug} className="card group overflow-hidden open:ring-1 open:ring-[var(--accent)]/20">
+              <details
+                key={town.slug}
+                id={`${town.slug}-banking`}
+                className="card group scroll-mt-28 overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
+              >
                 <summary className="flex cursor-pointer items-center gap-3 p-4 md:p-5 [&::-webkit-details-marker]:hidden">
                   <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${levelColors[town.bankingLevel]}`}>
                     {levelLabels[town.bankingLevel]}
@@ -130,7 +138,7 @@ export default function BankingPage() {
         </section>
 
         {/* Merchant acceptance */}
-        <section>
+        <section id={resourceSectionAnchors.banking.paymentMethods} className="scroll-mt-28">
           <p className="eyebrow">Payment methods</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             How payments actually work
@@ -152,7 +160,10 @@ export default function BankingPage() {
         </section>
 
         {/* Hybrid rule + cash needed */}
-        <section className="card border-amber-200/60 bg-amber-50/30 p-5 md:p-8">
+        <section
+          id={resourceSectionAnchors.banking.cashRule}
+          className="card scroll-mt-28 border-amber-200/60 bg-amber-50/30 p-5 md:p-8"
+        >
           <p className="eyebrow text-amber-800">{hybridRule.headline}</p>
           <p className="mt-2 text-sm leading-7 text-amber-700">{hybridRule.detail}</p>
           <h3 className="mt-5 text-sm font-bold text-amber-800">Where you still need cash:</h3>
@@ -167,7 +178,7 @@ export default function BankingPage() {
         </section>
 
         {/* Non-resident banking */}
-        <section>
+        <section id={resourceSectionAnchors.banking.nonResident} className="scroll-mt-28">
           <p className="eyebrow">Opening accounts</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Non-resident banking in HP
@@ -209,7 +220,7 @@ export default function BankingPage() {
         </section>
 
         {/* Forex */}
-        <section>
+        <section id={resourceSectionAnchors.banking.forex} className="scroll-mt-28">
           <p className="eyebrow">Foreign exchange</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
             Forex agents &amp; digital remittances
@@ -238,7 +249,10 @@ export default function BankingPage() {
         </section>
 
         {/* Network performance */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.banking.network}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Network for payments</p>
           <h2 className="mt-2 text-lg font-semibold">Which SIM for reliable UPI?</h2>
           <p className="mt-1 text-xs text-[var(--muted)]">

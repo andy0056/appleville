@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { resourceSectionAnchors } from "@/lib/content-anchors";
 import { buildPageMetadata } from "@/lib/metadata";
 import {
   settleSpeedRanking,
@@ -51,7 +52,10 @@ export default function First30DaysPage() {
         </div>
 
         {/* Settle speed ranking */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.first30Days.settleRanking}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Fastest-to-slowest settle ranking</p>
           <p className="mt-2 text-xs text-[var(--muted)]">
             Assuming arrival in a normal week, not a festival or peak rush.
@@ -72,7 +76,7 @@ export default function First30DaysPage() {
         </section>
 
         {/* Friction points */}
-        <section>
+        <section id={resourceSectionAnchors.first30Days.frictionPoints} className="scroll-mt-28">
           <p className="eyebrow">Recurring friction points to plan around</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {frictionPoints.map((fp) => (
@@ -92,7 +96,10 @@ export default function First30DaysPage() {
         </section>
 
         {/* Your go-bag */}
-        <section className="card border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.first30Days.goBag}
+          className="card scroll-mt-28 border-[rgba(143,93,59,0.2)] bg-[rgba(234,215,191,0.28)] p-5 md:p-6"
+        >
           <p className="eyebrow">Your move-in go-bag</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
             Have these ready before you board the bus.
@@ -110,7 +117,7 @@ export default function First30DaysPage() {
         </section>
 
         {/* 30-day checklist */}
-        <section>
+        <section id={resourceSectionAnchors.first30Days.checklist} className="scroll-mt-28">
           <p className="eyebrow">Universal 30-day checklist</p>
           <p className="mt-2 text-sm text-[var(--muted)]">
             In tourist towns (McLeodganj, Manali, Naggar), shift everything 3–5 days earlier.
@@ -139,7 +146,10 @@ export default function First30DaysPage() {
         </section>
 
         {/* Key portals */}
-        <section className="card p-5 md:p-6">
+        <section
+          id={resourceSectionAnchors.first30Days.portals}
+          className="card scroll-mt-28 p-5 md:p-6"
+        >
           <p className="eyebrow">Key portals you will reuse in every town</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {portals.map((portal) => (
@@ -162,7 +172,7 @@ export default function First30DaysPage() {
         </section>
 
         {/* Town-by-town guides */}
-        <section>
+        <section id={resourceSectionAnchors.first30Days.townPlaybooks} className="scroll-mt-28">
           <div className="space-y-2">
             <p className="eyebrow">Town-by-town first 30 days</p>
             <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
@@ -175,7 +185,8 @@ export default function First30DaysPage() {
               return (
                 <details
                   key={pt.slug}
-                  className="card group overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
+                  id={`${pt.slug}-settling`}
+                  className="card group scroll-mt-28 overflow-hidden open:ring-1 open:ring-[var(--accent)]/20"
                 >
                   <summary className="flex cursor-pointer items-center gap-3 p-5 md:p-6 [&::-webkit-details-marker]:hidden">
                     <span className="text-xl font-semibold md:text-2xl">{pt.name}</span>

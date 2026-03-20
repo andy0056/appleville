@@ -39,7 +39,7 @@ export default async function ComparePage({
   return (
     <main className="container-app py-8 pb-28 md:py-16 md:pb-16">
       <div className="space-y-6 md:space-y-8">
-        <div className="space-y-3">
+        <div id="overview" className="space-y-3 scroll-mt-28">
           <p className="eyebrow">Compare</p>
           <h1 className="text-3xl font-semibold md:text-4xl">Compare likely base options side by side</h1>
           <p className="max-w-2xl text-base leading-7 text-[var(--muted)] md:leading-8">
