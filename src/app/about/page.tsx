@@ -30,6 +30,11 @@ export default function AboutPage() {
           housing quality, seasonality, and routine friction can change the
           experience a lot inside the same place.
         </p>
+
+        <h2 className="text-2xl font-semibold mt-10">Who runs Appleville?</h2>
+        <p className="text-base leading-8 text-[var(--muted)]">
+          Appleville is built and maintained by Anirudh Thakur and a small research team of locals and frequent visitors. Instead of scraping generic travel data, we visit the towns, check infrastructure reliability, and vet every guide to ensure it reflects on-the-ground realities—not just the scenic weekend versions. This hands-on approach ensures our advice remains practical and trustworthy for remote workers, families, and long-term movers.
+        </p>
         <div className="compact-callout">
           <p className="text-sm font-semibold text-[var(--foreground)]">
             Want the method, not just the mission?

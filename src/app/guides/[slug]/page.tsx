@@ -56,9 +56,36 @@ export default async function GuideDetailPage({
   const relatedTowns = (guide.relatedTownSlugs ?? [])
     .map((townSlug) => getTownBySlug(townSlug))
     .filter((town): town is Town => Boolean(town));
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.summary,
+    author: {
+      "@type": "Organization",
+      name: "Appleville",
+      url: "https://appleville.help",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Appleville",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://appleville.help/images/towns/dharamshala.jpg",
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://appleville.help/guides/${guide.slug}`,
+    },
+  };
 
   return (
     <main className="container-app py-8 md:py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="mx-auto max-w-4xl space-y-8">
         <div className="space-y-4">
           <Breadcrumb
@@ -72,6 +99,11 @@ export default async function GuideDetailPage({
           <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
             {guide.title}
           </h1>
+          <div className="flex items-center gap-2 text-sm text-[var(--muted)] mt-2">
+            <span className="font-medium text-[var(--foreground)]">By Anirudh Thakur</span>
+            <span>&middot;</span>
+            <time dateTime={`${new Date().getFullYear()}-03-15`}>Updated March {new Date().getFullYear()}</time>
+          </div>
           <p className="max-w-3xl text-lg leading-8 text-[var(--muted)]">
             {guide.summary}
           </p>

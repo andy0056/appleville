@@ -149,9 +149,26 @@ export default async function TownDetailPage({
     .map((townSlug) => getTownBySlug(townSlug))
     .filter((relatedTown): relatedTown is Town => Boolean(relatedTown))
     .slice(0, 2);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "City",
+    name: town.name,
+    description: town.summary,
+    url: `https://appleville.help/towns/${town.slug}`,
+    image: town.image.src,
+    containedInPlace: {
+      "@type": "State",
+      name: "Himachal Pradesh",
+      addressCountry: "IN"
+    }
+  };
 
   return (
     <main className="container-app py-8 md:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-6xl space-y-5 md:space-y-8">
         <Breadcrumb
           items={[

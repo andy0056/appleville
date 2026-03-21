@@ -44,9 +44,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteMetadata.name,
+    url: siteMetadata.url,
+    description: "Find the Himachal town that fits your lifestyle, budget, and work needs.",
+  };
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <div className="page-shell">
           <SiteHeader />
           <div className="min-h-[calc(100vh-92px)] pt-3 md:min-h-[calc(100vh-104px)] md:pt-4">

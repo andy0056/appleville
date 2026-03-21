@@ -4,6 +4,21 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'appleville.vercel.app',
+          },
+        ],
+        destination: 'https://appleville.help/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
