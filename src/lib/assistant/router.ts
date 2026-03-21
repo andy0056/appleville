@@ -1,4 +1,5 @@
 import { sanitizeConversationContext, isFollowUpQuery } from "./context.ts";
+import { matchAssistantAnticipationEntries } from "./anticipation.ts";
 import { resolveAssistantQueryFrame } from "./precedence.ts";
 import {
   findTopics,
@@ -76,6 +77,11 @@ const intentPhraseMap: Record<
     "water safe",
     "water situation",
     "water",
+    "swiggy",
+    "zomato",
+    "deliver",
+    "delivers",
+    "food delivery",
     "groceries",
     "grocery",
     "food",
@@ -198,6 +204,18 @@ function getIntentKindsForTopics(topics: AssistantTopic[]) {
   );
 }
 
+const practicalTopics = new Set<AssistantTopic>([
+  "food",
+  "water",
+  "banking",
+  "community",
+  "safety",
+  "property",
+  "power",
+  "moving",
+  "method",
+]);
+
 function buildClauseCandidates(
   normalizedText: string,
   clauseIndex: number,
@@ -274,6 +292,41 @@ function buildClauseCandidates(
         ].includes(topic),
       ),
     });
+  }
+
+  return candidates;
+}
+
+function buildAnticipationCandidates(
+  comparisonDetected: boolean,
+  townSlugs: string[],
+  matches: ReturnType<typeof matchAssistantAnticipationEntries>,
+): AssistantIntentCandidate[] {
+  const candidates: AssistantIntentCandidate[] = [];
+
+  for (const match of matches.slice(0, 2)) {
+    candidates.push({
+      kind: match.entry.domainKind,
+      score: Math.min(96, 68 + match.score),
+      clauseIndex: 0,
+      evidence: [...match.matchedPatterns, ...match.matchedKeywords].slice(0, 3),
+      focusTopics: match.entry.focusTopics,
+    });
+
+    if (
+      match.entry.domainKind !== "comparison" &&
+      match.entry.comparisonCapable &&
+      comparisonDetected &&
+      townSlugs.length >= 2
+    ) {
+      candidates.push({
+        kind: "comparison",
+        score: Math.min(94, 64 + match.score),
+        clauseIndex: 0,
+        evidence: ["anticipation-comparison"],
+        focusTopics: match.entry.focusTopics,
+      });
+    }
   }
 
   return candidates;
@@ -450,26 +503,48 @@ export function parseAssistantIntent(
   const followUp = isFollowUpQuery(normalizedQuery);
   const explicitTownSlugs = findTownSlugs(normalizedQuery);
   const explicitTopics = findTopics(normalizedQuery);
-
-  const candidates = clauses.flatMap((clause) =>
-    buildClauseCandidates(
-      clause.normalizedText,
-      clause.index,
-      unique(
-        mentions
-          .filter((mention) => mention.kind === "town" && mention.clauseIndex === clause.index)
-          .map((mention) => mention.value),
+  const comparisonDetected = hasComparisonCue(` ${normalizedQuery} `);
+  const anticipationMatches = matchAssistantAnticipationEntries({
+    normalizedQuery,
+    townSlugs: explicitTownSlugs,
+    comparisonDetected,
+    followUp,
+    context: cleanContext,
+  }).filter(
+    (match) =>
+      !(
+        match.entry.domainKind === "town_fit" &&
+        explicitTopics.some((topic) => practicalTopics.has(topic))
       ),
-      findTopics(clause.normalizedText),
-    ),
   );
+  const anticipationMatch = anticipationMatches[0] ?? null;
+  const seededTopics = explicitTopics.length
+    ? explicitTopics
+    : anticipationMatch?.entry.focusTopics ?? [];
+
+  const candidates = clauses
+    .flatMap((clause) =>
+      buildClauseCandidates(
+        clause.normalizedText,
+        clause.index,
+        unique(
+          mentions
+            .filter((mention) => mention.kind === "town" && mention.clauseIndex === clause.index)
+            .map((mention) => mention.value),
+        ),
+        findTopics(clause.normalizedText),
+      ),
+    )
+    .concat(
+      buildAnticipationCandidates(comparisonDetected, explicitTownSlugs, anticipationMatches),
+    );
 
   const queryFrame = resolveAssistantQueryFrame({
     normalizedQuery,
     clauses,
     mentions,
     candidates,
-    explicitTopics,
+    explicitTopics: seededTopics,
     followUp,
     context: cleanContext,
   });
@@ -488,7 +563,7 @@ export function parseAssistantIntent(
   const topics = getTopicsForIntent(
     primaryIntentKind,
     focusDomainKind,
-    explicitTopics,
+    seededTopics,
     followUp,
     cleanContext,
     queryFrame.focusTopics,
@@ -512,6 +587,16 @@ export function parseAssistantIntent(
         normalizedQuery.includes("top") ||
         townSlugs.length === 0));
   const wantsMethod = primaryIntentKind === "method" || focusDomainKind === "method";
+  const resolvedIntentKind = focusDomainKind ?? primaryIntentKind;
+  const resolvedSubIntent =
+    anticipationMatch?.entry.subIntent ?? inferSubIntent(resolvedIntentKind, normalizedQuery, townSlugs);
+  const knownSignal =
+    hasKnownDomainSignal(normalizedQuery) ||
+    Boolean(anticipationMatch) ||
+    explicitTownSlugs.length > 0 ||
+    topics.length > 0 ||
+    primaryIntentKind !== "generic" ||
+    (followUp && cleanContext.activeIntentKind !== null);
 
   return {
     rawQuery: message,
@@ -519,7 +604,7 @@ export function parseAssistantIntent(
     intentKind: primaryIntentKind,
     primaryIntentKind,
     focusDomainKind,
-    subIntent: inferSubIntent(focusDomainKind ?? primaryIntentKind, normalizedQuery, townSlugs),
+    subIntent: resolvedSubIntent,
     explicitTownSlugs,
     mentionedTownSlugs: queryFrame.mentionedTownSlugs,
     townSlugs,
@@ -530,13 +615,9 @@ export function parseAssistantIntent(
     wantsTownRanking,
     wantsMethod,
     isFollowUp: followUp,
-    hasKnownDomainSignal:
-      hasKnownDomainSignal(normalizedQuery) ||
-      explicitTownSlugs.length > 0 ||
-      topics.length > 0 ||
-      primaryIntentKind !== "generic" ||
-      (followUp && cleanContext.activeIntentKind !== null),
+    hasKnownDomainSignal: knownSignal,
     queryFrame,
+    anticipationMatch,
   };
 }
 

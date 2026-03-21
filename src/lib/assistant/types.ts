@@ -167,6 +167,7 @@ export type AssistantIntent = {
   isFollowUp: boolean;
   hasKnownDomainSignal: boolean;
   queryFrame: AssistantQueryFrame;
+  anticipationMatch: AssistantAnticipationMatch | null;
 };
 
 export type AssistantSearchResult = {
@@ -206,4 +207,55 @@ export type AssistantSearchOptions = {
   allowedPageTypes?: AssistantPageType[];
   requiredKeywords?: string[];
   mustIncludePathname?: string | null;
+};
+
+export type AssistantAnticipationDomain = AssistantIntentKind;
+
+export type AssistantAnticipationConstraint = {
+  requiresTown?: boolean;
+  requiresComparisonCue?: boolean;
+  comparisonPreferred?: boolean;
+};
+
+export type AssistantAnticipationEntry = {
+  id: string;
+  domainKind: AssistantAnticipationDomain;
+  subIntent: AssistantSubIntent;
+  focusTopics: AssistantTopic[];
+  sourceKind: "doc" | "module" | "mixed";
+  sourceLabel: string;
+  livePathname: string | null;
+  comparisonCapable: boolean;
+  singleTownCapable: boolean;
+  followUpCapable: boolean;
+  requiredKeywords: string[];
+  preferredKeywords: string[];
+  questionPatterns: string[];
+  samplePrompts: string[];
+  strictFallback: boolean;
+  evidenceHeadings: string[];
+  constraints?: AssistantAnticipationConstraint;
+};
+
+export type AssistantAnticipationMatch = {
+  entry: AssistantAnticipationEntry;
+  score: number;
+  matchedKeywords: string[];
+  matchedPatterns: string[];
+};
+
+export type AssistantAnticipationPromptCase = {
+  prompt: string;
+  expectedPrimaryIntentKind: AssistantIntentKind;
+  expectedFocusDomainKind: AssistantIntentKind | null;
+  expectedSubIntent?: AssistantSubIntent;
+  answerSourcePathname?: string | null;
+};
+
+export type AssistantAnticipationFollowUpCase = {
+  seedPrompt: string;
+  prompt: string;
+  expectedPrimaryIntentKind: AssistantIntentKind;
+  expectedFocusDomainKind: AssistantIntentKind | null;
+  expectedAnswerShape?: AssistantAnswerShape;
 };

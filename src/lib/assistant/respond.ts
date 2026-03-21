@@ -63,6 +63,49 @@ function buildFallbackResponse(
   };
 }
 
+function buildAnticipationFallbackResponse(
+  intent: AssistantIntent,
+  context: AssistantConversationContext,
+): AssistantResponse {
+  const livePathname = intent.anticipationMatch?.entry.livePathname;
+  const label = intent.anticipationMatch?.entry.sourceLabel ?? "the strongest page";
+
+  return {
+    answer: livePathname
+      ? `Appleville covers this topic, but I can't give a short grounded answer from the current public material without overreaching. The safest next step is the canonical page.`
+      : "I can see the question family, but I still don't have enough grounded Appleville material to answer it cleanly in chat.",
+    keyPoints: ensureKeyPoints([
+      livePathname
+        ? `This query maps to ${label}, and I would rather point you there than improvise.`
+        : "The topic is recognized, but the current public material is still too thin for a short answer.",
+      "This fallback is deliberate: Appleville prefers a precise redirect over a confident guess.",
+    ]),
+    citations: [],
+    nextLinks: dedupeNextLinks(
+      [
+        livePathname
+          ? buildResourceLink(
+              `Open ${label}`,
+              livePathname,
+              "Go to the canonical Appleville page for the grounded version.",
+            )
+          : null,
+        buildResourceLink(
+          "Browse towns",
+          "/towns",
+          "Use town pages if the real question is about fit, tradeoffs, or everyday base quality.",
+        ),
+      ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
+    ),
+    confidence: "low",
+    conversationContext: context,
+    didFallback: true,
+    fallbackReason: "low_confidence",
+    responderKind: intent.intentKind,
+    answerShape: intent.queryFrame.answerShape,
+  };
+}
+
 function resolveResponder(intent: AssistantIntent): AssistantResponderResult | null {
   if (intent.queryFrame.answerShape === "single_town_overview") {
     return buildTownOverviewResponse(intent);
@@ -115,7 +158,18 @@ export function generateAssistantResponse(
 
   if (!result) {
     const nextContext = buildConversationContextPatch(intent, cleanContext);
+    if (intent.anticipationMatch?.entry.strictFallback) {
+      return buildAnticipationFallbackResponse(intent, nextContext);
+    }
     return buildFallbackResponse(nextContext, "low_confidence", intent.intentKind);
+  }
+
+  if (intent.anticipationMatch?.entry.strictFallback && result.confidence === "low") {
+    const nextContext = buildConversationContextPatch(intent, cleanContext, {
+      resolvedTownSlugs: result.resolvedTownSlugs,
+      resolvedPageTypes: result.resolvedPageTypes,
+    });
+    return buildAnticipationFallbackResponse(intent, nextContext);
   }
 
   const nextContext = buildConversationContextPatch(intent, cleanContext, {

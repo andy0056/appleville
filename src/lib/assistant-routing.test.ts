@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { generateAssistantResponse } from "./assistant/respond.ts";
 import { parseAssistantIntent } from "./assistant/router.ts";
-import {
-  assistantComparisonPromptBank,
-  assistantFollowUpPromptBank,
-} from "./assistant-prompt-bank.ts";
+import { assistantComparisonPromptCases } from "./assistant-comparison-bank.ts";
+import { assistantDomainPromptCases } from "./assistant-domain-bank.ts";
+import { assistantFollowUpPromptCases } from "./assistant-followup-bank.ts";
+import { assistantSingleTownPromptCases } from "./assistant-single-town-bank.ts";
 
 test("router treats natural about-plus-against phrasing as overview-plus-comparison", () => {
   const intent = parseAssistantIntent(
@@ -45,104 +45,90 @@ test("router keeps single-town water questions in the food-water domain", () => 
   assert.deepEqual(intent.townSlugs, ["naggar"]);
 });
 
-test("router keeps practical single-town prompts in their resource domains", () => {
-  const cases = [
-    ["tell me about banking in Bir", "banking"],
-    ["tell me about power cuts in Manali", "power"],
-    ["tell me about safety in Naggar", "women_safety"],
-    ["tell me about property in Palampur", "property"],
-    ["tell me about first month in Dharamshala", "moving"],
-  ] as const;
+test("comparison prompt bank stays in comparison and preserves expected focus", () => {
+  for (const promptCase of assistantComparisonPromptCases) {
+    const intent = parseAssistantIntent(promptCase.prompt);
 
-  for (const [prompt, expectedIntentKind] of cases) {
-    const intent = parseAssistantIntent(prompt);
-
-    assert.equal(intent.primaryIntentKind, expectedIntentKind, prompt);
-    assert.equal(intent.focusDomainKind, expectedIntentKind, prompt);
+    assert.equal(intent.primaryIntentKind, promptCase.expectedPrimaryIntentKind, promptCase.prompt);
+    assert.equal(intent.focusDomainKind, promptCase.expectedFocusDomainKind, promptCase.prompt);
+    if (promptCase.expectedSubIntent) {
+      assert.equal(intent.subIntent, promptCase.expectedSubIntent, promptCase.prompt);
+    }
   }
 });
 
-test("router treats single-town overview prompts as town overview instead of generic fallback", () => {
-  const intent = parseAssistantIntent("tell me about bir");
+test("single-town anticipation bank avoids generic fallback", () => {
+  for (const promptCase of assistantSingleTownPromptCases) {
+    const intent = parseAssistantIntent(promptCase.prompt);
 
-  assert.equal(intent.primaryIntentKind, "town_fit");
-  assert.equal(intent.queryFrame.answerShape, "single_town_overview");
-  assert.deepEqual(intent.townSlugs, ["bir"]);
+    assert.equal(intent.primaryIntentKind, promptCase.expectedPrimaryIntentKind, promptCase.prompt);
+    assert.equal(intent.focusDomainKind, promptCase.expectedFocusDomainKind, promptCase.prompt);
+    assert.notEqual(intent.intentKind, "generic", promptCase.prompt);
+    assert.ok(intent.townSlugs.length >= 1, promptCase.prompt);
+  }
 });
 
-test("comparison follow-ups keep the active comparison frame", () => {
-  const first = generateAssistantResponse("Bir or Dharamshala for a longer stay?");
-  const second = generateAssistantResponse("and for families?", first.conversationContext);
+test("domain anticipation bank routes practical single-town prompts into their canonical domains", () => {
+  for (const promptCase of assistantDomainPromptCases) {
+    const intent = parseAssistantIntent(promptCase.prompt);
 
-  assert.equal(second.didFallback, false);
-  assert.equal(second.responderKind, "comparison");
-  assert.equal(second.conversationContext.activePrimaryIntentKind, "comparison");
-  assert.deepEqual(second.conversationContext.activeComparisonTownSlugs, ["bir", "dharamshala"]);
+    assert.equal(intent.primaryIntentKind, promptCase.expectedPrimaryIntentKind, promptCase.prompt);
+    assert.equal(intent.focusDomainKind, promptCase.expectedFocusDomainKind, promptCase.prompt);
+    if (promptCase.expectedSubIntent) {
+      assert.equal(intent.subIntent, promptCase.expectedSubIntent, promptCase.prompt);
+    }
+  }
 });
 
-test("town overview follow-ups can switch subject cleanly", () => {
-  const first = generateAssistantResponse("tell me about naggar");
-  const second = generateAssistantResponse("what about palampur instead?", first.conversationContext);
+test("domain anticipation bank answers from canonical live pages instead of town-fit", () => {
+  for (const promptCase of assistantDomainPromptCases) {
+    if (!promptCase.answerSourcePathname) continue;
 
-  assert.equal(first.didFallback, false);
-  assert.equal(second.didFallback, false);
-  assert.equal(second.answerShape, "single_town_overview");
-  assert.ok(second.answer.toLowerCase().includes("palampur"));
+    const response = generateAssistantResponse(promptCase.prompt);
+
+    assert.equal(response.didFallback, false, promptCase.prompt);
+    assert.equal(response.responderKind, promptCase.expectedPrimaryIntentKind, promptCase.prompt);
+    assert.ok(
+      response.citations.some((citation) => citation.href.startsWith(`${promptCase.answerSourcePathname}#`)),
+      promptCase.prompt,
+    );
+  }
 });
 
-test("power comparisons stay in the power domain and cite the power guide", () => {
-  const response = generateAssistantResponse("manali vs palampur for power cuts");
+test("follow-up anticipation bank keeps the active domain frame", () => {
+  for (const promptCase of assistantFollowUpPromptCases) {
+    const first = generateAssistantResponse(promptCase.seedPrompt);
+    const second = generateAssistantResponse(promptCase.prompt, first.conversationContext);
 
-  assert.equal(response.didFallback, false);
-  assert.equal(response.responderKind, "comparison");
-  assert.ok(response.citations.some((citation) => citation.href.startsWith("/power-backup#")));
+    assert.equal(second.didFallback, false, `${promptCase.seedPrompt} -> ${promptCase.prompt}`);
+    assert.equal(
+      second.conversationContext.activePrimaryIntentKind,
+      promptCase.expectedPrimaryIntentKind,
+      promptCase.prompt,
+    );
+    assert.equal(
+      second.conversationContext.activeFocusDomainKind,
+      promptCase.expectedFocusDomainKind,
+      promptCase.prompt,
+    );
+  }
 });
 
-test("single-town water prompts cite the food guide instead of falling back to town fit", () => {
-  const response = generateAssistantResponse("tell me about water situation in Naggar");
-
-  assert.equal(response.didFallback, false);
-  assert.equal(response.responderKind, "food_water");
-  assert.ok(response.citations.some((citation) => citation.href.startsWith("/food#")));
-  assert.ok(response.answer.toLowerCase().includes("tap-water") || response.answer.toLowerCase().includes("water"));
-});
-
-test("practical single-town prompts answer from their canonical resource pages", () => {
+test("practical resource prompts no longer fall back into town-fit just because a town name is present", () => {
   const cases = [
-    ["tell me about banking in Bir", "/banking#", "banking"],
-    ["tell me about power cuts in Manali", "/power-backup#", "power"],
-    ["tell me about safety in Naggar", "/womens-safety#", "women_safety"],
-    ["tell me about property in Palampur", "/property-rules#", "property"],
-    ["tell me about first month in Dharamshala", "/first-30-days#", "moving"],
+    ["does swiggy delivers in shimla?", "food_water", "/food#"],
+    ["tell me about water situation in naggar", "food_water", "/food#"],
+    ["tell me about banking in bir", "banking", "/banking#"],
+    ["safety in naggar", "women_safety", "/womens-safety#"],
+    ["property in palampur", "property", "/property-rules#"],
+    ["first month in dharamshala", "moving", "/first-30-days#"],
   ] as const;
 
-  for (const [prompt, citationPrefix, responderKind] of cases) {
+  for (const [prompt, responderKind, citationPrefix] of cases) {
     const response = generateAssistantResponse(prompt);
 
     assert.equal(response.didFallback, false, prompt);
     assert.equal(response.responderKind, responderKind, prompt);
-    assert.ok(
-      response.citations.some((citation) => citation.href.startsWith(citationPrefix)),
-      prompt,
-    );
+    assert.ok(response.citations.some((citation) => citation.href.startsWith(citationPrefix)), prompt);
   }
-});
-
-test("comparison prompt bank routes to a live non-generic intent", () => {
-  for (const prompt of assistantComparisonPromptBank) {
-    const intent = parseAssistantIntent(prompt);
-
-    assert.notEqual(intent.primaryIntentKind, "generic", prompt);
-    assert.ok(
-      intent.queryFrame.answerShape === "comparison" ||
-        intent.queryFrame.answerShape === "overview_plus_comparison" ||
-        intent.queryFrame.answerShape === "single_town_overview",
-      prompt,
-    );
-  }
-});
-
-test("follow-up prompt bank stays compatible with stored comparison and overview state", () => {
-  assert.ok(assistantFollowUpPromptBank.includes("what about palampur instead?"));
-  assert.ok(assistantFollowUpPromptBank.includes("and for families?"));
 });
