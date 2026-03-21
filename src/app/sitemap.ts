@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { guides } from "@/lib/guides";
 import { towns } from "@/lib/towns";
 
-const baseUrl = "https://appleville.vercel.app";
+const baseUrl = "https://appleville.help";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = [

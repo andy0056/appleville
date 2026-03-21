@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/results"],
     },
-    sitemap: "https://appleville.vercel.app/sitemap.xml",
+    sitemap: "https://appleville.help/sitemap.xml",
   };
 }

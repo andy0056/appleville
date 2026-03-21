@@ -14,7 +14,7 @@ type MetadataOptions = {
 
 export const siteMetadata = {
   name: siteName,
-  url: "https://appleville.vercel.app",
+  url: "https://appleville.help",
   defaultImage,
 };
 
