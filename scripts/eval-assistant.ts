@@ -39,12 +39,23 @@ function run(query: EvalQuery): Outcome {
   const response = generateAssistantResponse(query.query);
   const citedPaths = response.citations.map((c) => toPathname(c.href));
   const expected = new Set(query.expected.map(toPathname));
+  const answered = !response.didFallback;
+
+  // Out-of-scope queries invert the scoring: success is refusing them. Anything
+  // that widens the scope gate has to pay for itself here.
+  const hit =
+    query.style === "out_of_scope"
+      ? !answered
+      : citedPaths.some((p) => expected.has(p));
 
   return {
     query,
-    answered: !response.didFallback,
-    hit: citedPaths.some((p) => expected.has(p)),
-    hitAtOne: citedPaths.length > 0 && expected.has(citedPaths[0]!),
+    answered,
+    hit,
+    hitAtOne:
+      query.style === "out_of_scope"
+        ? hit
+        : citedPaths.length > 0 && expected.has(citedPaths[0]!),
     confidence: response.confidence,
     fallbackReason: response.fallbackReason,
     citedPaths,
@@ -82,6 +93,7 @@ console.log("-".repeat(52));
 console.log(summarise("ALL", outcomes));
 console.log(summarise("direct", byStyle("direct")));
 console.log(summarise("paraphrase", byStyle("paraphrase")));
+console.log(summarise("out-of-scope", byStyle("out_of_scope")), " (cited = correctly refused)");
 
 console.log("\nBy domain");
 console.log("-".repeat(52));

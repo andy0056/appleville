@@ -6,6 +6,7 @@ import {
   topicAliases,
   townAliases,
 } from "./aliases.ts";
+import { hasCorpusSignal } from "./vocabulary.ts";
 import type {
   AssistantMention,
   AssistantQueryClause,
@@ -120,9 +121,16 @@ export function inferUserProfile(normalizedQuery: string): AssistantUserProfile 
 
 export function hasKnownDomainSignal(normalizedQuery: string) {
   if (!normalizedQuery) return false;
-  return Array.from(knownDomainTerms).some((term) =>
+
+  const curated = Array.from(knownDomainTerms).some((term) =>
     containsNormalizedPhrase(normalizedQuery, term),
   );
+  if (curated) return true;
+
+  // Fall back to vocabulary derived from the corpus itself. The curated list
+  // drifts behind the content — this catches section titles and keywords that
+  // were never added to it, so anything we have material on stays in scope.
+  return hasCorpusSignal(normalizedQuery);
 }
 
 export function hasComparisonCue(normalizedQuery: string) {

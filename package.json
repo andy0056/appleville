@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "generate:assistant-bank": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generate-assistant-anticipation.ts",
-    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/lib/*.test.ts",
+    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/lib/*.test.ts src/lib/assistant/*.test.ts",
     "eval:assistant": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/eval-assistant.ts"
   },
   "dependencies": {

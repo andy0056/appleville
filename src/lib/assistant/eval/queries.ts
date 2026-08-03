@@ -18,12 +18,16 @@
  * improvement that only helps direct queries cannot hide inside an average.
  */
 
-export type EvalStyle = "direct" | "paraphrase";
+export type EvalStyle = "direct" | "paraphrase" | "out_of_scope";
 
 export type EvalQuery = {
   id: string;
   query: string;
-  /** A hit if ANY of these pathnames is cited — several questions are fairly answered by more than one page. */
+  /**
+   * A hit if ANY of these pathnames is cited — several questions are fairly
+   * answered by more than one page. Empty for out_of_scope queries, which are
+   * scored on being refused rather than on what they cite.
+   */
   expected: string[];
   style: EvalStyle;
   domain: string;
@@ -112,6 +116,19 @@ export const evalQueries: EvalQuery[] = [
   { id: "meth-02", query: "What Appleville cannot know", expected: ["/how-it-works"], style: "direct", domain: "method" },
   { id: "meth-03", query: "Where does this data even come from?", expected: ["/how-it-works", "/about"], style: "paraphrase", domain: "method" },
   { id: "meth-04", query: "Should I trust these rankings?", expected: ["/how-it-works", "/about"], style: "paraphrase", domain: "method" },
+
+  // ─── Out of scope ──────────────────────────────────────────
+  // Guardrail cases. Without these, "answer everything" would score a perfect
+  // hit rate, and any change that loosens the scope gate would look like a
+  // pure win. These must be refused.
+  { id: "oos-01", query: "What is the capital of France?", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-02", query: "Write me a Python script to sort a list", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-03", query: "Should I buy Bitcoin right now?", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-04", query: "Best beaches in Goa", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-05", query: "How do I treat a sprained ankle?", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-06", query: "Who won the cricket match last night?", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-07", query: "Recommend a good laptop under 50000", expected: [], style: "out_of_scope", domain: "oos" },
+  { id: "oos-08", query: "asdfgh qwerty", expected: [], style: "out_of_scope", domain: "oos" },
 ];
 
 export const evalQueryCount = evalQueries.length;
