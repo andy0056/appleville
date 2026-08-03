@@ -5,6 +5,7 @@ import {
   goBackChecklist,
   playbookTowns,
 } from "../../playbook.ts";
+import { getGuideBySlug } from "../../guides.ts";
 import { getTownBySlug } from "../../towns.ts";
 import type { AssistantIntent } from "../types.ts";
 import {
@@ -95,6 +96,8 @@ export function buildMovingResponse(intent: AssistantIntent): AssistantResponder
   }
 
   if (intent.subIntent === "trial_move") {
+    const trialMoveGuide = getGuideBySlug("how-to-test-a-move-before-committing");
+
     return {
       answer: "Treat a Himachal trial move as a working test, not a romantic preview. The goal is to learn whether weekday life holds up once errands, internet, transport, and sleep all enter the picture.",
       keyPoints: ensureKeyPoints([
@@ -103,7 +106,20 @@ export function buildMovingResponse(intent: AssistantIntent): AssistantResponder
         playbookTown?.overview ?? frictionPoints[0].detail,
       ]),
       caution: "A trial stay that only samples cafes and views will hide the exact friction that matters once you actually move.",
+      // "How do I test a move before committing" is the title of a guide, so
+      // that guide is the source — not a follow-up link under two citations to
+      // the first-30-days page, which is about the month *after* you commit.
       citations: [
+        ...(trialMoveGuide
+          ? [
+              buildCitation(
+                trialMoveGuide.title,
+                `/guides/${trialMoveGuide.slug}`,
+                "Guide",
+                summarizeText(trialMoveGuide.summary, 1, 120),
+              ),
+            ]
+          : []),
         buildCitation(
           "First 30 days in Himachal",
           `/first-30-days#${resourceSectionAnchors.first30Days.goBag}`,

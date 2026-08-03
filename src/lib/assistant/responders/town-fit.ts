@@ -244,18 +244,32 @@ function buildRankingResponse(intent: AssistantIntent): AssistantResponderResult
       2,
       180,
     ),
-    citations: ranked.slice(0, 3).map((town) =>
-      buildCitation(
-        `${town.name}, Himachal`,
-        `/towns/${town.slug}#${getRelevantAnchor(dominantTopic)}`,
-        dominantTopic === "remote-work" ? "Remote-work reality" : "Best for",
-        summarizeText(
-          dominantTopic === "remote-work" ? town.remoteWorkReality : town.goodFor.join(". "),
-          1,
-          120,
+    // The guide leads when there is one. A question like "best towns for
+    // remote workers" is the title of a guide page, and answering it with
+    // three town pages while demoting that guide to a follow-up link buries
+    // the most direct source. Towns still follow as the specifics.
+    citations: [
+      guide
+        ? buildCitation(
+            guide.title,
+            `/guides/${guide.slug}`,
+            "Guide",
+            summarizeText(guide.summary, 1, 120),
+          )
+        : null,
+      ...ranked.slice(0, guide ? 2 : 3).map((town) =>
+        buildCitation(
+          `${town.name}, Himachal`,
+          `/towns/${town.slug}#${getRelevantAnchor(dominantTopic)}`,
+          dominantTopic === "remote-work" ? "Remote-work reality" : "Best for",
+          summarizeText(
+            dominantTopic === "remote-work" ? town.remoteWorkReality : town.goodFor.join(". "),
+            1,
+            120,
+          ),
         ),
       ),
-    ),
+    ].filter((item): item is NonNullable<typeof item> => Boolean(item)),
     nextLinks: dedupeNextLinks(
       [
         buildCompareLink(

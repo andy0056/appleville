@@ -70,6 +70,25 @@ const intentPhraseMap: Record<
     "woman",
     "women",
     "safety",
+    // People rarely use the word "safety" when they are actually worried about
+    // it. These are how the question gets asked instead — "can I walk back
+    // after dark", "my daughter wants to move there by herself". Phrases, not
+    // bare words: "alone" on its own is as often about loneliness, which is a
+    // community question.
+    "by herself",
+    "on her own",
+    "living alone",
+    "live alone",
+    "rent alone",
+    "stay alone",
+    "staying alone",
+    "walk alone",
+    "walk back",
+    "after dark",
+    "at night alone",
+    "daughter",
+    "crime",
+    "crime data",
   ],
   food_water: [
     "tap water",
@@ -216,6 +235,39 @@ const practicalTopics = new Set<AssistantTopic>([
   "method",
 ]);
 
+type ScorableIntentKind = Exclude<AssistantIntentKind, "comparison" | "generic" | "town_fit">;
+
+/**
+ * How strongly each domain claims a query when its phrases or topics fire.
+ *
+ * property and method sit above the default because their questions are
+ * specific and high-stakes — "can I buy land here" must not be answered as
+ * general town guidance.
+ *
+ * women_safety sits above property, and that ordering is deliberate. The two
+ * fail asymmetrically. A property question answered with safety material is a
+ * mild misdirect the reader corrects in one follow-up. A safety question
+ * answered with property law is not: "is it okay for a single woman to rent
+ * alone there" used to return Section 118 at high confidence, because `rent`
+ * scored property at 82 while `woman` only scored safety at 74. When both
+ * fire, the one where being wrong costs more should win.
+ */
+const INTENT_PRIORITY: Partial<Record<ScorableIntentKind, number>> = {
+  women_safety: 3,
+  property: 2,
+  method: 2,
+};
+
+/** Phrase matches are stronger evidence than a topic inferred from an alias. */
+const PHRASE_TIER_BASE = 74;
+const TOPIC_TIER_BASE = 70;
+const PRIORITY_STEP = 6;
+
+function intentScore(kind: ScorableIntentKind, tier: "phrase" | "topic"): number {
+  const base = tier === "phrase" ? PHRASE_TIER_BASE : TOPIC_TIER_BASE;
+  return base + (INTENT_PRIORITY[kind] ?? 0) * PRIORITY_STEP;
+}
+
 function buildClauseCandidates(
   normalizedText: string,
   clauseIndex: number,
@@ -231,7 +283,7 @@ function buildClauseCandidates(
     if (includesAny(normalizedText, phrases)) {
       candidates.push({
         kind,
-        score: kind === "property" || kind === "method" ? 90 : 74,
+        score: intentScore(kind, "phrase"),
         clauseIndex,
         evidence: phrases.filter((phrase) => normalizedText.includes(phrase)).slice(0, 3),
         focusTopics: explicitTopics,
@@ -246,7 +298,7 @@ function buildClauseCandidates(
 
     candidates.push({
       kind,
-      score: kind === "property" || kind === "method" ? 82 : 70,
+      score: intentScore(kind, "topic"),
       clauseIndex,
       evidence: explicitTopics.slice(0, 3),
       focusTopics: explicitTopics,

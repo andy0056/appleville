@@ -23,9 +23,17 @@ type Outcome = {
   answered: boolean;
   hit: boolean;
   hitAtOne: boolean;
+  /**
+   * Hit counting nextLinks as well as citations. The two are different UI
+   * surfaces and scoring only citations under-credits an answer that put the
+   * right page in front of the reader by another route — the ranking responder
+   * routinely does exactly that with guides.
+   */
+  surfaced: boolean;
   confidence: string;
   fallbackReason?: string;
   citedPaths: string[];
+  linkedPaths: string[];
 };
 
 /** Citations carry full hrefs; compare on pathname only, ignoring anchors and trailing slashes. */
@@ -38,6 +46,7 @@ function toPathname(href: string): string {
 function run(query: EvalQuery): Outcome {
   const response = generateAssistantResponse(query.query);
   const citedPaths = response.citations.map((c) => toPathname(c.href));
+  const linkedPaths = response.nextLinks.map((l) => toPathname(l.href));
   const expected = new Set(query.expected.map(toPathname));
   const answered = !response.didFallback;
 
@@ -56,9 +65,14 @@ function run(query: EvalQuery): Outcome {
       query.style === "out_of_scope"
         ? hit
         : citedPaths.length > 0 && expected.has(citedPaths[0]!),
+    surfaced:
+      query.style === "out_of_scope"
+        ? hit
+        : [...citedPaths, ...linkedPaths].some((p) => expected.has(p)),
     confidence: response.confidence,
     fallbackReason: response.fallbackReason,
     citedPaths,
+    linkedPaths,
   };
 }
 
@@ -71,12 +85,14 @@ function summarise(label: string, rows: Outcome[]): string {
   const answered = rows.filter((r) => r.answered).length;
   const hit = rows.filter((r) => r.hit).length;
   const hitAtOne = rows.filter((r) => r.hitAtOne).length;
+  const surfaced = rows.filter((r) => r.surfaced).length;
   return [
     label.padEnd(14),
     String(n).padStart(3),
     pct(answered, n),
     pct(hit, n),
     pct(hitAtOne, n),
+    pct(surfaced, n),
   ].join("  ");
 }
 
@@ -88,7 +104,7 @@ const domains = [...new Set(evalQueries.map((q) => q.domain))].sort();
 
 console.log("\nAsk Appleville — retrieval baseline");
 console.log("=".repeat(52));
-console.log(["                 n", "answered", " cited", " @1"].join("  "));
+console.log(["                 n", "answered", " cited", " @1", " surfaced"].join("  "));
 console.log("-".repeat(52));
 console.log(summarise("ALL", outcomes));
 console.log(summarise("direct", byStyle("direct")));
