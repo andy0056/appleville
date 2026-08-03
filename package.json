@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "generate:assistant-bank": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generate-assistant-anticipation.ts",
-    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/lib/*.test.ts"
+    "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/lib/*.test.ts",
+    "eval:assistant": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/eval-assistant.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
