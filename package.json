@@ -9,7 +9,9 @@
     "lint": "eslint",
     "generate:assistant-bank": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generate-assistant-anticipation.ts",
     "test:unit": "node --test --experimental-strip-types --experimental-specifier-resolution=node src/lib/*.test.ts src/lib/assistant/*.test.ts",
-    "eval:assistant": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/eval-assistant.ts"
+    "eval:assistant": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/eval-assistant.ts",
+    "embed:corpus": "node --env-file=.env.local --experimental-strip-types --experimental-specifier-resolution=node scripts/embed-corpus.ts",
+    "eval:semantic": "node --env-file=.env.local --experimental-strip-types --experimental-specifier-resolution=node scripts/eval-semantic.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
