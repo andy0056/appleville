@@ -6,7 +6,7 @@ import { parseAssistantIntent } from "./assistant/router.ts";
 import { searchAssistantCorpus } from "./assistant/search.ts";
 import { getAssistantSearchOptions } from "./assistant/whitelist.ts";
 
-test("assistant corpus includes citation-ready chunks for towns, guides, and resources", () => {
+test("assistant corpus includes citation-ready chunks for towns, guides, and resources", async () => {
   assert.ok(
     assistantCorpus.some(
       (chunk) =>
@@ -32,7 +32,7 @@ test("assistant corpus includes citation-ready chunks for towns, guides, and res
   );
 });
 
-test("router sends women-safety town questions into the women safety domain", () => {
+test("router sends women-safety town questions into the women safety domain", async () => {
   const intent = parseAssistantIntent("How safe is Naggar for women?");
 
   assert.equal(intent.intentKind, "women_safety");
@@ -40,7 +40,7 @@ test("router sends women-safety town questions into the women safety domain", ()
   assert.deepEqual(intent.townSlugs, ["naggar"]);
 });
 
-test("router classifies outsider property queries correctly", () => {
+test("router classifies outsider property queries correctly", async () => {
   const intent = parseAssistantIntent("How can I buy property in Manali? I am from Mumbai");
 
   assert.equal(intent.intentKind, "property");
@@ -48,7 +48,7 @@ test("router classifies outsider property queries correctly", () => {
   assert.deepEqual(intent.townSlugs, ["manali"]);
 });
 
-test("property whitelist excludes unrelated resource pages", () => {
+test("property whitelist excludes unrelated resource pages", async () => {
   const intent = parseAssistantIntent("How can I buy property in Manali? I am from Mumbai");
   const { results } = searchAssistantCorpus(
     assistantCorpus,
@@ -60,8 +60,8 @@ test("property whitelist excludes unrelated resource pages", () => {
   assert.ok(results.every((result) => result.chunk.pathname === "/property-rules"));
 });
 
-test("assistant cites the water section for tap-water questions", () => {
-  const response = generateAssistantResponse("Is tap water safe in Himachal?");
+test("assistant cites the water section for tap-water questions", async () => {
+  const response = await generateAssistantResponse("Is tap water safe in Himachal?");
 
   assert.equal(response.didFallback, false);
   assert.equal(response.responderKind, "food_water");
@@ -69,8 +69,8 @@ test("assistant cites the water section for tap-water questions", () => {
   assert.ok(response.answer.toLowerCase().includes("tap-water") || response.answer.toLowerCase().includes("purification") || response.answer.toLowerCase().includes("boiling"));
 });
 
-test("assistant gives a straight women-safety answer for Naggar", () => {
-  const response = generateAssistantResponse("How safe is Naggar for women?");
+test("assistant gives a straight women-safety answer for Naggar", async () => {
+  const response = await generateAssistantResponse("How safe is Naggar for women?");
 
   assert.equal(response.didFallback, false);
   assert.equal(response.responderKind, "women_safety");
@@ -86,8 +86,8 @@ test("assistant gives a straight women-safety answer for Naggar", () => {
   );
 });
 
-test("assistant answers outsider property queries from property rules instead of unrelated town chunks", () => {
-  const response = generateAssistantResponse(
+test("assistant answers outsider property queries from property rules instead of unrelated town chunks", async () => {
+  const response = await generateAssistantResponse(
     "How can I buy property in Manali? I am from Mumbai",
   );
 
@@ -107,9 +107,9 @@ test("assistant answers outsider property queries from property rules instead of
   );
 });
 
-test("assistant keeps property context for follow-up lease questions", () => {
-  const first = generateAssistantResponse("Can outsiders buy property in Himachal?");
-  const second = generateAssistantResponse("What about lease instead?", first.conversationContext);
+test("assistant keeps property context for follow-up lease questions", async () => {
+  const first = await generateAssistantResponse("Can outsiders buy property in Himachal?");
+  const second = await generateAssistantResponse("What about lease instead?", first.conversationContext);
 
   assert.equal(first.didFallback, false);
   assert.equal(second.didFallback, false);
@@ -117,9 +117,9 @@ test("assistant keeps property context for follow-up lease questions", () => {
   assert.equal(second.conversationContext.activeIntentKind, "property");
 });
 
-test("assistant keeps town comparison context for follow-up family questions", () => {
-  const first = generateAssistantResponse("Bir or Dharamshala for a longer stay?");
-  const second = generateAssistantResponse("What about for families?", first.conversationContext);
+test("assistant keeps town comparison context for follow-up family questions", async () => {
+  const first = await generateAssistantResponse("Bir or Dharamshala for a longer stay?");
+  const second = await generateAssistantResponse("What about for families?", first.conversationContext);
 
   assert.equal(first.didFallback, false);
   assert.equal(second.didFallback, false);
@@ -130,21 +130,21 @@ test("assistant keeps town comparison context for follow-up family questions", (
   );
 });
 
-test("assistant comparison answers include a compare next-link", () => {
-  const response = generateAssistantResponse("Bir vs Palampur for a longer stay");
+test("assistant comparison answers include a compare next-link", async () => {
+  const response = await generateAssistantResponse("Bir vs Palampur for a longer stay");
 
   assert.equal(response.didFallback, false);
   assert.ok(response.nextLinks.some((link) => link.href === "/compare?towns=palampur,bir" || link.href === "/compare?towns=bir,palampur"));
 });
 
-test("assistant falls back for out-of-scope questions", () => {
-  const response = generateAssistantResponse("What is the weather in Delhi tomorrow?");
+test("assistant falls back for out-of-scope questions", async () => {
+  const response = await generateAssistantResponse("What is the weather in Delhi tomorrow?");
 
   assert.equal(response.didFallback, true);
   assert.equal(response.fallbackReason, "out_of_scope");
 });
 
-test("generic assistant search keeps source diversity instead of returning one page only", () => {
+test("generic assistant search keeps source diversity instead of returning one page only", async () => {
   const intent = parseAssistantIntent("Which towns are best for remote work?");
   const { results } = searchAssistantCorpus(
     assistantCorpus,

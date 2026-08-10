@@ -43,8 +43,8 @@ function toPathname(href: string): string {
   return trimmed === "" ? "/" : trimmed;
 }
 
-function run(query: EvalQuery): Outcome {
-  const response = generateAssistantResponse(query.query);
+async function run(query: EvalQuery): Promise<Outcome> {
+  const response = await generateAssistantResponse(query.query);
   const citedPaths = response.citations.map((c) => toPathname(c.href));
   const linkedPaths = response.nextLinks.map((l) => toPathname(l.href));
   const expected = new Set(query.expected.map(toPathname));
@@ -97,7 +97,7 @@ function summarise(label: string, rows: Outcome[]): string {
 }
 
 const showFailures = process.argv.includes("--failures");
-const outcomes = evalQueries.map(run);
+const outcomes = await Promise.all(evalQueries.map(run));
 
 const byStyle = (s: EvalStyle) => outcomes.filter((o) => o.query.style === s);
 const domains = [...new Set(evalQueries.map((q) => q.domain))].sort();

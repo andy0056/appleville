@@ -1,5 +1,7 @@
 import { buildConversationContextPatch, sanitizeConversationContext } from "./context.ts";
+import { retrieveSemantic } from "./embeddings/semantic.ts";
 import { parseAssistantIntent } from "./router.ts";
+import { applySemanticRouting } from "./semantic-routing.ts";
 import type {
   AssistantConversationContext,
   AssistantIntent,
@@ -139,22 +141,59 @@ function resolveResponder(intent: AssistantIntent): AssistantResponderResult | n
   }
 }
 
-export function generateAssistantResponse(
+const CONFIDENCE_RANK: Record<AssistantResponse["confidence"], number> = {
+  low: 0,
+  medium: 1,
+  high: 2,
+};
+
+export async function generateAssistantResponse(
   message: string,
   conversationContext?: AssistantConversationContext | null,
-): AssistantResponse {
+): Promise<AssistantResponse> {
   const cleanContext = sanitizeConversationContext(conversationContext);
-  const intent = parseAssistantIntent(message, cleanContext);
+  let intent = parseAssistantIntent(message, cleanContext);
 
   if (!message.trim()) {
     return buildFallbackResponse(cleanContext, "no_match", intent.intentKind);
   }
 
-  if (!intent.hasKnownDomainSignal) {
-    return buildFallbackResponse(cleanContext, "out_of_scope", intent.intentKind);
+  // Lexical first. It costs nothing, adds no latency, and already cites
+  // correctly for the overwhelming majority of questions asked in the site's
+  // own vocabulary.
+  let result = intent.hasKnownDomainSignal ? resolveResponder(intent) : null;
+
+  // Only when keywords have given up — which measured out to be almost exactly
+  // the paraphrased questions they cannot reach — spend a round trip on
+  // embeddings. If the key is missing or the call fails, retrieveSemantic
+  // returns nothing and the lexical outcome stands.
+  if (!result || result.confidence === "low") {
+    // Corroboration has to mean lexical named a concrete domain, not merely
+    // that some token matched. "Recommend a good laptop under 50000" sets
+    // hasKnownDomainSignal because of the number, but resolves to `generic` —
+    // treating that as agreement handed it the permissive floor and let a
+    // 0.334 brush against a town page answer it. A generic intent is not
+    // evidence, so similarity has to stand on its own.
+    const hits = await retrieveSemantic(message, {
+      hasLexicalSignal: intent.hasKnownDomainSignal && intent.intentKind !== "generic",
+    });
+    const semanticIntent = applySemanticRouting(intent, hits);
+    const semanticResult = semanticIntent ? resolveResponder(semanticIntent) : null;
+
+    if (
+      semanticIntent &&
+      semanticResult &&
+      (!result ||
+        CONFIDENCE_RANK[semanticResult.confidence] > CONFIDENCE_RANK[result.confidence])
+    ) {
+      intent = semanticIntent;
+      result = semanticResult;
+    }
   }
 
-  const result = resolveResponder(intent);
+  if (!intent.hasKnownDomainSignal && !result) {
+    return buildFallbackResponse(cleanContext, "out_of_scope", intent.intentKind);
+  }
 
   if (!result) {
     const nextContext = buildConversationContextPatch(intent, cleanContext);

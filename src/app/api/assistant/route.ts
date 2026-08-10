@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     ? payload.history.filter(isAssistantMessage).slice(-MAX_HISTORY_LENGTH)
     : [];
 
-  const response = generateAssistantResponse(
+  const response = await generateAssistantResponse(
     message,
     sanitizeConversationContext(payload.conversationContext),
   );

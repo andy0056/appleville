@@ -7,7 +7,7 @@ import { assistantDomainPromptCases } from "./assistant-domain-bank.ts";
 import { assistantFollowUpPromptCases } from "./assistant-followup-bank.ts";
 import { assistantSingleTownPromptCases } from "./assistant-single-town-bank.ts";
 
-test("router treats natural about-plus-against phrasing as overview-plus-comparison", () => {
+test("router treats natural about-plus-against phrasing as overview-plus-comparison", async () => {
   const intent = parseAssistantIntent(
     "tell me about manali. how would you rank it against palampur?",
   );
@@ -19,7 +19,7 @@ test("router treats natural about-plus-against phrasing as overview-plus-compari
   assert.deepEqual(intent.queryFrame.comparisonTownSlugs, ["manali", "palampur"]);
 });
 
-test("router keeps property as the primary intent even when multiple towns are mentioned", () => {
+test("router keeps property as the primary intent even when multiple towns are mentioned", async () => {
   const intent = parseAssistantIntent(
     "can i buy property in manali or palampur if i am from mumbai",
   );
@@ -29,7 +29,7 @@ test("router keeps property as the primary intent even when multiple towns are m
   assert.equal(intent.userProfile, "out_of_state_indian");
 });
 
-test("router combines comparison with a women-safety focus", () => {
+test("router combines comparison with a women-safety focus", async () => {
   const intent = parseAssistantIntent("naggar vs palampur for women");
 
   assert.equal(intent.primaryIntentKind, "comparison");
@@ -37,7 +37,7 @@ test("router combines comparison with a women-safety focus", () => {
   assert.deepEqual(intent.queryFrame.comparisonTownSlugs, ["naggar", "palampur"]);
 });
 
-test("router keeps single-town water questions in the food-water domain", () => {
+test("router keeps single-town water questions in the food-water domain", async () => {
   const intent = parseAssistantIntent("tell me about water situation in Naggar");
 
   assert.equal(intent.primaryIntentKind, "food_water");
@@ -45,7 +45,7 @@ test("router keeps single-town water questions in the food-water domain", () => 
   assert.deepEqual(intent.townSlugs, ["naggar"]);
 });
 
-test("comparison prompt bank stays in comparison and preserves expected focus", () => {
+test("comparison prompt bank stays in comparison and preserves expected focus", async () => {
   for (const promptCase of assistantComparisonPromptCases) {
     const intent = parseAssistantIntent(promptCase.prompt);
 
@@ -57,7 +57,7 @@ test("comparison prompt bank stays in comparison and preserves expected focus", 
   }
 });
 
-test("single-town anticipation bank avoids generic fallback", () => {
+test("single-town anticipation bank avoids generic fallback", async () => {
   for (const promptCase of assistantSingleTownPromptCases) {
     const intent = parseAssistantIntent(promptCase.prompt);
 
@@ -68,7 +68,7 @@ test("single-town anticipation bank avoids generic fallback", () => {
   }
 });
 
-test("domain anticipation bank routes practical single-town prompts into their canonical domains", () => {
+test("domain anticipation bank routes practical single-town prompts into their canonical domains", async () => {
   for (const promptCase of assistantDomainPromptCases) {
     const intent = parseAssistantIntent(promptCase.prompt);
 
@@ -80,11 +80,11 @@ test("domain anticipation bank routes practical single-town prompts into their c
   }
 });
 
-test("domain anticipation bank answers from canonical live pages instead of town-fit", () => {
+test("domain anticipation bank answers from canonical live pages instead of town-fit", async () => {
   for (const promptCase of assistantDomainPromptCases) {
     if (!promptCase.answerSourcePathname) continue;
 
-    const response = generateAssistantResponse(promptCase.prompt);
+    const response = await generateAssistantResponse(promptCase.prompt);
 
     assert.equal(response.didFallback, false, promptCase.prompt);
     assert.equal(response.responderKind, promptCase.expectedPrimaryIntentKind, promptCase.prompt);
@@ -95,10 +95,10 @@ test("domain anticipation bank answers from canonical live pages instead of town
   }
 });
 
-test("follow-up anticipation bank keeps the active domain frame", () => {
+test("follow-up anticipation bank keeps the active domain frame", async () => {
   for (const promptCase of assistantFollowUpPromptCases) {
-    const first = generateAssistantResponse(promptCase.seedPrompt);
-    const second = generateAssistantResponse(promptCase.prompt, first.conversationContext);
+    const first = await generateAssistantResponse(promptCase.seedPrompt);
+    const second = await generateAssistantResponse(promptCase.prompt, first.conversationContext);
 
     assert.equal(second.didFallback, false, `${promptCase.seedPrompt} -> ${promptCase.prompt}`);
     assert.equal(
@@ -114,7 +114,7 @@ test("follow-up anticipation bank keeps the active domain frame", () => {
   }
 });
 
-test("practical resource prompts no longer fall back into town-fit just because a town name is present", () => {
+test("practical resource prompts no longer fall back into town-fit just because a town name is present", async () => {
   const cases = [
     ["does swiggy delivers in shimla?", "food_water", "/food#"],
     ["tell me about water situation in naggar", "food_water", "/food#"],
@@ -125,7 +125,7 @@ test("practical resource prompts no longer fall back into town-fit just because 
   ] as const;
 
   for (const [prompt, responderKind, citationPrefix] of cases) {
-    const response = generateAssistantResponse(prompt);
+    const response = await generateAssistantResponse(prompt);
 
     assert.equal(response.didFallback, false, prompt);
     assert.equal(response.responderKind, responderKind, prompt);
